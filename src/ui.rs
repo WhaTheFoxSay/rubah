@@ -265,21 +265,32 @@ fn draw_reader_pane(f: &mut Frame, app: &mut App, area: Rect) {
             Span::styled(art.link.clone(), Style::default().fg(Color::Cyan).add_modifier(Modifier::UNDERLINED)),
         ]));
 
-        lines.push(Line::from(""));
         lines.push(Line::from(Span::styled(
             "─".repeat(area.width.saturating_sub(4) as usize),
             Style::default().fg(THEME.border),
         )));
-        lines.push(Line::from(""));
 
+        let mut last_was_empty = true;
         for paragraph in art.content.lines() {
-            if paragraph.trim().is_empty() {
-                lines.push(Line::from(""));
+            let trimmed = paragraph.trim();
+            if trimmed.is_empty() {
+                if !last_was_empty {
+                    lines.push(Line::from(""));
+                    last_was_empty = true;
+                }
             } else {
-                lines.push(Line::from(Span::styled(
-                    paragraph.to_string(),
-                    Style::default().fg(THEME.fg),
-                )));
+                let lower = trimmed.to_lowercase();
+                if !lower.contains("tercopy")
+                    && !lower.contains("copy url")
+                    && !lower.contains("link tercopy")
+                    && !lower.contains("url telah")
+                {
+                    lines.push(Line::from(Span::styled(
+                        trimmed.to_string(),
+                        Style::default().fg(THEME.fg),
+                    )));
+                    last_was_empty = false;
+                }
             }
         }
 

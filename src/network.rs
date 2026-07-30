@@ -133,7 +133,18 @@ fn clean_html(html: &str) -> String {
         return String::new();
     }
     let text = html2text::from_read(html.as_bytes(), 80).unwrap_or_default();
-    text.trim().to_string()
+    let mut cleaned_lines = Vec::new();
+    for line in text.lines() {
+        let trimmed = line.trim();
+        let lower = trimmed.to_lowercase();
+        if !lower.contains("tercopy")
+            && !lower.contains("copy url")
+            && !lower.contains("link tercopy")
+        {
+            cleaned_lines.push(line);
+        }
+    }
+    cleaned_lines.join("\n").trim().to_string()
 }
 
 fn extract_article_paragraphs(html: &str) -> String {
@@ -142,12 +153,14 @@ fn extract_article_paragraphs(html: &str) -> String {
     let re_nav = Regex::new(r"(?is)<nav[^>]*?>.*?</nav>").unwrap();
     let re_header = Regex::new(r"(?is)<header[^>]*?>.*?</header>").unwrap();
     let re_footer = Regex::new(r"(?is)<footer[^>]*?>.*?</footer>").unwrap();
+    let re_aside = Regex::new(r"(?is)<aside[^>]*?>.*?</aside>").unwrap();
 
     let cleaned = re_script.replace_all(html, "");
     let cleaned = re_style.replace_all(&cleaned, "");
     let cleaned = re_nav.replace_all(&cleaned, "");
     let cleaned = re_header.replace_all(&cleaned, "");
     let cleaned = re_footer.replace_all(&cleaned, "");
+    let cleaned = re_aside.replace_all(&cleaned, "");
 
     let re_p = Regex::new(r"(?is)<p[^>]*?>(.*?)</p>").unwrap();
     let re_tags = Regex::new(r"<[^>]*>").unwrap();
@@ -157,13 +170,18 @@ fn extract_article_paragraphs(html: &str) -> String {
         let raw_p = &cap[1];
         let text_p = re_tags.replace_all(raw_p, "");
         let clean_p = text_p.trim();
+        let clean_lower = clean_p.to_lowercase();
 
-        if clean_p.len() > 25
-            && !clean_p.starts_with("Copyright")
-            && !clean_p.starts_with("Foto:")
-            && !clean_p.starts_with("ADVERTISEMENT")
-            && !clean_p.starts_with("SCROLL TO CONTINUE")
-            && !clean_p.contains("googletag")
+        if clean_p.len() > 15
+            && !clean_lower.contains("tercopy")
+            && !clean_lower.contains("copy url")
+            && !clean_lower.contains("link tercopy")
+            && !clean_lower.contains("copyright")
+            && !clean_lower.contains("advertisement")
+            && !clean_lower.contains("scroll to continue")
+            && !clean_lower.contains("foto:")
+            && !clean_lower.contains("googletag")
+            && !clean_lower.starts_with("baca juga")
         {
             paragraphs.push(clean_p.to_string());
         }
