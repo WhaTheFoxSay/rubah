@@ -10,14 +10,20 @@
 
 ## 💻 Instalasi
 
-Jalankan perintah berikut di terminal Anda:
-
+### 🐧 Linux / 🍎 macOS:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/install.sh | bash
 ```
 
-Setelah instalasi selesai, buka aplikasi dengan perintah:
+### 🪟 Windows (PowerShell):
+Buka PowerShell lalu jalankan perintah 1 baris berikut:
+```powershell
+irm https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/install.ps1 | iex
+```
 
+*(Atau unduh langsung file `rubah-windows-amd64.exe` dari [Releases](https://github.com/WhaTheFoxSay/rubah/releases) lalu jalankan di CMD/PowerShell)*
+
+Setelah instalasi selesai, buka aplikasi dengan perintah:
 ```bash
 baca
 ```
