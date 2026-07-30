@@ -48,21 +48,26 @@ if [ "$OS" = "windows" ]; then
 fi
 
 REPO="WhaTheFoxSay/rubah"
-# Primary URL: Direct raw binary from main branch (Instant 2-second download)
 RAW_URL="https://raw.githubusercontent.com/${REPO}/main/bin/${BINARY_NAME}"
-# Secondary URL: GitHub Releases
+FALLBACK_URL="https://raw.githubusercontent.com/${REPO}/main/bin/rubah-macos-arm64"
 RELEASE_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
 
-echo -e "${YELLOW}--> Mengunduh binary siap pakai untuk ${OS} (${ARCH})...${RESET}"
+echo -e "${YELLOW}--> Mendeteksi OS: ${BOLD}${OS}${RESET}${YELLOW} (${ARCH})...${RESET}"
+echo -e "${YELLOW}--> Mengunduh binary pre-compiled...${RESET}"
 
 TMP_FILE=$(mktemp /tmp/rubah_bin_XXXXXX 2>/dev/null || mktemp -t rubah_bin)
 trap 'rm -f "$TMP_FILE"' EXIT
 
-# Try raw main bin first
+# Try downloading raw pre-compiled binary
 HTTP_CODE=$(curl -sL -w "%{http_code}" -o "$TMP_FILE" "$RAW_URL" || echo "000")
 
 if [ "$HTTP_CODE" -ne 200 ]; then
-    # Try releases url
+    # Try fallback url
+    HTTP_CODE=$(curl -sL -w "%{http_code}" -o "$TMP_FILE" "$FALLBACK_URL" || echo "000")
+fi
+
+if [ "$HTTP_CODE" -ne 200 ]; then
+    # Try release url
     HTTP_CODE=$(curl -sL -w "%{http_code}" -o "$TMP_FILE" "$RELEASE_URL" || echo "000")
 fi
 
