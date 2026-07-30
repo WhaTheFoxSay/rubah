@@ -74,7 +74,7 @@ impl App {
             selected_article_idx: 0,
             reader_scroll: 0,
             is_loading: false,
-            status_message: "Tekan [?] Bantuan | [Enter] Baca Penuh | [i] Gambar On/Off | [r] Refresh | [/] Cari".to_string(),
+            status_message: "Tekan [?] Bantuan | [j/k] Pilih | [Enter] Baca Penuh | [i] Gambar | [/] Cari".to_string(),
             show_help: false,
             show_uninstall_confirm: false,
             show_image: true,
@@ -90,9 +90,9 @@ impl App {
     pub fn toggle_image_display(&mut self) {
         self.show_image = !self.show_image;
         if self.show_image {
-            self.status_message = "🖼️ Tampilan Gambar [ON]".to_string();
+            self.status_message = "Gambar [ON]".to_string();
         } else {
-            self.status_message = "🖼️ Tampilan Gambar [OFF]".to_string();
+            self.status_message = "Gambar [OFF]".to_string();
         }
     }
 
@@ -124,7 +124,7 @@ impl App {
             return;
         }
 
-        self.status_message = format!("📥 Mengunduh artikel & gambar HD: '{}'...", article_title);
+        self.status_message = format!("Memuat: '{}'...", article_title);
         self.current_image_lines = None;
 
         match self.fetcher.fetch_full_article_body(&article_link).await {
@@ -154,7 +154,8 @@ impl App {
                     }
                 }
 
-                self.status_message = "✅ Artikel & gambar tajam berhasil dimuat!".to_string();
+                // Reset to clean default tip instead of noisy banner
+                self.status_message = "Tekan [?] Bantuan | [j/k] Pilih | [Enter] Baca Penuh | [i] Gambar | [/] Cari".to_string();
             }
             Err(e) => {
                 self.status_message = format!("Gagal memuat artikel: {}", e);

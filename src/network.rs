@@ -26,6 +26,10 @@ impl Fetcher {
     }
 
     pub async fn fetch_feed(&self, feed: &FeedSource) -> Result<Vec<Article>, String> {
+        if !feed.url.starts_with("http://") && !feed.url.starts_with("https://") {
+            return Err("URL feed tidak valid. Harus diawali http:// atau https://".to_string());
+        }
+
         let response = self
             .client
             .get(&feed.url)
@@ -109,8 +113,8 @@ impl Fetcher {
     }
 
     pub async fn fetch_full_article_body(&self, url: &str) -> Result<FullArticleResult, String> {
-        if url.is_empty() {
-            return Err("URL kosong".to_string());
+        if url.is_empty() || (!url.starts_with("http://") && !url.starts_with("https://")) {
+            return Err("URL artikel tidak valid".to_string());
         }
 
         let response = self
@@ -137,9 +141,8 @@ impl Fetcher {
         Ok(FullArticleResult { body_text, image_url })
     }
 
-    #[allow(dead_code)]
     pub async fn fetch_image_bytes(&self, url: &str) -> Option<Vec<u8>> {
-        if url.is_empty() {
+        if url.is_empty() || (!url.starts_with("http://") && !url.starts_with("https://")) {
             return None;
         }
         let response = self.client.get(url).send().await.ok()?;
@@ -192,6 +195,9 @@ fn clean_html(html: &str) -> String {
         if !lower.contains("tercopy")
             && !lower.contains("copy url")
             && !lower.contains("link tercopy")
+            && !lower.contains("dengarkan artikel")
+            && !lower.contains("tempo circle")
+            && !lower.contains("pengumuman tender")
         {
             cleaned_lines.push(line);
         }
@@ -233,7 +239,16 @@ fn extract_article_paragraphs(html: &str) -> String {
             && !clean_lower.contains("scroll to continue")
             && !clean_lower.contains("foto:")
             && !clean_lower.contains("googletag")
+            && !clean_lower.contains("dengarkan artikel")
+            && !clean_lower.contains("tempo circle")
+            && !clean_lower.contains("pengumuman tender")
+            && !clean_lower.contains("pilihan editor")
+            && !clean_lower.contains("berita terkait")
+            && !clean_lower.contains("simak video")
+            && !clean_lower.contains("tonton juga")
             && !clean_lower.starts_with("baca juga")
+            && !clean_lower.starts_with("iklan")
+            && !clean_lower.ends_with("iklan")
         {
             paragraphs.push(clean_p.to_string());
         }
