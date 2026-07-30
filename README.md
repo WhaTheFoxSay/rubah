@@ -71,6 +71,22 @@ baca add --url "https://rss.kompas.com/" --title "Kompas News" --category "Berit
 
 ---
 
+## 🗑️ Cara Uninstall
+
+Jika ingin menghapus aplikasi **Rubah** beserta seluruh konfigurasinya dari terminal:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/uninstall.sh | bash
+```
+
+Atau bisa dilakukan secara manual dengan 1 baris perintah:
+
+```bash
+rm -f ~/.local/bin/baca ~/.local/bin/rubah && rm -rf ~/.config/rubah
+```
+
+---
+
 ## 📄 Lisensi
 
 Proyek ini dilesensikan di bawah **GNU General Public License v3.0 (GPL-3.0)**. Lihat file [LICENSE](LICENSE) untuk informasi lebih detail.
