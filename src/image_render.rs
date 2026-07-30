@@ -1,3 +1,4 @@
+use base64::{engine::general_purpose::STANDARD, Engine as _};
 use image::{imageops::FilterType, GenericImageView};
 use ratatui::{
     style::{Color, Style},
@@ -7,12 +8,25 @@ use ratatui::{
 pub fn render_image_to_lines(img_bytes: &[u8], target_width: u32, max_height_rows: u32) -> Option<Vec<Line<'static>>> {
     let img = image::load_from_memory(img_bytes).ok()?;
 
-    // Allow full pane width (up to 85 columns for maximum pixel clarity)
-    let available_width = target_width.clamp(35, 85);
-    let max_pixel_height = (max_height_rows * 2).clamp(24, 60);
+    let (orig_w, orig_h) = img.dimensions();
+    if orig_w == 0 || orig_h == 0 {
+        return None;
+    }
 
-    // Preserve exact aspect ratio using Lanczos3 high-definition sharpening filter
-    let resized = img.resize(available_width, max_pixel_height, FilterType::Lanczos3);
+    // Determine target dimensions keeping exact aspect ratio
+    // Terminal character cells have ~1:2 width:height aspect ratio (height is 2x width)
+    let available_cols = target_width.clamp(40, 85);
+    let max_pixel_h = max_height_rows * 2;
+
+    // Calculate aspect-ratio preserving dimensions
+    let aspect = orig_w as f32 / orig_h as f32;
+    let target_pixel_w = available_cols;
+    let target_pixel_h = ((available_cols as f32 / aspect) / 1.0).round() as u32;
+
+    let final_pixel_h = target_pixel_h.clamp(16, max_pixel_h);
+
+    // High-definition Lanczos3 anti-aliasing downscaling
+    let resized = img.resize_exact(target_pixel_w, final_pixel_h, FilterType::Lanczos3);
     let (width, height) = resized.dimensions();
 
     let mut lines = Vec::new();
@@ -38,4 +52,16 @@ pub fn render_image_to_lines(img_bytes: &[u8], target_width: u32, max_height_row
     }
 
     Some(lines)
+}
+
+#[allow(dead_code)]
+pub fn generate_iterm2_hd_string(img_bytes: &[u8], width_cols: u16) -> Option<String> {
+    if img_bytes.is_empty() {
+        return None;
+    }
+    let b64 = STANDARD.encode(img_bytes);
+    Some(format!(
+        "\x1b]1337;File=inline=1;width={}ch;preserveAspectRatio=1:{}\x07",
+        width_cols, b64
+    ))
 }
