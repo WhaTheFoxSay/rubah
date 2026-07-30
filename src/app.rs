@@ -41,6 +41,7 @@ pub struct App {
     pub selected_article_idx: usize,
     pub feed_list_state: ListState,
     pub article_list_state: ListState,
+    pub marquee_tick: usize,
     pub reader_scroll: u16,
     pub is_loading: bool,
     pub status_message: String,
@@ -86,6 +87,7 @@ impl App {
             selected_article_idx: 0,
             feed_list_state,
             article_list_state,
+            marquee_tick: 0,
             reader_scroll: 0,
             is_loading: false,
             status_message: "Tekan [?] Bantuan | [j/k] Pilih | [Enter] Baca Penuh | [i] Gambar | [/] Cari".to_string(),
@@ -287,6 +289,7 @@ impl App {
     }
 
     pub fn next_item(&mut self) {
+        self.marquee_tick = 0;
         match self.active_pane {
             ActivePane::Feeds => {
                 if !self.feeds.is_empty() {
@@ -323,6 +326,7 @@ impl App {
     }
 
     pub fn prev_item(&mut self) {
+        self.marquee_tick = 0;
         match self.active_pane {
             ActivePane::Feeds => {
                 if !self.feeds.is_empty() {

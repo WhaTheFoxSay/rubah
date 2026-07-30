@@ -231,10 +231,37 @@ fn draw_articles_pane(f: &mut Frame, app: &mut App, area: Rect) {
                 THEME.highlight
             };
 
+            // Marquee Title Logic for Selected Article
+            let max_title_len = area.width.saturating_sub(9) as usize;
+            let title_chars: Vec<char> = art.title.chars().collect();
+
+            let display_title = if is_selected && title_chars.len() > max_title_len {
+                let overflow = title_chars.len() - max_title_len;
+                // 13 ticks @ 150ms = ~2.0 seconds pause at start and end
+                let pause_ticks = 13;
+                let cycle_len = pause_ticks + overflow + pause_ticks;
+                let current_step = app.marquee_tick % cycle_len;
+
+                let offset = if current_step < pause_ticks {
+                    0
+                } else if current_step < pause_ticks + overflow {
+                    current_step - pause_ticks
+                } else {
+                    overflow
+                };
+
+                title_chars.iter().skip(offset).take(max_title_len).collect::<String>()
+            } else if title_chars.len() > max_title_len {
+                let truncated: String = title_chars.iter().take(max_title_len.saturating_sub(1)).collect();
+                format!("{}…", truncated)
+            } else {
+                art.title.clone()
+            };
+
             let content = vec![
                 Span::styled(dot_symbol, Style::default().fg(dot_color)),
                 Span::styled(star_symbol, Style::default().fg(Color::Yellow)),
-                Span::styled(&art.title, Style::default().fg(text_color)),
+                Span::styled(display_title, Style::default().fg(text_color)),
             ];
 
             let sub_line = vec![

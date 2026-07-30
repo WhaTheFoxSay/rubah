@@ -91,9 +91,15 @@ async fn run_app(
     app: &mut App,
 ) -> io::Result<()> {
     let mut last_latency_check = std::time::Instant::now();
+    let mut last_marquee_time = std::time::Instant::now();
     app.update_latency().await;
 
     loop {
+        if last_marquee_time.elapsed() >= Duration::from_millis(150) {
+            app.marquee_tick = app.marquee_tick.wrapping_add(1);
+            last_marquee_time = std::time::Instant::now();
+        }
+
         terminal.draw(|f| ui::draw(f, app))?;
 
         if last_latency_check.elapsed() > Duration::from_secs(5) {
