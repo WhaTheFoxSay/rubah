@@ -24,14 +24,14 @@ pub struct Theme {
 
 pub const THEME: Theme = Theme {
     bg: Color::Reset,
-    fg: Color::Rgb(220, 220, 224),
-    accent: Color::Rgb(255, 158, 59),        // Rubah Warm Orange / Fox Gold
-    highlight: Color::Rgb(126, 156, 216),    // Steel Blue
-    muted: Color::Rgb(114, 113, 133),        // Muted Gray
-    border: Color::Rgb(84, 88, 117),         // Dark Slate
-    border_active: Color::Rgb(255, 158, 59), // Active Orange Border
-    success: Color::Rgb(152, 187, 108),     // Sage Green (Bright Active Item)
-    warning: Color::Rgb(224, 108, 117),     // Crimson Red
+    fg: Color::Reset,                        // Auto-adapts to terminal default text color
+    accent: Color::Rgb(235, 115, 0),        // Rubah Warm Fox Orange
+    highlight: Color::Rgb(40, 110, 210),    // Deep Sapphire Blue (readable on white & black)
+    muted: Color::Rgb(110, 110, 125),       // Neutral Slate Gray
+    border: Color::Rgb(140, 145, 160),      // Crisp Border Line
+    border_active: Color::Rgb(235, 115, 0), // Active Orange Border
+    success: Color::Rgb(40, 160, 70),       // Vibrant Green
+    warning: Color::Rgb(220, 60, 60),       // Crimson Red
 };
 
 pub fn draw(f: &mut Frame, app: &mut App) {
@@ -157,16 +157,28 @@ fn draw_feeds_pane(f: &mut Frame, app: &mut App, area: Rect) {
                 "  "
             };
 
+            let text_color = if is_selected {
+                Color::Rgb(15, 15, 20)
+            } else {
+                THEME.fg
+            };
+
+            let category_color = if is_selected {
+                Color::Rgb(20, 20, 30)
+            } else {
+                THEME.highlight
+            };
+
             let content = vec![
                 Span::styled(prefix, Style::default().fg(dot_color)),
-                Span::styled(format!("[{}] ", feed.category), Style::default().fg(THEME.highlight)),
-                Span::styled(&feed.title, Style::default().fg(THEME.fg)),
+                Span::styled(format!("[{}] ", feed.category), Style::default().fg(category_color)),
+                Span::styled(&feed.title, Style::default().fg(text_color)),
             ];
 
             let style = if is_selected {
-                Style::default().bg(Color::Rgb(40, 40, 55)).add_modifier(Modifier::BOLD)
+                Style::default().bg(THEME.accent).fg(Color::Rgb(15, 15, 20)).add_modifier(Modifier::BOLD)
             } else {
-                Style::default()
+                Style::default().fg(THEME.fg)
             };
 
             ListItem::new(Line::from(content)).style(style)
@@ -201,30 +213,45 @@ fn draw_articles_pane(f: &mut Frame, app: &mut App, area: Rect) {
         .map(|(idx, art)| {
             let is_selected = idx == app.selected_article_idx;
             let read_symbol = if art.is_read { "○ " } else { "● " };
-            
-            // Selected item dot becomes Green (THEME.success); unselected stays Warm Orange (THEME.accent)
             let dot_color = if is_selected { THEME.success } else { THEME.accent };
-
             let star_symbol = if art.is_bookmarked { "★ " } else { "  " };
+
+            let text_color = if is_selected {
+                Color::Rgb(15, 15, 20)
+            } else {
+                THEME.fg
+            };
+
+            let sub_color = if is_selected {
+                Color::Rgb(30, 30, 45)
+            } else {
+                THEME.muted
+            };
+
+            let author_color = if is_selected {
+                Color::Rgb(20, 20, 35)
+            } else {
+                THEME.highlight
+            };
 
             let content = vec![
                 Span::styled(read_symbol, Style::default().fg(dot_color)),
                 Span::styled(star_symbol, Style::default().fg(Color::Yellow)),
-                Span::styled(&art.title, Style::default().fg(THEME.fg)),
+                Span::styled(&art.title, Style::default().fg(text_color)),
             ];
 
             let sub_line = vec![
-                Span::styled("   ⏱ ", Style::default().fg(THEME.muted)),
-                Span::styled(&art.published, Style::default().fg(THEME.muted)),
-                Span::styled(format!(" | {}", art.author), Style::default().fg(THEME.highlight)),
+                Span::styled("   ⏱ ", Style::default().fg(sub_color)),
+                Span::styled(&art.published, Style::default().fg(sub_color)),
+                Span::styled(format!(" | {}", art.author), Style::default().fg(author_color)),
             ];
 
             let item_lines = vec![Line::from(content), Line::from(sub_line)];
 
             let style = if is_selected {
-                Style::default().bg(Color::Rgb(40, 40, 55)).add_modifier(Modifier::BOLD)
+                Style::default().bg(THEME.accent).fg(Color::Rgb(15, 15, 20)).add_modifier(Modifier::BOLD)
             } else {
-                Style::default()
+                Style::default().fg(THEME.fg)
             };
 
             ListItem::new(item_lines).style(style)

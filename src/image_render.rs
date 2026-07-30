@@ -1,11 +1,15 @@
-use image::{imageops::FilterType, GenericImageView};
+use image::{imageops::FilterType, DynamicImage, GenericImageView};
 use ratatui::{
     style::{Color, Style},
     text::{Line, Span},
 };
 
 pub fn render_image_to_lines(img_bytes: &[u8], target_width: u32, max_height_rows: u32) -> Option<Vec<Line<'static>>> {
-    let img = image::load_from_memory(img_bytes).ok()?;
+    let raw_img = image::load_from_memory(img_bytes).ok()?;
+
+    // Convert RGBA images to pure RGB8 to strip alpha channel memory artifacts
+    let rgb_buf = raw_img.to_rgb8();
+    let img = DynamicImage::ImageRgb8(rgb_buf);
 
     let (orig_w, orig_h) = img.dimensions();
     if orig_w == 0 || orig_h == 0 {
@@ -13,18 +17,18 @@ pub fn render_image_to_lines(img_bytes: &[u8], target_width: u32, max_height_row
     }
 
     // 1. Contrast & edge sharpening
-    let sharpened = img.adjust_contrast(12.0);
+    let sharpened = img.adjust_contrast(10.0);
 
-    // 2. Compact width fitting layout (max 52 columns)
-    let available_cols = target_width.clamp(35, 52);
+    // 2. Compact width fitting layout (max 50 columns)
+    let available_cols = target_width.clamp(35, 50);
     let font_aspect_ratio = 1.85;
     let img_aspect = orig_w as f32 / orig_h as f32;
 
     let target_pixel_w = available_cols;
     let target_pixel_h = ((available_cols as f32 / img_aspect) * font_aspect_ratio).round() as u32;
 
-    // Cap max height to 10-12 terminal rows for neat layout fitting
-    let max_pixel_h = (max_height_rows * 2).clamp(16, 24);
+    // Cap max height to 10 terminal rows for neat layout fitting
+    let max_pixel_h = (max_height_rows * 2).clamp(14, 20);
     let final_pixel_h = target_pixel_h.clamp(12, max_pixel_h);
 
     // 3. Lanczos3 high-definition anti-aliased resampling
