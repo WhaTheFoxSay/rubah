@@ -8,15 +8,15 @@
 
 ---
 
-## ⚡ Instalasi 1 Perintah (One-Line Setup)
+## ⚡ Instalasi Instan 1 Baris (1-2 Detik Tanpa Kompilasi)
 
-Cukup salin dan tempel perintah berikut di terminal Anda untuk menginstall **Rubah**:
+Cukup salin dan tempel perintah berikut di terminal Anda untuk menginstall **Rubah** secara instan:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/install.sh | bash
 ```
 
-Setelah proses penginstalan selesai, Anda cukup mengetikkan **`baca`** di terminal untuk langsung membuka aplikasi:
+Setelah instalasi selesai dalam 1 detik, buka aplikasi cukup dengan mengetik:
 
 ```bash
 baca
@@ -29,10 +29,11 @@ baca
 ## ✨ Fitur Utama
 
 - 🚀 **Kecepatan Kilat & Hemat RAM**: Pemuatan puluhan RSS Feed secara paralel dalam waktu kurang dari 1 detik. Penggunaan memori sangat minim (~5-15MB RAM).
+- 🐧 **Zero-GLIBC Static Linux Binary**: Menggunakan target **Static MUSL Binary** yang kompatibel 100% dengan **semua distro Linux** (RHEL 7/8/9, CentOS, AlmaLinux, Rocky Linux, Ubuntu, Debian, Alpine, Fedora, Arch) tanpa error glibc.
 - 📺 **Dashboard TUI 3 Panel**:
   - **Panel Left (Channel)**: Daftar RSS Feed yang dikelompokkan berdasarkan kategori.
   - **Panel Middle (Artikel)**: Daftar berita dengan indikator dibaca (`●`/`○`), tanggal, dan bookmark (`★`).
-  - **Panel Right (Reader)**: Preview isi berita dalam tampilan teks teratur dengan kemampuan scroll.
+  - **Panel Right (Reader)**: Pembaca berita penuh di dalam terminal dengan dukungan scroll keyboard (`j`/`k`, `d`/`u`).
 - 💾 **Penyimpanan Database SQLite**: Menyimpan RSS feed kustom, artikel favorit (bookmarks), dan riwayat berita yang sudah dibaca.
 - 🔍 **Pencarian Realtime**: Filter judul dan konten berita secara langsung di terminal (`/`).
 - 🌐 **Pre-configured Feed**: Langsung dibekali portal berita populer Indonesia (CNN Indonesia, Antara, Tempo, Detikcom) dan Internasional (Hacker News, TechCrunch, BBC News).
@@ -45,13 +46,16 @@ baca
 | :--- | :--- |
 | `Tab` / `Shift+Tab` | Pindah fokus antar panel (**Channel** ➔ **Berita** ➔ **Reader**) |
 | `j` / `k` atau `↓` / `↑` | Navigasi item ke bawah / atas |
-| `Enter` atau `o` | Membuka link berita asli di Web Browser default |
+| `Enter` atau `Space` | Masuk ke mode pembaca penuh berita di terminal |
+| `Esc` | Kembali dari mode reader ke daftar berita |
+| `o` | Membuka link berita asli di Web Browser external |
 | `b` | Simpan / hapus artikel dari **Bookmarks** (`★`) |
 | `r` | Refresh / muat ulang seluruh RSS Feed |
 | `a` | Buka dialog **Tambah Channel RSS Feed Baru** |
-| `d` | Hapus channel RSS Feed terpilih |
+| `D` (Shift+D) | Hapus channel RSS Feed terpilih |
 | `/` | Cari berita secara realtime |
 | `1` / `2` | Switch Tab: **All Feeds** (1) vs **Bookmarks** (2) |
+| `Shift + U` | Buka menu modal **Uninstall Aplikasi Rubah** |
 | `?` | Tampilkan modal bantuan shortcut |
 | `q` | Keluar dari aplikasi |
 
@@ -67,22 +71,19 @@ baca list
 
 # Menambahkan channel RSS Feed baru
 baca add --url "https://rss.kompas.com/" --title "Kompas News" --category "Berita Utama"
+
+# Uninstall aplikasi Rubah dari CLI
+baca uninstall
 ```
 
 ---
 
 ## 🗑️ Cara Uninstall
 
-Jika ingin menghapus aplikasi **Rubah** beserta seluruh konfigurasinya dari terminal:
+Anda dapat meng-uninstall aplikasi **Rubah** langsung dari menu aplikasi (tombol `Shift + U`), melalui CLI (`baca uninstall`), atau melalui script perintah 1 baris:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/uninstall.sh | bash
-```
-
-Atau bisa dilakukan secara manual dengan 1 baris perintah:
-
-```bash
-rm -f ~/.local/bin/baca ~/.local/bin/rubah && rm -rf ~/.config/rubah
 ```
 
 ---
