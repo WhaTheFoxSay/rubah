@@ -64,24 +64,23 @@ RELEASE_URL="https://github.com/${REPO}/releases/download/v0.3.5/${BINARY_NAME}"
 LATEST_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
 echo -e "${GRAY}      --> Source: github.com/${REPO}${RESET}\n"
 
-# Step 3: Download with retro progress bar
-echo -e "${YELLOW}[3/4] 💾 Downloading release package...${RESET}"
+# Step 3: Fast Download Pre-Compiled Binary
+echo -e "${YELLOW}[3/4] 💾 Downloading pre-compiled binary package (~9.7 MB)...${RESET}"
 TMP_FILE=$(mktemp /tmp/rubah_bin_XXXXXX 2>/dev/null || mktemp -t rubah_bin)
 trap 'rm -f "$TMP_FILE"' EXIT
 
 USER_AGENT="Mozilla/5.0 (compatible; RubahInstaller/1.0)"
 
-if command -v curl >/dev/null 2>&1; then
-    curl -# -L -A "$USER_AGENT" -o "$TMP_FILE" "$RELEASE_URL" || curl -# -L -A "$USER_AGENT" -o "$TMP_FILE" "$LATEST_URL"
-else
-    wget --progress=bar:force -q -O "$TMP_FILE" "$RELEASE_URL" || wget --progress=bar:force -q -O "$TMP_FILE" "$LATEST_URL"
+HTTP_CODE=$(curl -sL -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$RELEASE_URL" || echo "000")
+if [ "$HTTP_CODE" -ne 200 ]; then
+    HTTP_CODE=$(curl -sL -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$LATEST_URL" || echo "000")
 fi
 
-if [ ! -s "$TMP_FILE" ]; then
+if [ "$HTTP_CODE" -ne 200 ] || [ ! -s "$TMP_FILE" ]; then
     echo -e "${RED}❌ Error: Failed to download binary package. Please check your network connection.${RESET}"
     exit 1
 fi
-echo -e "${GREEN}      --> Download verified successfully!${RESET}\n"
+echo -e "${GREEN}      [████████████████████████████████████████] 100% Verified!${RESET}\n"
 
 # Step 4: Installation & Symlinking
 echo -e "${YELLOW}[4/4] ⚙️  Installing executable to $INSTALL_DIR/baca...${RESET}"

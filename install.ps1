@@ -34,31 +34,32 @@ Write-Host "      --> Security Provider: Windows Schannel" -ForegroundColor Dark
 Write-Host ""
 
 # Step 3
-Write-Host "[3/4] 💾 Downloading binary executable package..." -ForegroundColor Yellow
+Write-Host "[3/4] 💾 Downloading pre-compiled binary package (~10.4 MB)..." -ForegroundColor Yellow
 
 $downloadSuccess = $false
 
-# Built-in PowerShell progress bar download
-try {
-    Invoke-WebRequest -Uri $PrimaryUrl -OutFile $ExePath -UseBasicParsing -MaximumRedirection 10
-    if ((Test-Path $ExePath) -and ((Get-Item $ExePath).Length -gt 1000000)) {
-        $downloadSuccess = $true
-    }
-} catch {}
-
-if (-not $downloadSuccess) {
-    if (Get-Command "curl.exe" -ErrorAction SilentlyContinue) {
-        try {
-            & curl.exe -# -L -o $ExePath $PrimaryUrl
-            if ((Test-Path $ExePath) -and ((Get-Item $ExePath).Length -gt 1000000)) {
-                $downloadSuccess = $true
-            }
-        } catch {}
-    }
+if (Get-Command "curl.exe" -ErrorAction SilentlyContinue) {
+    try {
+        & curl.exe -sL -o $ExePath $PrimaryUrl
+        if ((Test-Path $ExePath) -and ((Get-Item $ExePath).Length -gt 1000000)) {
+            $downloadSuccess = $true
+        }
+    } catch {}
 }
 
 if (-not $downloadSuccess) {
     try {
+        $ProgressPreference = 'SilentlyContinue'
+        Invoke-WebRequest -Uri $PrimaryUrl -OutFile $ExePath -UseBasicParsing -MaximumRedirection 10
+        if ((Test-Path $ExePath) -and ((Get-Item $ExePath).Length -gt 1000000)) {
+            $downloadSuccess = $true
+        }
+    } catch {}
+}
+
+if (-not $downloadSuccess) {
+    try {
+        $ProgressPreference = 'SilentlyContinue'
         Invoke-WebRequest -Uri $LatestUrl -OutFile $ExePath -UseBasicParsing -MaximumRedirection 10
         if ((Test-Path $ExePath) -and ((Get-Item $ExePath).Length -gt 1000000)) {
             $downloadSuccess = $true
@@ -71,7 +72,7 @@ if (-not $downloadSuccess) {
     exit 1
 }
 
-Write-Host "      --> Download verified successfully! (Size: $([math]::round((Get-Item $ExePath).Length / 1MB, 1)) MB)" -ForegroundColor Green
+Write-Host "      [████████████████████████████████████████] 100% Verified!" -ForegroundColor Green
 Write-Host ""
 
 # Step 4
