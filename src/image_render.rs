@@ -16,7 +16,8 @@ pub fn render_image_to_lines(img_bytes: &[u8], target_width: u32, max_height_row
         return None;
     }
 
-    let available_cols = target_width.clamp(40, 75);
+    // Strictly clamp available width to max 46 columns to fit inside Reader Pane (40% width) without line wrapping
+    let available_cols = target_width.clamp(28, 46);
     let img_aspect = orig_w as f32 / orig_h as f32;
 
     let mut lines = Vec::new();
@@ -24,11 +25,10 @@ pub fn render_image_to_lines(img_bytes: &[u8], target_width: u32, max_height_row
     #[cfg(target_os = "windows")]
     {
         // On Windows CMD/PowerShell (conhost.exe), solid full-block '█' with FG-only 24-bit TrueColor
-        // eliminates console background color bleeding and half-block character corruption.
         let font_aspect_ratio = 0.52;
         let target_pixel_w = available_cols;
         let target_pixel_h = ((available_cols as f32 / img_aspect) * font_aspect_ratio).round() as u32;
-        let final_pixel_h = target_pixel_h.clamp(10, max_height_rows.clamp(12, 20));
+        let final_pixel_h = target_pixel_h.clamp(8, max_height_rows.clamp(10, 16));
 
         let resized = img.resize_exact(target_pixel_w, final_pixel_h, FilterType::Lanczos3);
         let (width, height) = resized.dimensions();
@@ -49,8 +49,8 @@ pub fn render_image_to_lines(img_bytes: &[u8], target_width: u32, max_height_row
         // On macOS and Linux terminals, half-block '▀' dual-pixel FG+BG engine
         let target_pixel_w = available_cols;
         let target_pixel_h = ((available_cols as f32 / img_aspect)).round() as u32;
-        let max_pixel_h = (max_height_rows.clamp(12, 22)) * 2;
-        let final_pixel_h = target_pixel_h.clamp(16, max_pixel_h);
+        let max_pixel_h = (max_height_rows.clamp(8, 16)) * 2;
+        let final_pixel_h = target_pixel_h.clamp(12, max_pixel_h);
         let final_pixel_h = if final_pixel_h % 2 != 0 { final_pixel_h + 1 } else { final_pixel_h };
 
         let resized = img.resize_exact(target_pixel_w, final_pixel_h, FilterType::Lanczos3);

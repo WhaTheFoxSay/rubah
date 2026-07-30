@@ -200,7 +200,7 @@ impl App {
                 let mut rendered_img = None;
                 if let Some(img_url) = res.image_url {
                     if let Some(bytes) = self.fetcher.fetch_image_bytes(&img_url).await {
-                        if let Some(lines) = render_image_to_lines(&bytes, 70, 18) {
+                        if let Some(lines) = render_image_to_lines(&bytes, 44, 14) {
                             rendered_img = Some(lines.clone());
                             self.current_image_lines = Some(lines);
                         }
