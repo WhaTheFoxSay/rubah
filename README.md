@@ -4,6 +4,8 @@
 [![Language: Rust](https://img.shields.io/badge/Language-Rust-orange.svg)](https://www.rust-lang.org/)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows%20%7C%20BSD%20%7C%20Haiku-brightgreen.svg)]()
 
+> **Rubah is a standards-compliant, local-first RSS/Atom reader for the terminal. It retrieves feeds directly from publishers without using intermediary servers or cloud services.**
+
 **Rubah** (Ruang Baca Harian) adalah aplikasi pembaca RSS Feed berbasis *Terminal User Interface* (TUI) yang ringan, cepat, dan bekerja secara *cross-platform* di **Linux**, **macOS**, **Windows**, **BSD**, dan **Haiku OS**. Dibuat menggunakan **Rust** dengan framework **Ratatui** dan **Tokio**.
 
 ---
@@ -116,9 +118,9 @@ Proyek ini dirilis di bawah lisensi **GNU General Public License v3.0 (GPL-3.0)*
 ## 📜 Kebijakan Penggunaan, Hak Cipta, & Privasi (Terms & Privacy)
 
 Aplikasi **Rubah** dirancang sebagai perangkat lunak *client-side Terminal User Interface (TUI)* untuk membaca RSS/Atom Feed:
-- 🌐 **Protokol Terbuka**: Memproses RSS/Atom Feed yang dipublikasikan secara terbuka oleh masing-masing penerbit sesuai standar sindikasi web.
+- 🌐 **Standar Terbuka**: Memproses standar RSS 2.0 / Atom Feed yang dipublikasikan secara terbuka oleh masing-masing penerbit.
 - 🏛️ **Arsitektur Local-First**: Seluruh proses pengambilan data dilakukan secara langsung dari perangkat pengguna ke penerbit tanpa melalui server perantara (*no cloud/proxy server*).
-- ✍️ **Atribusi & Hak Penerbit**: Rubah tidak memperoleh hak kepemilikan atas konten. Seluruh hak cipta tetap milik penerbit. Feed bawaan hanya disediakan sebagai contoh dan dapat disesuaikan pengguna.
+- ✍️ **Hak Cipta & Penerbit**: Rubah tidak memperoleh hak kepemilikan atas konten. Seluruh hak cipta tetap milik penerbit. Feed bawaan hanya sebagai contoh yang dapat disesuaikan pengguna.
 - 🛡️ **Privasi 100% Lokal**: Tanpa telemetri atau pelacakan (*zero tracking*); seluruh konfigurasi dan data tersimpan eksklusif di perangkat lokal pengguna.
 
-Lihat dokumen **[LEGAL.md](LEGAL.md)** untuk kebijakan penggunaan, arsitektur teknis, dan hak penerbit secara mendalam.
+Lihat dokumen **[LEGAL.md](LEGAL.md)** untuk rincian kebijakan penggunaan, hak cipta, hak penerbit, dan prosedur permintaan penghapusan feed (*Feed Removal Request*).
