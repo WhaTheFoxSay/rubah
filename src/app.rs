@@ -70,7 +70,7 @@ impl App {
             selected_article_idx: 0,
             reader_scroll: 0,
             is_loading: false,
-            status_message: "Tekan [?] untuk bantuan | [r] Refresh | [a] Tambah Feed | [/] Cari | [U] Uninstall".to_string(),
+            status_message: "Tekan [?] Bantuan | [Enter] Baca Penuh | [f] Muat Artikel Penuh | [r] Refresh | [/] Cari".to_string(),
             show_help: false,
             show_uninstall_confirm: false,
             input_mode: InputMode::Normal,
@@ -97,6 +97,41 @@ impl App {
 
         self.is_loading = false;
         self.status_message = format!("Selesai! Dimuat {} berita dari {} channel.", count, self.feeds.len());
+    }
+
+    pub async fn fetch_full_content_for_selected(&mut self) {
+        let (article_id, article_link, article_title) = match self.current_article() {
+            Some(art) => (art.id, art.link, art.title),
+            None => return,
+        };
+
+        if article_link.is_empty() {
+            return;
+        }
+
+        self.status_message = format!("📥 Mengunduh artikel penuh: '{}'...", article_title);
+
+        match self.fetcher.fetch_full_article_body(&article_link).await {
+            Ok(full_text) => {
+                if !full_text.trim().is_empty() {
+                    // Update in articles_by_feed
+                    if !self.feeds.is_empty() && self.selected_feed_idx < self.feeds.len() {
+                        let feed_id = &self.feeds[self.selected_feed_idx].id;
+                        if let Some(articles) = self.articles_by_feed.get_mut(feed_id) {
+                            for art in articles.iter_mut() {
+                                if art.id == article_id {
+                                    art.content = full_text.clone();
+                                }
+                            }
+                        }
+                    }
+                    self.status_message = "✅ Artikel penuh berhasil dimuat!".to_string();
+                }
+            }
+            Err(e) => {
+                self.status_message = format!("Gagal memuat artikel penuh: {}", e);
+            }
+        }
     }
 
     pub fn current_articles(&self) -> Vec<Article> {

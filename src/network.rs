@@ -1,5 +1,6 @@
 use crate::models::{Article, FeedSource};
 use feed_rs::parser;
+use regex::Regex;
 use reqwest::Client;
 use std::time::Duration;
 
@@ -11,7 +12,7 @@ impl Fetcher {
     pub fn new() -> Self {
         let client = Client::builder()
             .timeout(Duration::from_secs(10))
-            .user_agent("Mozilla/5.0 (compatible; Rubah/0.1; +https://github.com/rubah/rubah)")
+            .user_agent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
             .build()
             .unwrap_or_else(|_| Client::new());
 
@@ -40,7 +41,7 @@ impl Fetcher {
         for entry in parsed.entries {
             let title = entry.title.map(|t| t.content).unwrap_or_else(|| "Tanpa Judul".to_string());
             let link = entry.links.first().map(|l| l.href.clone()).unwrap_or_default();
-            
+
             let published = entry
                 .published
                 .or(entry.updated)
@@ -100,13 +101,73 @@ impl Fetcher {
         }
         results
     }
+
+    pub async fn fetch_full_article_body(&self, url: &str) -> Result<String, String> {
+        if url.is_empty() {
+            return Err("URL kosong".to_string());
+        }
+
+        let response = self
+            .client
+            .get(url)
+            .send()
+            .await
+            .map_err(|e| format!("Gagal mengunduh artikel: {}", e))?;
+
+        let html_text = response
+            .text()
+            .await
+            .map_err(|e| format!("Gagal membaca HTML: {}", e))?;
+
+        let extracted = extract_article_paragraphs(&html_text);
+        if extracted.trim().is_empty() {
+            Ok(clean_html(&html_text))
+        } else {
+            Ok(extracted)
+        }
+    }
 }
 
 fn clean_html(html: &str) -> String {
     if html.is_empty() {
         return String::new();
     }
-    // Use html2text to parse clean plain-text suitable for terminal view
     let text = html2text::from_read(html.as_bytes(), 80).unwrap_or_default();
     text.trim().to_string()
+}
+
+fn extract_article_paragraphs(html: &str) -> String {
+    let re_script = Regex::new(r"(?is)<script[^>]*?>.*?</script>").unwrap();
+    let re_style = Regex::new(r"(?is)<style[^>]*?>.*?</style>").unwrap();
+    let re_nav = Regex::new(r"(?is)<nav[^>]*?>.*?</nav>").unwrap();
+    let re_header = Regex::new(r"(?is)<header[^>]*?>.*?</header>").unwrap();
+    let re_footer = Regex::new(r"(?is)<footer[^>]*?>.*?</footer>").unwrap();
+
+    let cleaned = re_script.replace_all(html, "");
+    let cleaned = re_style.replace_all(&cleaned, "");
+    let cleaned = re_nav.replace_all(&cleaned, "");
+    let cleaned = re_header.replace_all(&cleaned, "");
+    let cleaned = re_footer.replace_all(&cleaned, "");
+
+    let re_p = Regex::new(r"(?is)<p[^>]*?>(.*?)</p>").unwrap();
+    let re_tags = Regex::new(r"<[^>]*>").unwrap();
+
+    let mut paragraphs = Vec::new();
+    for cap in re_p.captures_iter(&cleaned) {
+        let raw_p = &cap[1];
+        let text_p = re_tags.replace_all(raw_p, "");
+        let clean_p = text_p.trim();
+
+        if clean_p.len() > 25
+            && !clean_p.starts_with("Copyright")
+            && !clean_p.starts_with("Foto:")
+            && !clean_p.starts_with("ADVERTISEMENT")
+            && !clean_p.starts_with("SCROLL TO CONTINUE")
+            && !clean_p.contains("googletag")
+        {
+            paragraphs.push(clean_p.to_string());
+        }
+    }
+
+    paragraphs.join("\n\n")
 }

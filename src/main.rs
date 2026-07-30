@@ -216,6 +216,9 @@ async fn run_app(
                             KeyCode::Char('r') => {
                                 app.refresh_all_feeds().await;
                             }
+                            KeyCode::Char('f') | KeyCode::Char('F') => {
+                                app.fetch_full_content_for_selected().await;
+                            }
                             KeyCode::Char('b') => {
                                 app.toggle_current_bookmark();
                             }
@@ -227,7 +230,10 @@ async fn run_app(
                                 app.mark_current_read();
                                 match app.active_pane {
                                     app::ActivePane::Feeds => app.active_pane = app::ActivePane::Articles,
-                                    app::ActivePane::Articles => app.active_pane = app::ActivePane::Reader,
+                                    app::ActivePane::Articles => {
+                                        app.active_pane = app::ActivePane::Reader;
+                                        app.fetch_full_content_for_selected().await;
+                                    }
                                     app::ActivePane::Reader => app.active_pane = app::ActivePane::Articles,
                                 }
                             }
