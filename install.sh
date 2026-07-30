@@ -40,6 +40,14 @@ case "$ARCH_TYPE" in
     *)              ARCH="amd64" ;;
 esac
 
+# Special check for Apple Silicon macOS (even if terminal runs under x86_64 Rosetta)
+if [ "$OS" = "macos" ]; then
+    IS_ARM=$(sysctl -n hw.optional.arm64 2>/dev/null || echo "0")
+    if [ "$IS_ARM" = "1" ]; then
+        ARCH="arm64"
+    fi
+fi
+
 BINARY_NAME="rubah-${OS}-${ARCH}"
 if [ "$OS" = "windows" ]; then
     BINARY_NAME="${BINARY_NAME}.exe"
@@ -47,7 +55,7 @@ fi
 
 REPO="WhaTheFoxSay/rubah"
 RELEASE_URL="https://github.com/${REPO}/releases/download/v0.2.8/${BINARY_NAME}"
-ARM64_FALLBACK_URL="https://github.com/${REPO}/releases/download/v0.2.8/rubah-${OS}-arm64"
+ARM64_FALLBACK_URL="https://github.com/${REPO}/releases/download/v0.2.8/rubah-macos-arm64"
 LATEST_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
 
 echo -e "${YELLOW}--> OS: ${BOLD}${OS}${RESET}${YELLOW} (${ARCH})${RESET}"
