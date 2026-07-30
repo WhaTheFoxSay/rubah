@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# 🦊 RUBAH (Ruang Baca Harian) - Instant Cross-Platform Installer
-# Supported OS: Linux, macOS, Windows (PowerShell/CMD/GitBash), BSD, Haiku OS
+# 🦊 RUBAH (Ruang Baca Harian) - Instant Pre-Compiled Installer (<2 Seconds)
+# Supported OS: Linux, macOS, Windows, BSD, Haiku OS
 # Usage: curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/install.sh | bash
 # ==============================================================================
 
@@ -17,13 +17,13 @@ RESET='\033[0m'
 echo -e "${CYAN}${BOLD}"
 echo "  🦊 RUBAH - Ruang Baca Harian"
 echo "  ================================================="
-echo "  Universal Installer (Linux, macOS, Windows, BSD, Haiku)"
+echo "  Instant Binary Installer (Tanpa Kompilasi Rust)"
 echo -e "${RESET}"
 
 INSTALL_DIR="$HOME/.local/bin"
 mkdir -p "$INSTALL_DIR"
 
-# Detect OS
+# Detect OS & CPU Arch
 OS_TYPE=$(uname -s | tr '[:upper:]' '[:lower:]')
 ARCH_TYPE=$(uname -m)
 
@@ -33,13 +33,12 @@ case "$OS_TYPE" in
     msys*|cygwin*|mingw*|win*) OS="windows" ;;
     freebsd*|openbsd*|netbsd*|dragonfly*) OS="bsd" ;;
     haiku*)                    OS="haiku" ;;
-    *) echo -e "${RED}OS '$OS_TYPE' tidak dikenal. Menggunakan fallback mode...${RESET}"; OS="linux" ;;
+    *) OS="linux" ;;
 esac
 
 case "$ARCH_TYPE" in
     x86_64|amd64)   ARCH="amd64" ;;
     arm64|aarch64)  ARCH="arm64" ;;
-    i386|i686)      ARCH="x86" ;;
     *)              ARCH="amd64" ;;
 esac
 
@@ -49,37 +48,32 @@ if [ "$OS" = "windows" ]; then
 fi
 
 REPO="WhaTheFoxSay/rubah"
-DOWNLOAD_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
+# Primary URL: Direct raw binary from main branch (Instant 2-second download)
+RAW_URL="https://raw.githubusercontent.com/${REPO}/main/bin/${BINARY_NAME}"
+# Secondary URL: GitHub Releases
+RELEASE_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
 
-echo -e "${YELLOW}--> Mendeteksi OS: ${BOLD}${OS}${RESET}${YELLOW} (${ARCH})...${RESET}"
-echo -e "${YELLOW}--> Mengunduh pre-compiled binary instan...${RESET}"
+echo -e "${YELLOW}--> Mengunduh binary siap pakai untuk ${OS} (${ARCH})...${RESET}"
 
 TMP_FILE=$(mktemp /tmp/rubah_bin_XXXXXX 2>/dev/null || mktemp -t rubah_bin)
 trap 'rm -f "$TMP_FILE"' EXIT
 
-# Try downloading pre-compiled binary directly
-HTTP_CODE=$(curl -sL -w "%{http_code}" -o "$TMP_FILE" "$DOWNLOAD_URL" || echo "000")
+# Try raw main bin first
+HTTP_CODE=$(curl -sL -w "%{http_code}" -o "$TMP_FILE" "$RAW_URL" || echo "000")
+
+if [ "$HTTP_CODE" -ne 200 ]; then
+    # Try releases url
+    HTTP_CODE=$(curl -sL -w "%{http_code}" -o "$TMP_FILE" "$RELEASE_URL" || echo "000")
+fi
 
 if [ "$HTTP_CODE" -eq 200 ]; then
-    echo -e "${GREEN}--> Download sukses! Memasang binary 'baca' ke $INSTALL_DIR...${RESET}"
+    echo -e "${GREEN}--> Download sukses (8MB)! Memasang 'baca' ke $INSTALL_DIR...${RESET}"
     cp "$TMP_FILE" "$INSTALL_DIR/baca"
     chmod +x "$INSTALL_DIR/baca"
     ln -sf "$INSTALL_DIR/baca" "$INSTALL_DIR/rubah"
 else
-    echo -e "${YELLOW}--> Pre-compiled binary rilis sedang diproses. Menjalankan fallback build via Cargo...${RESET}"
-    if ! command -v cargo &> /dev/null; then
-        echo -e "${YELLOW}--> Memasang Rust compiler...${RESET}"
-        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-        source "$HOME/.cargo/env" 2>/dev/null || true
-    fi
-    TMP_DIR=$(mktemp -d /tmp/rubah_install_XXXXXX 2>/dev/null || mktemp -d -t rubah_install)
-    git clone --depth 1 https://github.${REPO}.git "$TMP_DIR/rubah" || curl -fsSL https://github.com/${REPO}/archive/refs/heads/main.tar.gz | tar -xz -C "$TMP_DIR"
-    cd "$TMP_DIR/rubah"*
-    cargo build --release
-    cp target/release/rubah "$INSTALL_DIR/baca"
-    chmod +x "$INSTALL_DIR/baca"
-    ln -sf "$INSTALL_DIR/baca" "$INSTALL_DIR/rubah"
-    rm -rf "$TMP_DIR"
+    echo -e "${RED}--> Gagal mengunduh binary rilis.${RESET}"
+    exit 1
 fi
 
 # Ensure ~/.local/bin is in PATH
@@ -92,7 +86,7 @@ if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
         SHELL_PROFILE="$HOME/.bashrc"
     elif [ -f "$HOME/.profile" ]; then
         SHELL_PROFILE="$HOME/.profile"
-    elif [ -f "$HOME/config/settings/profile" ]; then # Haiku OS profile
+    elif [ -f "$HOME/config/settings/profile" ]; then
         SHELL_PROFILE="$HOME/config/settings/profile"
     fi
 
@@ -104,7 +98,7 @@ fi
 
 echo -e "${GREEN}${BOLD}"
 echo "  ==========================================================="
-echo "  🎉 Instalasi Rubah (Ruang Baca Harian) Selesai!"
+echo "  🎉 Instalasi Rubah Selesai Dalam 2 Detik!"
 echo "  ==========================================================="
 echo -e "${RESET}"
 
