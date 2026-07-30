@@ -270,18 +270,15 @@ fn draw_reader_pane(f: &mut Frame, app: &mut App, area: Rect) {
             Style::default().fg(THEME.border),
         )));
 
-        // Render Article Photo Image if available and enabled
-        if app.show_image {
-            if let Some(img_lines) = &app.current_image_lines {
-                for line in img_lines {
-                    lines.push(line.clone());
-                }
-                lines.push(Line::from(Span::styled(
-                    "📷 [Foto Berita Utama]",
-                    Style::default().fg(THEME.muted).add_modifier(Modifier::ITALIC),
-                )));
-                lines.push(Line::from(""));
-            }
+        // Show Real Photo Badge Indicator if image URL is available
+        if app.current_image_url.is_some() {
+            lines.push(Line::from(vec![
+                Span::styled("📸 [Foto Berita] ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
+                Span::styled("Tekan ", Style::default().fg(THEME.fg)),
+                Span::styled("[v]", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
+                Span::styled(" untuk membuka Foto Asli 100% HD di System Viewer", Style::default().fg(THEME.highlight)),
+            ]));
+            lines.push(Line::from(""));
         }
 
         let mut last_was_empty = true;
@@ -360,8 +357,8 @@ fn draw_footer(f: &mut Frame, _app: &App, area: Rect) {
         Span::styled("Pilih ", Style::default().fg(THEME.fg)),
         Span::styled("[Enter/Space] ", Style::default().fg(THEME.accent)),
         Span::styled("Baca Penuh ", Style::default().fg(THEME.fg)),
-        Span::styled("[f] ", Style::default().fg(THEME.accent)),
-        Span::styled("Muat Penuh ", Style::default().fg(THEME.fg)),
+        Span::styled("[v] ", Style::default().fg(THEME.accent)),
+        Span::styled("Foto HD ", Style::default().fg(THEME.fg)),
         Span::styled("[o] ", Style::default().fg(THEME.accent)),
         Span::styled("Browser ", Style::default().fg(THEME.fg)),
         Span::styled("[b] ", Style::default().fg(THEME.accent)),

@@ -5,6 +5,7 @@ use ratatui::{
     text::{Line, Span},
 };
 
+#[allow(dead_code)]
 pub fn render_image_to_lines(img_bytes: &[u8], target_width: u32, max_height_rows: u32) -> Option<Vec<Line<'static>>> {
     let img = image::load_from_memory(img_bytes).ok()?;
 
