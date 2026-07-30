@@ -207,8 +207,8 @@ fn draw_articles_pane(f: &mut Frame, app: &mut App, area: Rect) {
         .enumerate()
         .map(|(idx, art)| {
             let is_selected = idx == app.selected_article_idx;
-            // Solid dot '●' if unread, hollow dot '○' if read
-            let dot_symbol = if art.is_read { "○ " } else { "● " };
+            // Solid dot '● ' for Article Pane matching Channel Pane
+            let dot_symbol = "● ";
             // Green dot when selected, Warm Fox Orange when unselected
             let dot_color = if is_selected { THEME.success } else { THEME.accent };
             let star_symbol = if art.is_bookmarked { "[B] " } else { "    " };
