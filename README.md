@@ -109,15 +109,16 @@ irm https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/uninstall.ps1 | ie
 
 ## 📄 Lisensi
 
-Proyek ini dirilis di bawah lisensi **GNU General Public License v3.0 (GPL-3.0)**. Lihat file [LICENSE](LICENSE) megenai ketentuan lisensi perangkat lunak.
+Proyek ini dirilis di bawah lisensi **GNU General Public License v3.0 (GPL-3.0)**. Lihat file [LICENSE](LICENSE) mengenai ketentuan lisensi perangkat lunak.
 
 ---
 
-## 📜 Kebijakan Penggunaan & Privasi (Terms & Privacy)
+## 📜 Kebijakan Penggunaan, Hak Cipta, & Privasi (Terms & Privacy)
 
-Aplikasi **Rubah** dirancang sebagai antarmuka pembaca RSS Feed *client-side* berbasis *open-source*:
-- 🌐 **Protokol Terbuka**: Memproses format sindikasi standar (RSS 2.0 / Atom) yang dipublikasikan secara resmi oleh penerbit media.
-- ✍️ **Atribusi Lengkap**: Menyajikan nama sumber, penulis, waktu, dan tautan asli (`[o]`) tanpa mengubah hak cipta konten.
-- 🛡️ **Privasi Lokal**: Tanpa telemetri atau pelacakan (*zero tracking*); seluruh konfigurasi dan data tersimpan di perangkat lokal pengguna.
+Aplikasi **Rubah** dirancang sebagai perangkat lunak *client-side Terminal User Interface (TUI)* untuk membaca RSS/Atom Feed:
+- 🌐 **Protokol Terbuka**: Memproses RSS/Atom Feed yang dipublikasikan secara terbuka oleh masing-masing penerbit sesuai standar sindikasi web.
+- 🏛️ **Arsitektur Local-First**: Seluruh proses pengambilan data dilakukan secara langsung dari perangkat pengguna ke penerbit tanpa melalui server perantara (*no cloud/proxy server*).
+- ✍️ **Atribusi & Hak Penerbit**: Rubah tidak memperoleh hak kepemilikan atas konten. Seluruh hak cipta tetap milik penerbit. Feed bawaan hanya disediakan sebagai contoh dan dapat disesuaikan pengguna.
+- 🛡️ **Privasi 100% Lokal**: Tanpa telemetri atau pelacakan (*zero tracking*); seluruh konfigurasi dan data tersimpan eksklusif di perangkat lokal pengguna.
 
-Lihat dokumen **[LEGAL.md](LEGAL.md)** untuk kebijakan penggunaan, hak cipta, dan privasi secara mendalam.
+Lihat dokumen **[LEGAL.md](LEGAL.md)** untuk kebijakan penggunaan, arsitektur teknis, dan hak penerbit secara mendalam.
