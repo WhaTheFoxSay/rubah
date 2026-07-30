@@ -11,19 +11,29 @@
 ## 💻 Instalasi
 
 ### 🐧 Linux / 🍎 macOS:
+Jalankan perintah berikut di terminal Anda:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/install.sh | bash
 ```
 
-### 🪟 Windows (PowerShell):
-Buka PowerShell lalu jalankan perintah 1 baris berikut:
+### 🪟 Windows (PowerShell / CMD):
+
+**Metode 1: Perintah 1 Baris PowerShell (Otomatis)**
+Buka aplikasi **PowerShell**, lalu *copy-paste* dan jalankan perintah berikut:
 ```powershell
 irm https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/install.ps1 | iex
 ```
 
-*(Atau unduh langsung file `rubah-windows-amd64.exe` dari [Releases](https://github.com/WhaTheFoxSay/rubah/releases) lalu jalankan di CMD/PowerShell)*
+**Metode 2: Unduh Direct Executable (.exe)**
+1. Unduh binary resmi: **[rubah-windows-amd64.exe](https://github.com/WhaTheFoxSay/rubah/releases/latest/download/rubah-windows-amd64.exe)**
+2. Rename file tersebut menjadi `baca.exe`.
+3. Jalankan file di CMD atau PowerShell dengan mengetik `.\baca.exe`.
 
-Setelah instalasi selesai, buka aplikasi dengan perintah:
+---
+
+### 🚀 Cara Menjalankan
+
+Setelah instalasi selesai, jalankan aplikasi di terminal / CMD / PowerShell dengan mengetik:
 ```bash
 baca
 ```
