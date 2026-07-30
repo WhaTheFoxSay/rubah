@@ -74,7 +74,7 @@ fn draw_header(f: &mut Frame, app: &App, area: Rect) {
 
     let title_spans = vec![
         Span::styled(" 🦊 RUBAH ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
-        Span::styled("v0.1.0 ", Style::default().fg(THEME.muted)),
+        Span::styled(concat!("v", env!("CARGO_PKG_VERSION"), " "), Style::default().fg(THEME.muted)),
         Span::styled("| Ruang Baca Harian ", Style::default().fg(THEME.fg).add_modifier(Modifier::ITALIC)),
     ];
 
