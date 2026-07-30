@@ -1,33 +1,40 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# 🦊 RUBAH (Ruang Baca Harian) - Uninstall Script
-# Usage: curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/uninstall.sh | bash
+# 🦊 Rubah RSS Reader - Official Uninstall Wizard
 # ==============================================================================
 
 set -e
 
-RED='\033[0;31m'
+CYAN='\033[0;36m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-CYAN='\033[0;36m'
+WHITE='\033[1;37m'
+GRAY='\033[0;90m'
 BOLD='\033[1m'
 RESET='\033[0m'
 
-echo -e "${YELLOW}${BOLD}"
-echo "  🗑️  Menghapus Rubah (Ruang Baca Harian)..."
+clear
+echo -e "${CYAN}${BOLD}"
+echo "  ┌────────────────────────────────────────────────────────┐"
+echo "  │ 🦊  RUBAH RSS READER - UNINSTALL WIZARD               │"
+echo "  └────────────────────────────────────────────────────────┘"
 echo -e "${RESET}"
 
-# Remove binary files
-rm -f "$HOME/.local/bin/baca"
-rm -f "$HOME/.local/bin/rubah"
+echo -e "${YELLOW}[1/3] 🗑️  Removing binary executable 'baca' & aliases...${RESET}"
+rm -f "$HOME/.local/bin/baca" "$HOME/.local/bin/rubah"
+echo -e "${GRAY}      --> Executables removed.${RESET}\n"
 
-# Optionally remove user database and config
-if [ -d "$HOME/.config/rubah" ]; then
-    rm -rf "$HOME/.config/rubah"
-fi
+echo -e "${YELLOW}[2/3] 📂 Cleaning local configuration & database storage...${RESET}"
+rm -rf "$HOME/.config/rubah"
+echo -e "${GRAY}      --> Database & settings purged.${RESET}\n"
 
-echo -e "${GREEN}${BOLD}"
-echo "  ========================================================"
-echo "  ✅ Rubah dan konfigurasi berhasil dihapus dari sistem."
-echo "  ========================================================"
-echo -e "${RESET}"
+echo -e "${YELLOW}[3/3] 🧹 Purging cache & temporary files...${RESET}"
+rm -rf "$HOME/.cache/rubah" 2>/dev/null || true
+echo -e "${GRAY}      --> Cache purged.${RESET}\n"
+
+echo -e "${GREEN}${BOLD} ════════════════════════════════════════════════════════════${RESET}"
+echo -e "${GREEN}${BOLD}  👋 UNINSTALL COMPLETED SUCCESSFULLY!${RESET}"
+echo -e "${GREEN}${BOLD} ════════════════════════════════════════════════════════════${RESET}\n"
+
+echo -e "${WHITE}${BOLD}Thank you for trying Rubah RSS Reader!${RESET}"
+echo -e "${CYAN}We hope to see you again soon. 🦊✨${RESET}\n"

@@ -1,29 +1,32 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# 🦊 Rubah (Ruang Baca Harian) - Cross-Platform Installer
-# Supported OS: Linux, macOS, Windows, BSD, Haiku OS
-# Usage: curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/install.sh | bash
+# 🦊 Rubah (Ruang Baca Harian) - Official Setup Wizard
 # ==============================================================================
 
 set -e
 
-RED='\033[0;31m'
+CYAN='\033[0;36m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-CYAN='\033[0;36m'
+WHITE='\033[1;37m'
+GRAY='\033[0;90m'
+RED='\033[0;31m'
 BOLD='\033[1m'
 RESET='\033[0m'
 
+clear
 echo -e "${CYAN}${BOLD}"
-echo "  🦊 Rubah - Ruang Baca Harian"
-echo "  ================================================="
-echo "  Installing Rubah RSS Feed Reader TUI..."
+echo "  ┌────────────────────────────────────────────────────────┐"
+echo "  │ 🦊  RUBAH RSS READER - SETUP WIZARD                   │"
+echo "  │     Retro Terminal User Interface Reader               │"
+echo "  └────────────────────────────────────────────────────────┘"
 echo -e "${RESET}"
 
 INSTALL_DIR="$HOME/.local/bin"
 mkdir -p "$INSTALL_DIR"
 
-# Detect OS & CPU Arch
+# Step 1: Detect System Architecture
+echo -e "${YELLOW}[1/4] 🔍 Detecting operating system architecture...${RESET}"
 OS_TYPE=$(uname -s | tr '[:upper:]' '[:lower:]')
 ARCH_TYPE=$(uname -m)
 
@@ -40,7 +43,6 @@ case "$ARCH_TYPE" in
     *)              ARCH="amd64" ;;
 esac
 
-# Special check for macOS: Intel (amd64) vs Apple Silicon (arm64)
 if [ "$OS" = "macos" ]; then
     IS_ARM=$(sysctl -n hw.optional.arm64 2>/dev/null || echo "0")
     if [ "$ARCH_TYPE" = "x86_64" ]; then
@@ -53,47 +55,40 @@ if [ "$OS" = "macos" ]; then
 fi
 
 BINARY_NAME="rubah-${OS}-${ARCH}"
-if [ "$OS" = "windows" ]; then
-    BINARY_NAME="${BINARY_NAME}.exe"
-fi
+echo -e "${GRAY}      --> Target Platform: ${BOLD}${OS} (${ARCH})${RESET}\n"
 
+# Step 2: Establish Connection
+echo -e "${YELLOW}[2/4] 🌐 Establishing secure connection to GitHub Releases...${RESET}"
 REPO="WhaTheFoxSay/rubah"
-RELEASE_URL="https://github.com/${REPO}/releases/download/v0.3.4/${BINARY_NAME}"
+RELEASE_URL="https://github.com/${REPO}/releases/download/v0.3.5/${BINARY_NAME}"
 LATEST_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
+echo -e "${GRAY}      --> Source: github.com/${REPO}${RESET}\n"
 
-echo -e "${YELLOW}--> OS: ${BOLD}${OS}${RESET}${YELLOW} (${ARCH})${RESET}"
-echo -e "${YELLOW}--> Mengunduh binary rilis...${RESET}"
-
+# Step 3: Download with retro progress bar
+echo -e "${YELLOW}[3/4] 💾 Downloading release package...${RESET}"
 TMP_FILE=$(mktemp /tmp/rubah_bin_XXXXXX 2>/dev/null || mktemp -t rubah_bin)
 trap 'rm -f "$TMP_FILE"' EXIT
 
-DOWNLOAD_SUCCESS=0
 USER_AGENT="Mozilla/5.0 (compatible; RubahInstaller/1.0)"
 
-# Try release URL
-HTTP_CODE=$(curl -sL -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$RELEASE_URL" || echo "000")
-if [ "$HTTP_CODE" -eq 200 ]; then
-    DOWNLOAD_SUCCESS=1
-fi
-
-if [ $DOWNLOAD_SUCCESS -eq 0 ]; then
-    HTTP_CODE=$(curl -sL -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$LATEST_URL" || echo "000")
-    if [ "$HTTP_CODE" -eq 200 ]; then
-        DOWNLOAD_SUCCESS=1
-    fi
-fi
-
-if [ $DOWNLOAD_SUCCESS -eq 1 ]; then
-    echo -e "${GREEN}--> Download berhasil. Memasang 'baca' ke $INSTALL_DIR...${RESET}"
-    cp "$TMP_FILE" "$INSTALL_DIR/baca"
-    chmod +x "$INSTALL_DIR/baca"
-    ln -sf "$INSTALL_DIR/baca" "$INSTALL_DIR/rubah"
+if command -v curl >/dev/null 2>&1; then
+    curl -# -L -A "$USER_AGENT" -o "$TMP_FILE" "$RELEASE_URL" || curl -# -L -A "$USER_AGENT" -o "$TMP_FILE" "$LATEST_URL"
 else
-    echo -e "${RED}--> Gagal mengunduh binary rilis dari GitHub. Silakan periksa koneksi internet Anda.${RESET}"
+    wget --progress=bar:force -q -O "$TMP_FILE" "$RELEASE_URL" || wget --progress=bar:force -q -O "$TMP_FILE" "$LATEST_URL"
+fi
+
+if [ ! -s "$TMP_FILE" ]; then
+    echo -e "${RED}❌ Error: Failed to download binary package. Please check your network connection.${RESET}"
     exit 1
 fi
+echo -e "${GREEN}      --> Download verified successfully!${RESET}\n"
 
-# Ensure ~/.local/bin is in PATH
+# Step 4: Installation & Symlinking
+echo -e "${YELLOW}[4/4] ⚙️  Installing executable to $INSTALL_DIR/baca...${RESET}"
+cp "$TMP_FILE" "$INSTALL_DIR/baca"
+chmod +x "$INSTALL_DIR/baca"
+ln -sf "$INSTALL_DIR/baca" "$INSTALL_DIR/rubah"
+
 PATH_ADDED=0
 if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
     SHELL_PROFILE=""
@@ -103,8 +98,6 @@ if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
         SHELL_PROFILE="$HOME/.bashrc"
     elif [ -f "$HOME/.profile" ]; then
         SHELL_PROFILE="$HOME/.profile"
-    elif [ -f "$HOME/config/settings/profile" ]; then
-        SHELL_PROFILE="$HOME/config/settings/profile"
     fi
 
     if [ -n "$SHELL_PROFILE" ]; then
@@ -113,16 +106,14 @@ if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
     fi
 fi
 
-echo -e "${GREEN}${BOLD}"
-echo "  ==========================================================="
-echo "  🎉 Instalasi Rubah selesai!"
-echo "  ==========================================================="
-echo -e "${RESET}"
+echo -e "\n${GREEN}${BOLD} ════════════════════════════════════════════════════════════${RESET}"
+echo -e "${GREEN}${BOLD}  🎉 INSTALLATION COMPLETED SUCCESSFULLY!${RESET}"
+echo -e "${GREEN}${BOLD} ════════════════════════════════════════════════════════════${RESET}\n"
 
 if [ $PATH_ADDED -eq 1 ]; then
-    echo -e "${CYAN}Silakan restart terminal Anda atau jalankan:${RESET}"
+    echo -e "${CYAN}Please restart your terminal or run:${RESET}"
     echo -e "${YELLOW}  source $SHELL_PROFILE${RESET}\n"
 fi
 
-echo -e "${BOLD}Jalankan aplikasi dengan mengetik:${RESET}"
+echo -e "${WHITE}${BOLD}Launch the application by typing:${RESET}"
 echo -e "${GREEN}${BOLD}  baca${RESET}\n"

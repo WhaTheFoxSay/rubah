@@ -1,15 +1,18 @@
-# 🦊 Rubah RSS Reader - Official Windows PowerShell Installer
+# 🦊 Rubah RSS Reader - Official Windows Setup Wizard
 
 $ErrorActionPreference = "Stop"
 
-# Enable TLS 1.2 / TLS 1.3 protocols in PowerShell 5.1 & 7
 try {
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13
 } catch {}
 
+Clear-Host
 Write-Host ""
-Write-Host "  🦊 Rubah - Ruang Baca Harian (Windows Installer)" -ForegroundColor Yellow
-Write-Host "  =================================================" -ForegroundColor DarkGray
+Write-Host "  ┌────────────────────────────────────────────────────────┐" -ForegroundColor Cyan
+Write-Host "  │ 🦊  RUBAH RSS READER - SETUP WIZARD (Windows)         │" -ForegroundColor Cyan
+Write-Host "  │     Retro Terminal User Interface Reader               │" -ForegroundColor Cyan
+Write-Host "  └────────────────────────────────────────────────────────┘" -ForegroundColor Cyan
+Write-Host ""
 
 $InstallDir = "$env:LOCALAPPDATA\Programs\Rubah"
 if (!(Test-Path $InstallDir)) {
@@ -17,34 +20,43 @@ if (!(Test-Path $InstallDir)) {
 }
 
 $ExePath = Join-Path $InstallDir "baca.exe"
-$PrimaryUrl = "https://github.com/WhaTheFoxSay/rubah/releases/download/v0.3.4/rubah-windows-amd64.exe"
+$PrimaryUrl = "https://github.com/WhaTheFoxSay/rubah/releases/download/v0.3.5/rubah-windows-amd64.exe"
 $LatestUrl = "https://github.com/WhaTheFoxSay/rubah/releases/latest/download/rubah-windows-amd64.exe"
 
-Write-Host "--> Mengunduh binary 'baca.exe'..." -ForegroundColor Cyan
+# Step 1
+Write-Host "[1/4] 🔍 Detecting Windows platform architecture..." -ForegroundColor Yellow
+Write-Host "      --> Platform: Windows x64 (MSVC 64-bit)" -ForegroundColor DarkGray
+Write-Host ""
+
+# Step 2
+Write-Host "[2/4] 🔒 Initializing TLS 1.2 / 1.3 security protocols..." -ForegroundColor Yellow
+Write-Host "      --> Security Provider: Windows Schannel" -ForegroundColor DarkGray
+Write-Host ""
+
+# Step 3
+Write-Host "[3/4] 💾 Downloading binary executable package..." -ForegroundColor Yellow
 
 $downloadSuccess = $false
 
-# 1. Try built-in curl.exe (built-in on Windows 10 & 11)
-if (Get-Command "curl.exe" -ErrorAction SilentlyContinue) {
-    try {
-        & curl.exe -sL -o $ExePath $PrimaryUrl
-        if ((Test-Path $ExePath) -and ((Get-Item $ExePath).Length -gt 1000000)) {
-            $downloadSuccess = $true
-        }
-    } catch {}
-}
+# Built-in PowerShell progress bar download
+try {
+    Invoke-WebRequest -Uri $PrimaryUrl -OutFile $ExePath -UseBasicParsing -MaximumRedirection 10
+    if ((Test-Path $ExePath) -and ((Get-Item $ExePath).Length -gt 1000000)) {
+        $downloadSuccess = $true
+    }
+} catch {}
 
-# 2. Try Invoke-WebRequest on direct v0.3.1 URL
 if (-not $downloadSuccess) {
-    try {
-        Invoke-WebRequest -Uri $PrimaryUrl -OutFile $ExePath -UseBasicParsing -MaximumRedirection 10
-        if ((Test-Path $ExePath) -and ((Get-Item $ExePath).Length -gt 1000000)) {
-            $downloadSuccess = $true
-        }
-    } catch {}
+    if (Get-Command "curl.exe" -ErrorAction SilentlyContinue) {
+        try {
+            & curl.exe -# -L -o $ExePath $PrimaryUrl
+            if ((Test-Path $ExePath) -and ((Get-Item $ExePath).Length -gt 1000000)) {
+                $downloadSuccess = $true
+            }
+        } catch {}
+    }
 }
 
-# 3. Try Invoke-WebRequest on latest URL
 if (-not $downloadSuccess) {
     try {
         Invoke-WebRequest -Uri $LatestUrl -OutFile $ExePath -UseBasicParsing -MaximumRedirection 10
@@ -55,22 +67,27 @@ if (-not $downloadSuccess) {
 }
 
 if (-not $downloadSuccess) {
-    Write-Host "--> Gagal mengunduh binary 'baca.exe'. Silakan unduh manual dari GitHub Releases." -ForegroundColor Red
+    Write-Host "❌ Error: Failed to download 'baca.exe'. Please check your network connection." -ForegroundColor Red
     exit 1
 }
 
-# Add InstallDir to User Environment PATH if not present
+Write-Host "      --> Download verified successfully! (Size: $([math]::round((Get-Item $ExePath).Length / 1MB, 1)) MB)" -ForegroundColor Green
+Write-Host ""
+
+# Step 4
+Write-Host "[4/4] ⚙️  Installing executable & updating environment..." -ForegroundColor Yellow
 $UserPath = [Environment]::GetEnvironmentVariable("PATH", "User")
 if ($UserPath -notlike "*$InstallDir*") {
     [Environment]::SetEnvironmentVariable("PATH", "$UserPath;$InstallDir", "User")
     $env:PATH = "$env:PATH;$InstallDir"
+    Write-Host "      --> Added $InstallDir to User PATH" -ForegroundColor DarkGray
 }
 
 Write-Host ""
-Write-Host "  ===========================================================" -ForegroundColor Green
-Write-Host "  🎉 Instalasi Rubah Berhasil Selesai!" -ForegroundColor Green
-Write-Host "  ===========================================================" -ForegroundColor Green
+Write-Host " ════════════════════════════════════════════════════════════" -ForegroundColor Green
+Write-Host "  🎉 INSTALLATION COMPLETED SUCCESSFULLY!" -ForegroundColor Green
+Write-Host " ════════════════════════════════════════════════════════════" -ForegroundColor Green
 Write-Host ""
-Write-Host "Jalankan aplikasi di PowerShell atau CMD dengan mengetik:" -ForegroundColor Yellow
+Write-Host "Launch the application by typing in PowerShell or CMD:" -ForegroundColor Yellow
 Write-Host "  baca" -ForegroundColor White
 Write-Host ""
