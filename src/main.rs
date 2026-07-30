@@ -178,18 +178,14 @@ async fn run_app(
                                     disable_raw_mode()?;
                                     execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
                                     terminal.show_cursor()?;
-                                    println!("\n  ┌────────────────────────────────────────────────────────┐");
-                                    println!("  │ 🦊  RUBAH RSS READER - UNINSTALL WIZARD               │");
-                                    println!("  └────────────────────────────────────────────────────────┘\n");
-                                    println!("  [1/3] 🗑️  Removing binary executable 'baca' & shortcuts...");
-                                    println!("  [2/3] 📂 Cleaning local configuration & database storage...");
-                                    println!("  [3/3] 🧹 Purging cache & path environment...");
+                                    println!("\n--> 🦊 Rubah [Ruang Baca Harian] Uninstaller");
+                                    println!("--> Menghapus binary executable 'baca' & shortcuts...");
+                                    println!("--> Menghapus data konfigurasi & database...");
+                                    println!("--> Menghapus cache & PATH environment...");
                                     let _ = App::perform_uninstall();
-                                    println!("\n  ════════════════════════════════════════════════════════════");
-                                    println!("  👋 UNINSTALL COMPLETED SUCCESSFULLY!");
-                                    println!("  ════════════════════════════════════════════════════════════");
-                                    println!("  Thank you for using Rubah RSS Reader!");
-                                    println!("  We hope to see you again soon. 🦊✨\n");
+                                    println!("--> Uninstall berhasil selesai.");
+                                    println!("Terima kasih telah menggunakan Rubah [Ruang Baca Harian].");
+                                    println!("Sampai jumpa kembali! 🦊\n");
                                     std::process::exit(0);
                                 }
                                 KeyCode::Char('n') | KeyCode::Char('N') | KeyCode::Esc => {

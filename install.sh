@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# 🦊 Rubah (Ruang Baca Harian) - Official Setup Wizard
+# 🦊 Rubah [Ruang Baca Harian] - Installer
 # ==============================================================================
 
 set -e
@@ -14,19 +14,12 @@ RED='\033[0;31m'
 BOLD='\033[1m'
 RESET='\033[0m'
 
-clear
-echo -e "${CYAN}${BOLD}"
-echo "  ┌────────────────────────────────────────────────────────┐"
-echo "  │ 🦊  RUBAH RSS READER - SETUP WIZARD                   │"
-echo "  │     Retro Terminal User Interface Reader               │"
-echo "  └────────────────────────────────────────────────────────┘"
-echo -e "${RESET}"
+echo -e "${CYAN}${BOLD}--> 🦊 Rubah [Ruang Baca Harian]${RESET}"
 
 INSTALL_DIR="$HOME/.local/bin"
 mkdir -p "$INSTALL_DIR"
 
-# Step 1: Detect System Architecture
-echo -e "${YELLOW}[1/4] 🔍 Detecting operating system architecture...${RESET}"
+# Detect OS & CPU Architecture
 OS_TYPE=$(uname -s | tr '[:upper:]' '[:lower:]')
 ARCH_TYPE=$(uname -m)
 
@@ -55,17 +48,13 @@ if [ "$OS" = "macos" ]; then
 fi
 
 BINARY_NAME="rubah-${OS}-${ARCH}"
-echo -e "${GRAY}      --> Target Platform: ${BOLD}${OS} (${ARCH})${RESET}\n"
-
-# Step 2: Establish Connection
-echo -e "${YELLOW}[2/4] 🌐 Establishing secure connection to GitHub Releases...${RESET}"
 REPO="WhaTheFoxSay/rubah"
-RELEASE_URL="https://github.com/${REPO}/releases/download/v0.3.5/${BINARY_NAME}"
+RELEASE_URL="https://github.com/${REPO}/releases/download/v0.3.6/${BINARY_NAME}"
 LATEST_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
-echo -e "${GRAY}      --> Source: github.com/${REPO}${RESET}\n"
 
-# Step 3: Fast Download Pre-Compiled Binary
-echo -e "${YELLOW}[3/4] 💾 Downloading pre-compiled binary package (~9.7 MB)...${RESET}"
+echo -e "${GRAY}--> OS: ${OS} (${ARCH})${RESET}"
+echo -e "${YELLOW}--> Mengunduh binary 'baca'...${RESET}"
+
 TMP_FILE=$(mktemp /tmp/rubah_bin_XXXXXX 2>/dev/null || mktemp -t rubah_bin)
 trap 'rm -f "$TMP_FILE"' EXIT
 
@@ -77,13 +66,10 @@ if [ "$HTTP_CODE" -ne 200 ]; then
 fi
 
 if [ "$HTTP_CODE" -ne 200 ] || [ ! -s "$TMP_FILE" ]; then
-    echo -e "${RED}❌ Error: Failed to download binary package. Please check your network connection.${RESET}"
+    echo -e "${RED}Error: Gagal mengunduh binary 'baca' dari GitHub.${RESET}"
     exit 1
 fi
-echo -e "${GREEN}      [████████████████████████████████████████] 100% Verified!${RESET}\n"
 
-# Step 4: Installation & Symlinking
-echo -e "${YELLOW}[4/4] ⚙️  Installing executable to $INSTALL_DIR/baca...${RESET}"
 cp "$TMP_FILE" "$INSTALL_DIR/baca"
 chmod +x "$INSTALL_DIR/baca"
 ln -sf "$INSTALL_DIR/baca" "$INSTALL_DIR/rubah"
@@ -105,14 +91,10 @@ if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
     fi
 fi
 
-echo -e "\n${GREEN}${BOLD} ════════════════════════════════════════════════════════════${RESET}"
-echo -e "${GREEN}${BOLD}  🎉 INSTALLATION COMPLETED SUCCESSFULLY!${RESET}"
-echo -e "${GREEN}${BOLD} ════════════════════════════════════════════════════════════${RESET}\n"
+echo -e "${GREEN}--> Instalasi selesai!${RESET}"
 
 if [ $PATH_ADDED -eq 1 ]; then
-    echo -e "${CYAN}Please restart your terminal or run:${RESET}"
-    echo -e "${YELLOW}  source $SHELL_PROFILE${RESET}\n"
+    echo -e "${CYAN}Silakan restart terminal atau jalankan:${RESET} ${YELLOW}source $SHELL_PROFILE${RESET}"
 fi
 
-echo -e "${WHITE}${BOLD}Launch the application by typing:${RESET}"
-echo -e "${GREEN}${BOLD}  baca${RESET}\n"
+echo -e "${WHITE}Jalankan aplikasi dengan mengetik:${RESET} ${GREEN}${BOLD}baca${RESET}\n"
