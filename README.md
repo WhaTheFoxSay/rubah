@@ -95,16 +95,14 @@ baca uninstall
 
 ## 🗑️ Uninstall
 
-Untuk menghapus aplikasi Rubah dan data konfigurasinya:
-
+### 🐧 Linux / 🍎 macOS:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/uninstall.sh | bash
 ```
 
-Atau secara manual:
-
-```bash
-rm -f ~/.local/bin/baca ~/.local/bin/rubah && rm -rf ~/.config/rubah
+### 🪟 Windows (PowerShell):
+```powershell
+irm https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/uninstall.ps1 | iex
 ```
 
 ---

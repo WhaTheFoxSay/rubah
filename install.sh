@@ -58,7 +58,7 @@ if [ "$OS" = "windows" ]; then
 fi
 
 REPO="WhaTheFoxSay/rubah"
-RELEASE_URL="https://github.com/${REPO}/releases/download/v0.3.1/${BINARY_NAME}"
+RELEASE_URL="https://github.com/${REPO}/releases/download/v0.3.2/${BINARY_NAME}"
 LATEST_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
 
 echo -e "${YELLOW}--> OS: ${BOLD}${OS}${RESET}${YELLOW} (${ARCH})${RESET}"

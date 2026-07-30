@@ -385,9 +385,35 @@ impl App {
             let _ = std::fs::remove_file(home.join(".local").join("bin").join("baca"));
             let _ = std::fs::remove_file(home.join(".local").join("bin").join("rubah"));
         }
+
         if let Some(config_dir) = dirs::config_dir() {
             let _ = std::fs::remove_dir_all(config_dir.join("rubah"));
         }
+
+        if let Some(data_dir) = dirs::data_local_dir() {
+            let _ = std::fs::remove_dir_all(data_dir.join("rubah"));
+            let _ = std::fs::remove_dir_all(data_dir.join("Programs").join("Rubah"));
+        }
+
+        // On Windows, running .exe cannot be deleted synchronously while active.
+        // We spawn a 1-second delayed background CMD process to clean up baca.exe and its folder upon exit.
+        #[cfg(target_os = "windows")]
+        {
+            if let Ok(exe_path) = std::env::current_exe() {
+                let exe_str = exe_path.to_string_lossy().to_string();
+                let parent_dir = exe_path.parent().map(|p| p.to_string_lossy().to_string()).unwrap_or_default();
+                let _ = std::process::Command::new("cmd")
+                    .args(&[
+                        "/C",
+                        "choice /C Y /N /D Y /T 1 > NUL & del /F /Q",
+                        &format!("\"{}\"", exe_str),
+                        "& rmdir /S /Q",
+                        &format!("\"{}\"", parent_dir),
+                    ])
+                    .spawn();
+            }
+        }
+
         Ok(())
     }
 }
