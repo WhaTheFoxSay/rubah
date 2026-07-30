@@ -101,7 +101,7 @@ async fn run_app(
             last_latency_check = std::time::Instant::now();
         }
 
-        if event::poll(Duration::from_millis(50))? {
+        if event::poll(Duration::from_millis(16))? {
             if let Event::Key(key) = event::read()? {
                 if key.kind != event::KeyEventKind::Press {
                     continue;

@@ -45,6 +45,7 @@ pub struct App {
     pub show_image: bool,
     pub current_image_lines: Option<Vec<Line<'static>>>,
     pub latency_ms: Option<u128>,
+    pub article_cache: HashMap<String, (String, Option<Vec<Line<'static>>>)>,
 
     // Search & Filter
     pub input_mode: InputMode,
@@ -68,6 +69,7 @@ impl App {
             fetcher,
             feeds,
             articles_by_feed: HashMap::new(),
+            article_cache: HashMap::new(),
             read_articles,
             active_pane: ActivePane::Feeds,
             active_tab: ActiveTab::AllFeeds,
@@ -146,6 +148,24 @@ impl App {
             return;
         }
 
+        // Fast Cache Hit (0ms)
+        if let Some((cached_text, cached_img)) = self.article_cache.get(&article_id) {
+            let full_text = cached_text.clone();
+            self.current_image_lines = cached_img.clone();
+            if !self.feeds.is_empty() && self.selected_feed_idx < self.feeds.len() {
+                let feed_id = &self.feeds[self.selected_feed_idx].id;
+                if let Some(articles) = self.articles_by_feed.get_mut(feed_id) {
+                    for art in articles.iter_mut() {
+                        if art.id == article_id {
+                            art.content = full_text.clone();
+                        }
+                    }
+                }
+            }
+            self.status_message = "Tekan [?] Bantuan | [j/k] Pilih | [Enter] Baca Penuh | [i] Gambar | [/] Cari".to_string();
+            return;
+        }
+
         self.status_message = format!("Memuat: '{}'...", article_title);
         self.current_image_lines = None;
 
@@ -154,7 +174,6 @@ impl App {
                 let full_text = res.body_text;
 
                 if !full_text.trim().is_empty() {
-                    // Update in articles_by_feed
                     if !self.feeds.is_empty() && self.selected_feed_idx < self.feeds.len() {
                         let feed_id = &self.feeds[self.selected_feed_idx].id;
                         if let Some(articles) = self.articles_by_feed.get_mut(feed_id) {
@@ -167,16 +186,17 @@ impl App {
                     }
                 }
 
-                // Fetch image if present
+                let mut rendered_img = None;
                 if let Some(img_url) = res.image_url {
                     if let Some(bytes) = self.fetcher.fetch_image_bytes(&img_url).await {
                         if let Some(lines) = render_image_to_lines(&bytes, 70, 18) {
+                            rendered_img = Some(lines.clone());
                             self.current_image_lines = Some(lines);
                         }
                     }
                 }
 
-                // Reset to clean default tip instead of noisy banner
+                self.article_cache.insert(article_id, (full_text, rendered_img));
                 self.status_message = "Tekan [?] Bantuan | [j/k] Pilih | [Enter] Baca Penuh | [i] Gambar | [/] Cari".to_string();
             }
             Err(e) => {

@@ -148,14 +148,9 @@ fn draw_feeds_pane(f: &mut Frame, app: &mut App, area: Rect) {
         .enumerate()
         .map(|(idx, feed)| {
             let is_selected = idx == app.selected_feed_idx;
+            // Green dot when selected, Warm Fox Orange when unselected
             let dot_color = if is_selected { THEME.success } else { THEME.accent };
-            let prefix = if is_selected && is_active {
-                "> "
-            } else if is_selected {
-                "* "
-            } else {
-                "  "
-            };
+            let prefix = "● ";
 
             let text_color = if is_selected {
                 Color::Rgb(15, 15, 20)
@@ -212,7 +207,9 @@ fn draw_articles_pane(f: &mut Frame, app: &mut App, area: Rect) {
         .enumerate()
         .map(|(idx, art)| {
             let is_selected = idx == app.selected_article_idx;
-            let read_symbol = if art.is_read { "[-] " } else { "[+] " };
+            // Solid dot '●' if unread, hollow dot '○' if read
+            let dot_symbol = if art.is_read { "○ " } else { "● " };
+            // Green dot when selected, Warm Fox Orange when unselected
             let dot_color = if is_selected { THEME.success } else { THEME.accent };
             let star_symbol = if art.is_bookmarked { "[B] " } else { "    " };
 
@@ -235,7 +232,7 @@ fn draw_articles_pane(f: &mut Frame, app: &mut App, area: Rect) {
             };
 
             let content = vec![
-                Span::styled(read_symbol, Style::default().fg(dot_color)),
+                Span::styled(dot_symbol, Style::default().fg(dot_color)),
                 Span::styled(star_symbol, Style::default().fg(Color::Yellow)),
                 Span::styled(&art.title, Style::default().fg(text_color)),
             ];
