@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# 🦊 RUBAH (Ruang Baca Harian) - Robust Cross-Platform Installer
+# 🦊 RUBAH (Ruang Baca Harian) - Robust Cross-Platform Installer v1.0.2
 # Supported OS: Linux, macOS, Windows, BSD, Haiku OS
 # Usage: curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/install.sh | bash
 # ==============================================================================
@@ -58,7 +58,7 @@ trap 'rm -f "$TMP_FILE"' EXIT
 
 DOWNLOAD_SUCCESS=0
 
-# Try raw main bin URL first
+# Try raw main bin URL
 HTTP_CODE=$(curl -sL -w "%{http_code}" -o "$TMP_FILE" "$RAW_URL" || echo "000")
 if [ "$HTTP_CODE" -eq 200 ]; then
     chmod +x "$TMP_FILE" 2>/dev/null || true
@@ -67,7 +67,7 @@ if [ "$HTTP_CODE" -eq 200 ]; then
     fi
 fi
 
-# Try GitHub Releases URL if primary URL failed or binary format mismatched
+# Try GitHub Releases URL
 if [ $DOWNLOAD_SUCCESS -eq 0 ]; then
     HTTP_CODE=$(curl -sL -w "%{http_code}" -o "$TMP_FILE" "$RELEASE_URL" || echo "000")
     if [ "$HTTP_CODE" -eq 200 ]; then
@@ -79,12 +79,12 @@ if [ $DOWNLOAD_SUCCESS -eq 0 ]; then
 fi
 
 if [ $DOWNLOAD_SUCCESS -eq 1 ]; then
-    echo -e "${GREEN}--> Binary rilis terverifikasi! Memasang 'baca' ke $INSTALL_DIR...${RESET}"
+    echo -e "${GREEN}--> Download binary terverifikasi! Memasang 'baca' ke $INSTALL_DIR...${RESET}"
     cp "$TMP_FILE" "$INSTALL_DIR/baca"
     chmod +x "$INSTALL_DIR/baca"
     ln -sf "$INSTALL_DIR/baca" "$INSTALL_DIR/rubah"
 else
-    echo -e "${YELLOW}--> Mengompilasi binary native untuk arsitektur ${OS} (${ARCH})...${RESET}"
+    echo -e "${YELLOW}--> Menyiapkan & mengompilasi binary native ELF untuk ${OS} (${ARCH})...${RESET}"
     if ! command -v cargo &> /dev/null; then
         echo -e "${YELLOW}--> Memasang Rust compiler...${RESET}"
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
