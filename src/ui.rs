@@ -54,6 +54,10 @@ pub fn draw(f: &mut Frame, app: &mut App) {
         draw_help_modal(f, f.area());
     }
 
+    if app.show_uninstall_confirm {
+        draw_uninstall_modal(f, f.area());
+    }
+
     if app.input_mode == InputMode::AddFeedTitle
         || app.input_mode == InputMode::AddFeedUrl
         || app.input_mode == InputMode::AddFeedCategory
@@ -366,6 +370,7 @@ fn draw_help_modal(f: &mut Frame, area: Rect) {
         Line::from(vec![Span::styled("  d", Style::default().fg(THEME.highlight)), Span::raw("                : Hapus channel RSS feed terpilih")]),
         Line::from(vec![Span::styled("  /", Style::default().fg(THEME.highlight)), Span::raw("                : Cari kata kunci di judul/konten berita")]),
         Line::from(vec![Span::styled("  1 / 2", Style::default().fg(THEME.highlight)), Span::raw("            : Switch tab All Feeds (1) / Bookmarks (2)")]),
+        Line::from(vec![Span::styled("  Shift + U", Style::default().fg(THEME.warning)), Span::raw("        : Uninstall aplikasi Rubah dan hapus seluruh data")]),
         Line::from(vec![Span::styled("  Esc", Style::default().fg(THEME.highlight)), Span::raw("              : Reset pencarian / Tutup modal bantuan")]),
         Line::from(vec![Span::styled("  q", Style::default().fg(THEME.highlight)), Span::raw("                : Keluar dari aplikasi Rubah")]),
         Line::from(""),
@@ -456,6 +461,38 @@ fn draw_add_feed_modal(f: &mut Frame, app: &App, area: Rect) {
         Span::styled("Batal ", Style::default().fg(THEME.fg)),
     ]);
     f.render_widget(Paragraph::new(hint), inner_chunks[3]);
+}
+
+fn draw_uninstall_modal(f: &mut Frame, area: Rect) {
+    let modal_area = centered_rect(55, 30, area);
+    f.render_widget(Clear, modal_area);
+
+    let help_text = vec![
+        Line::from(Span::styled("⚠️ UNINSTALL APLIKASI RUBAH", Style::default().fg(THEME.warning).add_modifier(Modifier::BOLD))),
+        Line::from("──────────────────────────────────────────────────"),
+        Line::from(""),
+        Line::from(Span::styled("Apakah Anda yakin ingin menghapus aplikasi Rubah,", Style::default().fg(THEME.fg))),
+        Line::from(Span::styled("executable binary, dan seluruh database lokal?", Style::default().fg(THEME.fg))),
+        Line::from(""),
+        Line::from(vec![
+            Span::styled("  [Y]", Style::default().fg(THEME.warning).add_modifier(Modifier::BOLD)),
+            Span::raw(" : Ya, Uninstall    "),
+            Span::styled("  [N] / [Esc]", Style::default().fg(THEME.success).add_modifier(Modifier::BOLD)),
+            Span::raw(" : Batal"),
+        ]),
+    ];
+
+    let p = Paragraph::new(help_text)
+        .block(
+            Block::default()
+                .title(" Konfirmasi Uninstall ")
+                .borders(Borders::ALL)
+                .border_type(BorderType::Double)
+                .border_style(Style::default().fg(THEME.warning)),
+        )
+        .alignment(Alignment::Center);
+
+    f.render_widget(p, modal_area);
 }
 
 fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {

@@ -29,4 +29,7 @@ pub enum Commands {
 
     /// Tampilkan daftar seluruh RSS Feed yang tersimpan
     List,
+
+    /// Hapus/uninstall aplikasi Rubah & konfigurasinya dari sistem
+    Uninstall,
 }

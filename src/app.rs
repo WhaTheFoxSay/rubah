@@ -39,6 +39,7 @@ pub struct App {
     pub is_loading: bool,
     pub status_message: String,
     pub show_help: bool,
+    pub show_uninstall_confirm: bool,
 
     // Search & Filter
     pub input_mode: InputMode,
@@ -69,8 +70,9 @@ impl App {
             selected_article_idx: 0,
             reader_scroll: 0,
             is_loading: false,
-            status_message: "Tekan [?] untuk bantuan | [r] Refresh | [a] Tambah Feed | [/] Cari".to_string(),
+            status_message: "Tekan [?] untuk bantuan | [r] Refresh | [a] Tambah Feed | [/] Cari | [U] Uninstall".to_string(),
             show_help: false,
+            show_uninstall_confirm: false,
             input_mode: InputMode::Normal,
             search_query: String::new(),
             new_feed_title: String::new(),
@@ -286,5 +288,16 @@ impl App {
         } else {
             self.status_message = "Judul dan URL feed tidak boleh kosong!".to_string();
         }
+    }
+
+    pub fn perform_uninstall() -> Result<(), Box<dyn std::error::Error>> {
+        if let Some(home) = dirs::home_dir() {
+            let _ = std::fs::remove_file(home.join(".local").join("bin").join("baca"));
+            let _ = std::fs::remove_file(home.join(".local").join("bin").join("rubah"));
+        }
+        if let Some(config_dir) = dirs::config_dir() {
+            let _ = std::fs::remove_dir_all(config_dir.join("rubah"));
+        }
+        Ok(())
     }
 }

@@ -42,6 +42,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
                 return Ok(());
             }
+            Commands::Uninstall => {
+                println!("🗑️  Menghapus aplikasi Rubah dan data konfigurasi...");
+                App::perform_uninstall()?;
+                println!("✅ Aplikasi Rubah berhasil di-uninstall dari sistem Anda.");
+                return Ok(());
+            }
         }
     }
 
@@ -157,6 +163,25 @@ async fn run_app(
                         _ => {}
                     },
                     InputMode::Normal => {
+                        if app.show_uninstall_confirm {
+                            match key.code {
+                                KeyCode::Char('y') | KeyCode::Char('Y') => {
+                                    disable_raw_mode()?;
+                                    execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
+                                    terminal.show_cursor()?;
+                                    println!("🗑️  Menghapus aplikasi Rubah dan seluruh data lokal...");
+                                    let _ = App::perform_uninstall();
+                                    println!("✅ Aplikasi Rubah berhasil di-uninstall dari sistem Anda.");
+                                    std::process::exit(0);
+                                }
+                                KeyCode::Char('n') | KeyCode::Char('N') | KeyCode::Esc => {
+                                    app.show_uninstall_confirm = false;
+                                }
+                                _ => {}
+                            }
+                            continue;
+                        }
+
                         if app.show_help {
                             if key.code == KeyCode::Esc || key.code == KeyCode::Char('?') || key.code == KeyCode::Char('q') {
                                 app.show_help = false;
@@ -167,6 +192,7 @@ async fn run_app(
                         match key.code {
                             KeyCode::Char('q') => return Ok(()),
                             KeyCode::Char('?') => app.show_help = true,
+                            KeyCode::Char('U') => app.show_uninstall_confirm = true,
                             KeyCode::Tab => app.next_pane(),
                             KeyCode::BackTab => app.prev_pane(),
 
