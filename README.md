@@ -2,9 +2,9 @@
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Language: Rust](https://img.shields.io/badge/Language-Rust-orange.svg)](https://www.rust-lang.org/)
-[![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20Windows-brightgreen.svg)]()
+[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows%20%7C%20BSD%20%7C%20Haiku-brightgreen.svg)]()
 
-> **Rubah (Ruang Baca Harian)** adalah aplikasi pembaca berita RSS Feed berbasis Terminal User Interface (TUI) yang sangat cepat, hemat sumber daya, dan *cross-platform* (macOS, Linux, & Windows PowerShell/CMD). Dibuat menggunakan bahasa **Rust** dengan framework **Ratatui** dan **Tokio**.
+> **Rubah (Ruang Baca Harian)** adalah aplikasi pembaca berita RSS Feed berbasis Terminal User Interface (TUI) yang sangat cepat, hemat sumber daya, dan **True Cross-Platform** (mendukung **Linux**, **macOS**, **Windows PowerShell/CMD**, **BSD**, dan **Haiku OS**). Dibuat menggunakan bahasa **Rust** dengan framework **Ratatui** dan **Tokio**.
 
 ---
 
