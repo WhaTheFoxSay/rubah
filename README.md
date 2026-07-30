@@ -51,9 +51,11 @@ baca
   - **Middle**: Daftar berita dengan status dibaca (`●`/`○`), tanggal, dan bookmark (`★`).
   - **Right**: Pembaca konten berita langsung di dalam terminal dengan scroll keyboard.
 - **Ringan & Portabel**: Menggunakan binary statis (MUSL untuk Linux) yang kompatibel dengan berbagai distro Linux (RHEL, CentOS, Ubuntu, Debian, Alpine, dll.) tanpa ketergantungan library luar.
-- **Penyimpanan Lokal SQLite**: Menyimpan RSS feed, riwayat baca, dan artikel favorit di database lokal (`~/.config/rubah/rubah.db`).
+- **Penyimpanan Lokal SQLite**: Menyimpan RSS feed, riwayat baca, dan artikel favorit di database lokal (`~/.config/rubah/rubah.db` di Linux/macOS atau `%LOCALAPPDATA%\Rubah\rubah.db` di Windows).
+- **HD Image Rendering**: Mendukung rendering foto berita dalam terminal TUI secara otomatis (*toggle* `i`).
+- **Running Text Judul**: Judul berita terpilih yang panjang bergulir (*marquee*) secara otomatis dengan jeda 2 detik.
 - **Pencarian Realtime**: Filter judul dan konten berita secara langsung (`/`).
-- **Pre-configured Feeds**: Dilengkapi feed berita default populer (CNN Indonesia, Antara, Tempo, Detikcom, Hacker News, TechCrunch, BBC News).
+- **Pre-configured Feeds**: Dilengkapi feed berita default populer (CNN Indonesia, Antara, Tempo, Hacker News, TechCrunch, BBC News).
 
 ---
 
@@ -64,6 +66,7 @@ baca
 | `Tab` / `Shift+Tab` | Pindah fokus antar panel (**Channel** ➔ **Berita** ➔ **Reader**) |
 | `j` / `k` atau `↓` / `↑` | Navigasi item ke bawah / atas |
 | `Enter` / `Space` | Buka dan baca berita penuh di dalam terminal |
+| `i` | Toggle Tampilkan / Sembunyikan foto berita dalam terminal |
 | `Esc` | Kembali dari reader ke daftar berita / reset pencarian |
 | `o` | Membuka link berita di web browser external |
 | `b` | Simpan / hapus artikel dari **Bookmarks** (`★`) |
