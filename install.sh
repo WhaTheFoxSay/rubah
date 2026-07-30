@@ -47,10 +47,11 @@ fi
 
 REPO="WhaTheFoxSay/rubah"
 RELEASE_URL="https://github.com/${REPO}/releases/download/v0.1.3/${BINARY_NAME}"
+ARM64_FALLBACK_URL="https://github.com/${REPO}/releases/download/v0.1.3/rubah-${OS}-arm64"
 LATEST_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
 
 echo -e "${YELLOW}--> Mendeteksi OS: ${BOLD}${OS}${RESET}${YELLOW} (${ARCH})...${RESET}"
-echo -e "${YELLOW}--> Mengunduh binary rilis terkompilasi (10MB)...${RESET}"
+echo -e "${YELLOW}--> Mengunduh binary rilis terkompilasi...${RESET}"
 
 TMP_FILE=$(mktemp /tmp/rubah_bin_XXXXXX 2>/dev/null || mktemp -t rubah_bin)
 trap 'rm -f "$TMP_FILE"' EXIT
@@ -63,7 +64,13 @@ if [ "$HTTP_CODE" -eq 200 ]; then
     DOWNLOAD_SUCCESS=1
 fi
 
-# Try latest release URL if v0.1.3 failed
+if [ $DOWNLOAD_SUCCESS -eq 0 ]; then
+    HTTP_CODE=$(curl -sL -w "%{http_code}" -o "$TMP_FILE" "$ARM64_FALLBACK_URL" || echo "000")
+    if [ "$HTTP_CODE" -eq 200 ]; then
+        DOWNLOAD_SUCCESS=1
+    fi
+fi
+
 if [ $DOWNLOAD_SUCCESS -eq 0 ]; then
     HTTP_CODE=$(curl -sL -w "%{http_code}" -o "$TMP_FILE" "$LATEST_URL" || echo "000")
     if [ "$HTTP_CODE" -eq 200 ]; then
