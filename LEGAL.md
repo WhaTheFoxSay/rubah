@@ -22,7 +22,7 @@ Arsitektur aplikasi Rubah beroperasi secara **100% lokal (*Local-First*)** tanpa
 [ Publisher RSS / Atom ] ──── (Koneksi Langsung) ────> [ Rubah TUI Client ] ────> [ SQLite Lokal ]
 ```
 
-- **Tanpa Server Perantara**: Rubah tidak memiliki server *cloud*, *proxy*, *mirror*, atau API terpusat yang mengumpulkan, menyimpan, atau mendistribusikan ulang berita milik penerbit.
+- **Tanpa Server Perantara**: Rubah tidak mengoperasikan layanan yang mengumpulkan, mengindeks, atau menyediakan ulang artikel dari berbagai penerbit melalui server milik Rubah.
 - **Client-Side Processing**: Seluruh proses pengambilan (*fetching*), penafsiran (*parsing*), dan tampilan dilakukan langsung pada perangkat lokal komputer pengguna.
 - **Penyimpanan Eksklusif Lokal**: Konfigurasi kanal, daftar penanda (*bookmarks*), dan riwayat bacaan disimpan di perangkat lokal pengguna (`~/.config/rubah/rubah.db`).
 
@@ -32,8 +32,7 @@ Arsitektur aplikasi Rubah beroperasi secara **100% lokal (*Local-First*)** tanpa
 
 Rubah dikembangkan sebagai aplikasi pembaca RSS/Atom untuk penggunaan pribadi maupun umum dengan prinsip teknis berikut:
 
-- **Tidak Menghosting ataupun Mendistribusikan Ulang Konten**: Rubah tidak menyimpan, mengindeks, atau mendistribusikan ulang basis data artikel penerbit secara terpusat.
-- **Integritas Konten**: Rubah menampilkan metadata maupun isi RSS/Atom Feed sebagaimana dipublikasikan oleh penyedia feed. Rubah tidak secara sengaja mengubah atribusi, nama penulis, tanggal publikasi, atau tautan ke sumber asli.
+- **Integritas Konten**: Rubah menampilkan metadata dan konten yang tersedia di dalam RSS/Atom Feed sebagaimana dipublikasikan oleh penyedia feed. Rubah tidak secara sengaja mengubah atribusi, nama penulis, tanggal publikasi, atau tautan ke sumber asli.
 - **Integritas Hak Cipta**: Rubah tidak menghapus watermark, atribusi, maupun informasi hak cipta yang disediakan dalam RSS Feed apabila tersedia.
 - **Navigasi ke Sumber Asli**: Pengguna menyediakan pintasan navigasi (`[o]`) untuk membuka artikel asli langsung di peramban web (*web browser*) resmi penyedia konten.
 - **Kesepadanan Fungsi**: Secara umum Rubah memiliki fungsi yang serupa dengan berbagai aplikasi pembaca RSS/Atom seperti *Newsboat, Liferea, Feedly, Inoreader, NetNewsWire*, maupun pembaca RSS lainnya.
@@ -49,7 +48,7 @@ Rubah dikembangkan sebagai aplikasi pembaca RSS/Atom untuk penggunaan pribadi ma
 
 ## 5. Tanggung Jawab Pengguna (*User Responsibility*)
 
-Pengguna bertanggung jawab atas daftar RSS/Atom Feed yang mereka tambahkan sendiri ke dalam Rubah. Rubah tidak memverifikasi legalitas maupun lisensi dari setiap feed yang dipilih oleh pengguna.
+Pengguna bertanggung jawab atas daftar RSS/Atom Feed yang mereka tambahkan sendiri ke dalam Rubah. Rubah tidak memverifikasi kepemilikan, lisensi, maupun kebijakan penggunaan dari setiap feed yang ditambahkan secara manual oleh pengguna.
 
 ---
 
@@ -71,13 +70,15 @@ Permintaan yang sah akan ditinjau dan diproses dengan itikad baik.
 
 ## 8. Kebijakan Privasi (*Zero Telemetry*)
 
-Aplikasi Rubah tidak mengumpulkan, menyimpan, atau mentransmisikan identitas pengguna, alamat IP, maupun riwayat aktivitas pembacaan ke server mana pun.
+**Zero Telemetry**: Rubah tidak mengumpulkan, menyimpan, atau mentransmisikan identitas pengguna, alamat IP, maupun riwayat aktivitas pembacaan ke server mana pun. Seluruh konfigurasi dan data tersimpan eksklusif di perangkat lokal pengguna.
 
 ---
 
 ## 9. Penolakan Tanggung Jawab (*Disclaimer*)
 
 Aplikasi ini disediakan secara *as-is* (apa adanya). Pengembang aplikasi Rubah tidak bertanggung jawab atas kebenaran, keakuratan, maupun perubahan isi konten yang dipublikasikan oleh penyedia umpan RSS/Atom pihak ketiga.
+
+Ketersediaan RSS/Atom Feed sepenuhnya bergantung pada masing-masing penyedia feed dan dapat berubah atau dihentikan sewaktu-waktu tanpa pemberitahuan.
 
 ---
 

@@ -121,6 +121,6 @@ Aplikasi **Rubah** dirancang sebagai perangkat lunak *client-side Terminal User 
 - 🌐 **Standar Terbuka**: Memproses standar RSS 2.0 / Atom Feed yang dipublikasikan secara terbuka oleh masing-masing penerbit.
 - 🏛️ **Arsitektur Local-First**: Seluruh proses pengambilan data dilakukan secara langsung dari perangkat pengguna ke penerbit tanpa melalui server perantara (*no cloud/proxy server*).
 - ✍️ **Hak Cipta & Penerbit**: Rubah tidak memperoleh hak kepemilikan atas konten. Seluruh hak cipta tetap milik penerbit. Feed bawaan hanya sebagai contoh yang dapat disesuaikan pengguna.
-- 🛡️ **Privasi 100% Lokal**: Tanpa telemetri atau pelacakan (*zero tracking*); seluruh konfigurasi dan data tersimpan eksklusif di perangkat lokal pengguna.
+- 🛡️ **Zero Telemetry**: Rubah does not collect or transmit user data. All configuration and local cache remain on the user's device.
 
 Lihat dokumen **[LEGAL.md](LEGAL.md)** untuk rincian kebijakan penggunaan, hak cipta, hak penerbit, dan prosedur permintaan penghapusan feed (*Feed Removal Request*).
