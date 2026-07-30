@@ -1,51 +1,51 @@
-# ⚖️ Kebijakan Legal, Privasi, & Hak Cipta (Legal & Privacy Policy)
+# 📜 Kebijakan Penggunaan, Hak Cipta, & Privasi (Terms of Use, Copyright & Privacy)
 
-Dokumen ini berisi pernyataan resmi mengenai aspek hukum, etika penggunaan data, privasi, dan hak cipta dari aplikasi **Rubah (Ruang Baca Harian)**.
-
----
-
-## 1. Status Legalitas Aplikasi
-
-Aplikasi **Rubah** adalah perangkat lunak *client-side Terminal User Interface (TUI)* pembaca RSS Feed yang bersifat **100% legal**, etis, dan dikembangkan menggunakan teknologi terbuka (*Open Source*).
-
-Rubah bekerja dengan memanfaatkan protokol sindikasi terbuka (**RSS 2.0 / Atom Feed**) yang dipublikasikan secara resmi, sukarela, dan terbuka oleh penerbit media berita (seperti CNN Indonesia, Antara, Tempo, BBC, dll.) agar dapat diakses oleh publik melalui perangkat agregator berita.
+Dokumen ini menjelaskan prinsip operasional, penanganan data, privasi, dan atribusi hak cipta pada aplikasi **Rubah (Ruang Baca Harian)**.
 
 ---
 
-## 2. Hak Cipta & Atribusi Konten (Copyright & Attribution)
+## 1. Prinsip Operasional & Protokol Sindikasi
 
-1. **Bukan Pemilik Konten**: Rubah **tidak pernah mengklaim kepemilikan** atas artikel, teks, atau gambar yang ditampilkan di dalam aplikasi. Seluruh hak cipta materi berita sepenuhnya milik penerbit media atau penulis asli yang bersangkutan.
-2. **Atribusi Jelas & Transparan**: Setiap berita yang ditampilkan di dalam aplikasi Rubah selalu menyertakan atribusi secara utuh dan jelas, meliputi:
+**Rubah** adalah aplikasi *Terminal User Interface (TUI)* berbasis *client-side* yang berfungsi sebagai alat pembaca (*reader client*) untuk format sindikasi terbuka (**RSS 2.0 / Atom Feed**).
+
+- Aplikasi memproses umpan data (*feeds*) yang dipublikasikan secara terbuka oleh masing-masing penerbit media berita.
+- Pengambilan data dilakukan secara langsung dari perangkat lokal pengguna (*client-side request*) tanpa melalui server perantara terpusat (*middleman proxy server*).
+
+---
+
+## 2. Hak Cipta & Atribusi Konten
+
+1. **Kepemilikan Konten**: Seluruh artikel, naskah, judul, dan gambar berita yang ditampilkan melalui aplikasi ini sepenuhnya merupakan hak cipta milik masing-masing penerbit media atau penulis asli. Rubah tidak mengklaim kepemilikan atas materi tersebut.
+2. **Atribusi Sumber**: Aplikasi secara konsisten menyajikan atribusi informasi secara jelas pada setiap artikel, mencakup:
    - ✍️ **Nama Penulis** (*Author*)
-   - 📰 **Nama Sumber / Media** (*Publisher Source*)
-   - 📅 **Waktu Publikasi Resmi** (*Publication Date*)
-   - 🔗 **Tautan Langsung ke Situs Asli** (*Original Web Link*)
-3. **Akses Langsung ke Situs Asli**: Pengguna dapat dengan mudah membuka halaman berita asli di web browser eksternal milik penerbit dengan menekan tombol navigasi `[o]` (*Open in Browser*).
+   - 📰 **Nama Penerbit / Kanal** (*Publisher Channel*)
+   - 📅 **Waktu Publikasi** (*Publication Timestamp*)
+   - 🔗 **Tautan Web Asli** (*Original Source URL*)
+3. **Navigasi ke Sumber Asli**: Pengguna menyediakan pintasan navigasi (`[o]`) untuk membuka artikel asli langsung di peramban web (*web browser*) resmi penyedia konten.
 
 ---
 
-## 3. Doktrin Penggunaan Wajar (Fair Use & Personal Reading Client)
+## 3. Batasan Penggunaan & Pembacaan Lokal
 
-Aplikasi Rubah dikembangkan berdasarkan doktrin **Penggunaan Wajar (*Fair Use*)** untuk tujuan pembacaan pribadi (*Personal Reading Client*):
-- **Tanpa Komersialisasi Konten**: Aplikasi ini **tidak memperjualbelikan** artikel berita, tidak memuat iklan dari konten pihak ketiga, dan tidak memungut biaya dari konten berita yang ditampilkan.
-- **Client-Side Processing**: Berita diproses dan ditampilkan secara langsung di perangkat komputer lokal milik pengguna tanpa melalui server perantara (*middleman server*) yang menyimpan konten berita secara terpusat.
-- **Kesetaraan Fungsi**: Cara kerja Rubah sama persis dengan web browser (seperti Google Chrome atau Mozilla Firefox) atau agregator berita populer dunia (seperti *Feedly, Inoreader, Apple News, atau Newsboat*).
-
----
-
-## 4. Kebijakan Privasi & Keamanan Data (Privacy Policy)
-
-- **Local-First Architecture**: Seluruh data pengguna (seperti daftar channel RSS favorit, riwayat bacaan, dan artikel yang di-bookmark) disimpan secara **100% lokal** di dalam basis data SQLite di komputer pengguna (`~/.config/rubah/rubah.db`).
-- **Tanpa Pelacakan (No Tracking / Telemetry)**: Aplikasi Rubah **tidak mengumpulkan, tidak merekam, dan tidak mengirimkan** data pribadi, alamat IP, atau aktivitas membaca pengguna ke server mana pun.
+- **Penggunaan Pribadi**: Aplikasi ini dirancang sebagai antarmuka pembacaan pribadi (*personal RSS reader client*).
+- **Tanpa Monetisasi Konten**: Aplikasi tidak menjual ulang konten berita, tidak menyisipkan iklan pihak ketiga, dan tidak memungut biaya atas akses konten sindikasi.
+- **Kesetaraan Fungsi**: Cara kerja antarmuka ini setara dengan peramban web (*web browser*) atau alat pembaca RSS *open-source* pada umumnya.
 
 ---
 
-## 5. Penolakan Tanggung Jawab Konten (Content Disclaimer)
+## 4. Kebijakan Privasi & Keamanan Data
 
-Rubah menyediakan antarmuka pembaca berita secara *as-is* (apa adanya). Pengembang aplikasi Rubah tidak bertanggung jawab atas kebenaran isi berita, opini, atau materi yang dipublikasikan oleh masing-masing penyedia RSS Feed pihak ketiga.
+- **Penyimpanan Lokal (*Local-First Storage*)**: Seluruh konfigurasi kanal, daftar penanda (*bookmarks*), dan riwayat bacaan disimpan secara eksklusif di dalam basis data lokal di perangkat pengguna (`~/.config/rubah/rubah.db`).
+- **Tanpa Telemetri (*Zero Telemetry*)**: Aplikasi tidak mengumpulkan, menyimpan, atau mentransmisikan identitas pengguna, alamat IP, maupun riwayat aktivitas pembacaan ke server eksternal mana pun.
+
+---
+
+## 5. Penolakan Tanggung Jawab (*Disclaimer*)
+
+Aplikasi ini disediakan secara *as-is* (apa adanya). Pengembang aplikasi Rubah tidak bertanggung jawab atas kebenaran, keakuratan, maupun perubahan isi konten yang dipublikasikan oleh penyedia umpan RSS pihak ketiga.
 
 ---
 
 ## 📄 Lisensi Kode Sumber
 
-Kode sumber aplikasi Rubah dirilis secara terbuka di bawah lisensi **GNU General Public License v3.0 (GPL-3.0)**. Siapa pun berhak untuk memeriksa, mempelajari, dan berkontribusi pada pengembangan kode sumber aplikasi ini.
+Kode sumber aplikasi dirilis di bawah lisensi **GNU General Public License v3.0 (GPL-3.0)**.

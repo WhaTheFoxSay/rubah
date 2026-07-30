@@ -109,15 +109,15 @@ irm https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/uninstall.ps1 | ie
 
 ## 📄 Lisensi
 
-Proyek ini dirilis di bawah lisensi **GNU General Public License v3.0 (GPL-3.0)**. Lihat file [LICENSE](LICENSE) untuk informasi lebih lanjut.
+Proyek ini dirilis di bawah lisensi **GNU General Public License v3.0 (GPL-3.0)**. Lihat file [LICENSE](LICENSE) megenai ketentuan lisensi perangkat lunak.
 
 ---
 
-## ⚖️ Kebijakan Legalitas & Privasi (Legal & Privacy)
+## 📜 Kebijakan Penggunaan & Privasi (Terms & Privacy)
 
-Aplikasi **Rubah** adalah agregator RSS Feed *client-side* yang **100% legal, etis, dan mematuhi standar internet terbuka**:
-- 🌐 **Protokol Terbuka**: Hanya membaca RSS/Atom Feed publik yang disediakan secara resmi oleh penerbit media.
-- ✍️ **Atribusi Lengkap**: Menampilkan nama penerbit, penulis, tanggal, dan tautan asli (`[o]`) secara utuh tanpa mengubah hak cipta.
-- 🛡️ **Privasi 100% Lokal**: Tanpa pelacakan, tanpa telemetri, dan seluruh data tersimpan aman di komputer lokal Anda.
+Aplikasi **Rubah** dirancang sebagai antarmuka pembaca RSS Feed *client-side* berbasis *open-source*:
+- 🌐 **Protokol Terbuka**: Memproses format sindikasi standar (RSS 2.0 / Atom) yang dipublikasikan secara resmi oleh penerbit media.
+- ✍️ **Atribusi Lengkap**: Menyajikan nama sumber, penulis, waktu, dan tautan asli (`[o]`) tanpa mengubah hak cipta konten.
+- 🛡️ **Privasi Lokal**: Tanpa telemetri atau pelacakan (*zero tracking*); seluruh konfigurasi dan data tersimpan di perangkat lokal pengguna.
 
-Lihat dokumen lengkap di **[LEGAL.md](LEGAL.md)** untuk informasi kebijakan hukum dan privasi secara mendalam.
+Lihat dokumen **[LEGAL.md](LEGAL.md)** untuk kebijakan penggunaan, hak cipta, dan privasi secara mendalam.
