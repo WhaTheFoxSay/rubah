@@ -4,6 +4,7 @@ use regex::Regex;
 use reqwest::Client;
 use std::time::Duration;
 
+#[derive(Clone)]
 pub struct Fetcher {
     client: Client,
 }
@@ -136,6 +137,7 @@ impl Fetcher {
         Ok(FullArticleResult { body_text, image_url })
     }
 
+    #[allow(dead_code)]
     pub async fn fetch_image_bytes(&self, url: &str) -> Option<Vec<u8>> {
         if url.is_empty() {
             return None;
@@ -146,18 +148,35 @@ impl Fetcher {
     }
 }
 
-fn extract_first_image_url(html: &str) -> Option<String> {
-    let re_img = Regex::new(r#"(?i)<img[^>]+src=["']([^"']+)["']"#).ok()?;
+pub fn extract_first_image_url(html: &str) -> Option<String> {
+    // 1. Try og:image / twitter:image meta tags
+    let re_og = Regex::new(r#"(?i)<meta[^>]+(?:property|name)=["'](?:og:image|twitter:image|image)["'][^>]+content=["']([^"']+)["']"#).ok()?;
+    if let Some(cap) = re_og.captures(html) {
+        let src = &cap[1];
+        if src.starts_with("http://") || src.starts_with("https://") {
+            return Some(src.to_string());
+        }
+    }
+
+    let re_og_rev = Regex::new(r#"(?i)<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["'](?:og:image|twitter:image|image)["']"#).ok()?;
+    if let Some(cap) = re_og_rev.captures(html) {
+        let src = &cap[1];
+        if src.starts_with("http://") || src.starts_with("https://") {
+            return Some(src.to_string());
+        }
+    }
+
+    // 2. Try <img src="..."> or data-src="..."
+    let re_img = Regex::new(r#"(?i)<img[^>]+(?:src|data-src|data-original)=["']([^"']+)["']"#).ok()?;
     for cap in re_img.captures_iter(html) {
         let src = &cap[1];
         if src.starts_with("http://") || src.starts_with("https://") {
-            if src.contains(".jpg") || src.contains(".jpeg") || src.contains(".png") || src.contains(".webp") {
-                if !src.contains("icon") && !src.contains("logo") && !src.contains("avatar") {
-                    return Some(src.to_string());
-                }
+            if !src.contains("icon") && !src.contains("logo") && !src.contains("avatar") && !src.contains("tracking") {
+                return Some(src.to_string());
             }
         }
     }
+
     None
 }
 

@@ -46,8 +46,8 @@ if [ "$OS" = "windows" ]; then
 fi
 
 REPO="WhaTheFoxSay/rubah"
-RELEASE_URL="https://github.com/${REPO}/releases/download/v0.2.1/${BINARY_NAME}"
-ARM64_FALLBACK_URL="https://github.com/${REPO}/releases/download/v0.2.1/rubah-${OS}-arm64"
+RELEASE_URL="https://github.com/${REPO}/releases/download/v0.2.2/${BINARY_NAME}"
+ARM64_FALLBACK_URL="https://github.com/${REPO}/releases/download/v0.2.2/rubah-${OS}-arm64"
 LATEST_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
 
 echo -e "${YELLOW}--> OS: ${BOLD}${OS}${RESET}${YELLOW} (${ARCH})${RESET}"

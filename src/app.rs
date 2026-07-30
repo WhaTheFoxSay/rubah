@@ -146,28 +146,52 @@ impl App {
     }
 
     pub fn view_real_image(&mut self) {
-        if let Some(art) = self.current_article() {
-            if let Some(img_url) = self.current_image_url.clone() {
-                let title = art.title.clone();
-                self.status_message = format!("📸 Membuka foto asli HD: '{}'...", title);
-                tokio::spawn(async move {
-                    if let Ok(response) = reqwest::get(&img_url).await {
-                        if let Ok(bytes) = response.bytes().await {
-                            let cache_dir = dirs::cache_dir()
-                                .unwrap_or_else(|| std::path::PathBuf::from("/tmp"))
-                                .join("rubah");
-                            let _ = std::fs::create_dir_all(&cache_dir);
-                            let img_path = cache_dir.join("photo.jpg");
-                            if std::fs::write(&img_path, &bytes).is_ok() {
-                                let _ = open::that(&img_path);
-                            }
+        let (article_title, article_link) = match self.current_article() {
+            Some(art) => (art.title, art.link),
+            None => return,
+        };
+
+        if article_link.is_empty() {
+            return;
+        }
+
+        let existing_url = self.current_image_url.clone();
+        self.status_message = format!("📸 Membuka foto asli HD: '{}'...", article_title);
+
+        tokio::spawn(async move {
+            let img_target_url = if let Some(url) = existing_url {
+                Some(url)
+            } else {
+                let client = reqwest::Client::builder()
+                    .user_agent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36")
+                    .build()
+                    .unwrap_or_else(|_| reqwest::Client::new());
+                if let Ok(res) = client.get(&article_link).send().await {
+                    if let Ok(text) = res.text().await {
+                        crate::network::extract_first_image_url(&text)
+                    } else {
+                        None
+                    }
+                } else {
+                    None
+                }
+            };
+
+            if let Some(target) = img_target_url {
+                if let Ok(response) = reqwest::get(&target).await {
+                    if let Ok(bytes) = response.bytes().await {
+                        let cache_dir = dirs::cache_dir()
+                            .unwrap_or_else(|| std::path::PathBuf::from("/tmp"))
+                            .join("rubah");
+                        let _ = std::fs::create_dir_all(&cache_dir);
+                        let img_path = cache_dir.join("photo.jpg");
+                        if std::fs::write(&img_path, &bytes).is_ok() {
+                            let _ = open::that(&img_path);
                         }
                     }
-                });
-            } else {
-                self.status_message = "Tidak ada foto untuk artikel ini.".to_string();
+                }
             }
-        }
+        });
     }
 
     pub fn current_articles(&self) -> Vec<Article> {

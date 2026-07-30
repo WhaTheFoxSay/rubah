@@ -270,16 +270,14 @@ fn draw_reader_pane(f: &mut Frame, app: &mut App, area: Rect) {
             Style::default().fg(THEME.border),
         )));
 
-        // Show Real Photo Badge Indicator if image URL is available
-        if app.current_image_url.is_some() {
-            lines.push(Line::from(vec![
-                Span::styled("📸 [Foto Berita] ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
-                Span::styled("Tekan ", Style::default().fg(THEME.fg)),
-                Span::styled("[v]", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
-                Span::styled(" untuk membuka Foto Asli 100% HD di System Viewer", Style::default().fg(THEME.highlight)),
-            ]));
-            lines.push(Line::from(""));
-        }
+        // Show Real Photo Badge Indicator
+        lines.push(Line::from(vec![
+            Span::styled("📸 [Foto Berita] ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
+            Span::styled("Tekan ", Style::default().fg(THEME.fg)),
+            Span::styled("[v]", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
+            Span::styled(" untuk membuka Foto Asli 100% HD", Style::default().fg(THEME.highlight)),
+        ]));
+        lines.push(Line::from(""));
 
         let mut last_was_empty = true;
         for paragraph in art.content.lines() {
