@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# 🦊 RUBAH (Ruang Baca Harian) - Instant Pre-Compiled Installer (1-2 Seconds)
-# Supported OS: Linux (RHEL, CentOS, Ubuntu, Debian, Alpine, etc.), macOS, Windows
+# 🦊 Rubah (Ruang Baca Harian) - Cross-Platform Installer
+# Supported OS: Linux, macOS, Windows, BSD, Haiku OS
 # Usage: curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/install.sh | bash
 # ==============================================================================
 
@@ -15,9 +15,9 @@ BOLD='\033[1m'
 RESET='\033[0m'
 
 echo -e "${CYAN}${BOLD}"
-echo "  🦊 RUBAH - Ruang Baca Harian"
+echo "  🦊 Rubah - Ruang Baca Harian"
 echo "  ================================================="
-echo "  Instant Static Binary Installer (1-2 Detik Tanpa Kompilasi)"
+echo "  Installing Rubah RSS Feed Reader TUI..."
 echo -e "${RESET}"
 
 INSTALL_DIR="$HOME/.local/bin"
@@ -50,8 +50,8 @@ RELEASE_URL="https://github.com/${REPO}/releases/download/v0.1.4/${BINARY_NAME}"
 ARM64_FALLBACK_URL="https://github.com/${REPO}/releases/download/v0.1.4/rubah-${OS}-arm64"
 LATEST_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
 
-echo -e "${YELLOW}--> Mendeteksi OS: ${BOLD}${OS}${RESET}${YELLOW} (${ARCH})...${RESET}"
-echo -e "${YELLOW}--> Mengunduh static binary terkompilasi (9.8MB)...${RESET}"
+echo -e "${YELLOW}--> OS: ${BOLD}${OS}${RESET}${YELLOW} (${ARCH})${RESET}"
+echo -e "${YELLOW}--> Mengunduh binary rilis...${RESET}"
 
 TMP_FILE=$(mktemp /tmp/rubah_bin_XXXXXX 2>/dev/null || mktemp -t rubah_bin)
 trap 'rm -f "$TMP_FILE"' EXIT
@@ -59,7 +59,7 @@ trap 'rm -f "$TMP_FILE"' EXIT
 DOWNLOAD_SUCCESS=0
 USER_AGENT="Mozilla/5.0 (compatible; RubahInstaller/1.0)"
 
-# Try v0.1.4 release URL first with User-Agent
+# Try release URL
 HTTP_CODE=$(curl -sL -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$RELEASE_URL" || echo "000")
 if [ "$HTTP_CODE" -eq 200 ]; then
     DOWNLOAD_SUCCESS=1
@@ -80,12 +80,12 @@ if [ $DOWNLOAD_SUCCESS -eq 0 ]; then
 fi
 
 if [ $DOWNLOAD_SUCCESS -eq 1 ]; then
-    echo -e "${GREEN}--> Download sukses instan! Memasang 'baca' ke $INSTALL_DIR...${RESET}"
+    echo -e "${GREEN}--> Download berhasil. Memasang 'baca' ke $INSTALL_DIR...${RESET}"
     cp "$TMP_FILE" "$INSTALL_DIR/baca"
     chmod +x "$INSTALL_DIR/baca"
     ln -sf "$INSTALL_DIR/baca" "$INSTALL_DIR/rubah"
 else
-    echo -e "${RED}--> Gagal mengunduh binary rilis dari GitHub Releases. Periksa koneksi internet Anda.${RESET}"
+    echo -e "${RED}--> Gagal mengunduh binary rilis dari GitHub. Silakan periksa koneksi internet Anda.${RESET}"
     exit 1
 fi
 
@@ -111,14 +111,14 @@ fi
 
 echo -e "${GREEN}${BOLD}"
 echo "  ==========================================================="
-echo "  🎉 Instalasi Rubah Selesai Dalam 1 Detik!"
+echo "  🎉 Instalasi Rubah selesai!"
 echo "  ==========================================================="
 echo -e "${RESET}"
 
 if [ $PATH_ADDED -eq 1 ]; then
-    echo -e "${CYAN}Silakan restart terminal atau jalankan:${RESET}"
+    echo -e "${CYAN}Silakan restart terminal Anda atau jalankan:${RESET}"
     echo -e "${YELLOW}  source $SHELL_PROFILE${RESET}\n"
 fi
 
-echo -e "${BOLD}Jalankan aplikasi cukup dengan mengetik:${RESET}"
+echo -e "${BOLD}Jalankan aplikasi dengan mengetik:${RESET}"
 echo -e "${GREEN}${BOLD}  baca${RESET}\n"

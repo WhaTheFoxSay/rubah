@@ -1,93 +1,98 @@
-# 🦊 RUBAH - Ruang Baca Harian
+# 🦊 Rubah (Ruang Baca Harian)
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Language: Rust](https://img.shields.io/badge/Language-Rust-orange.svg)](https://www.rust-lang.org/)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows%20%7C%20BSD%20%7C%20Haiku-brightgreen.svg)]()
 
-> **Rubah (Ruang Baca Harian)** adalah aplikasi pembaca berita RSS Feed berbasis Terminal User Interface (TUI) yang sangat cepat, hemat sumber daya, dan **True Cross-Platform** (mendukung **Linux**, **macOS**, **Windows PowerShell/CMD**, **BSD**, dan **Haiku OS**). Dibuat menggunakan bahasa **Rust** dengan framework **Ratatui** dan **Tokio**.
+**Rubah** (Ruang Baca Harian) adalah aplikasi pembaca RSS Feed berbasis *Terminal User Interface* (TUI) yang ringan, cepat, dan bekerja secara *cross-platform* di **Linux**, **macOS**, **Windows**, **BSD**, dan **Haiku OS**. Dibuat menggunakan **Rust** dengan framework **Ratatui** dan **Tokio**.
 
 ---
 
-## ⚡ Instalasi Instan 1 Baris (1-2 Detik Tanpa Kompilasi)
+## 💻 Instalasi
 
-Cukup salin dan tempel perintah berikut di terminal Anda untuk menginstall **Rubah** secara instan:
+Jalankan perintah berikut di terminal Anda:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/install.sh | bash
 ```
 
-Setelah instalasi selesai dalam 1 detik, buka aplikasi cukup dengan mengetik:
+Setelah instalasi selesai, buka aplikasi dengan perintah:
 
 ```bash
 baca
 ```
 
-*(Catatan: Anda juga bisa mengetikkan perintah `rubah`)*
+*(Atau menggunakan perintah `rubah`)*
 
 ---
 
-## ✨ Fitur Utama
+## 📋 Fitur Utama
 
-- 🚀 **Kecepatan Kilat & Hemat RAM**: Pemuatan puluhan RSS Feed secara paralel dalam waktu kurang dari 1 detik. Penggunaan memori sangat minim (~5-15MB RAM).
-- 🐧 **Zero-GLIBC Static Linux Binary**: Menggunakan target **Static MUSL Binary** yang kompatibel 100% dengan **semua distro Linux** (RHEL 7/8/9, CentOS, AlmaLinux, Rocky Linux, Ubuntu, Debian, Alpine, Fedora, Arch) tanpa error glibc.
-- 📺 **Dashboard TUI 3 Panel**:
-  - **Panel Left (Channel)**: Daftar RSS Feed yang dikelompokkan berdasarkan kategori.
-  - **Panel Middle (Artikel)**: Daftar berita dengan indikator dibaca (`●`/`○`), tanggal, dan bookmark (`★`).
-  - **Panel Right (Reader)**: Pembaca berita penuh di dalam terminal dengan dukungan scroll keyboard (`j`/`k`, `d`/`u`).
-- 💾 **Penyimpanan Database SQLite**: Menyimpan RSS feed kustom, artikel favorit (bookmarks), dan riwayat berita yang sudah dibaca.
-- 🔍 **Pencarian Realtime**: Filter judul dan konten berita secara langsung di terminal (`/`).
-- 🌐 **Pre-configured Feed**: Langsung dibekali portal berita populer Indonesia (CNN Indonesia, Antara, Tempo, Detikcom) dan Internasional (Hacker News, TechCrunch, BBC News).
+- **TUI 3-Panel Dashboard**:
+  - **Left**: Daftar channel RSS Feed berdasarkan kategori.
+  - **Middle**: Daftar berita dengan status dibaca (`●`/`○`), tanggal, dan bookmark (`★`).
+  - **Right**: Pembaca konten berita langsung di dalam terminal dengan scroll keyboard.
+- **Ringan & Portabel**: Menggunakan binary statis (MUSL untuk Linux) yang kompatibel dengan berbagai distro Linux (RHEL, CentOS, Ubuntu, Debian, Alpine, dll.) tanpa ketergantungan library luar.
+- **Penyimpanan Lokal SQLite**: Menyimpan RSS feed, riwayat baca, dan artikel favorit di database lokal (`~/.config/rubah/rubah.db`).
+- **Pencarian Realtime**: Filter judul dan konten berita secara langsung (`/`).
+- **Pre-configured Feeds**: Dilengkapi feed berita default populer (CNN Indonesia, Antara, Tempo, Detikcom, Hacker News, TechCrunch, BBC News).
 
 ---
 
-## ⌨️ Bantuan Navigasi & Shortcut Keyboard
+## ⌨️ Shortcut Keyboard
 
-| Tombol | Fungsi |
+| Shortcut | Fungsi |
 | :--- | :--- |
 | `Tab` / `Shift+Tab` | Pindah fokus antar panel (**Channel** ➔ **Berita** ➔ **Reader**) |
 | `j` / `k` atau `↓` / `↑` | Navigasi item ke bawah / atas |
-| `Enter` atau `Space` | Masuk ke mode pembaca penuh berita di terminal |
-| `Esc` | Kembali dari mode reader ke daftar berita |
-| `o` | Membuka link berita asli di Web Browser external |
+| `Enter` / `Space` | Buka dan baca berita penuh di dalam terminal |
+| `Esc` | Kembali dari reader ke daftar berita / reset pencarian |
+| `o` | Membuka link berita di web browser external |
 | `b` | Simpan / hapus artikel dari **Bookmarks** (`★`) |
 | `r` | Refresh / muat ulang seluruh RSS Feed |
-| `a` | Buka dialog **Tambah Channel RSS Feed Baru** |
-| `D` (Shift+D) | Hapus channel RSS Feed terpilih |
-| `/` | Cari berita secara realtime |
+| `a` | Buka dialog **Tambah RSS Feed Baru** |
+| `Shift + D` | Hapus channel RSS Feed terpilih |
+| `/` | Buka mode pencarian realtime |
 | `1` / `2` | Switch Tab: **All Feeds** (1) vs **Bookmarks** (2) |
-| `Shift + U` | Buka menu modal **Uninstall Aplikasi Rubah** |
+| `Shift + U` | Buka menu modal **Uninstall** |
 | `?` | Tampilkan modal bantuan shortcut |
 | `q` | Keluar dari aplikasi |
 
 ---
 
-## 🛠️ Perintah CLI (Command Line)
+## 🛠️ Perintah CLI
 
-Selain antarmuka TUI, Anda dapat mengelola RSS Feed langsung dari CLI:
+Selain antarmuka TUI, Anda juga dapat mengelola RSS Feed dari command line:
 
 ```bash
-# Menampilkan daftar channel yang tersimpan
+# Menampilkan daftar channel tersimpan
 baca list
 
 # Menambahkan channel RSS Feed baru
 baca add --url "https://rss.kompas.com/" --title "Kompas News" --category "Berita Utama"
 
-# Uninstall aplikasi Rubah dari CLI
+# Uninstall aplikasi dari CLI
 baca uninstall
 ```
 
 ---
 
-## 🗑️ Cara Uninstall
+## 🗑️ Uninstall
 
-Anda dapat meng-uninstall aplikasi **Rubah** langsung dari menu aplikasi (tombol `Shift + U`), melalui CLI (`baca uninstall`), atau melalui script perintah 1 baris:
+Untuk menghapus aplikasi Rubah dan data konfigurasinya:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/uninstall.sh | bash
+```
+
+Atau secara manual:
+
+```bash
+rm -f ~/.local/bin/baca ~/.local/bin/rubah && rm -rf ~/.config/rubah
 ```
 
 ---
 
 ## 📄 Lisensi
 
-Proyek ini dilesensikan di bawah **GNU General Public License v3.0 (GPL-3.0)**. Lihat file [LICENSE](LICENSE) untuk informasi lebih detail.
+Proyek ini dirilis di bawah lisensi **GNU General Public License v3.0 (GPL-3.0)**. Lihat file [LICENSE](LICENSE) untuk informasi lebih lanjut.
