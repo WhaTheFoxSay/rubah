@@ -1,6 +1,6 @@
 [package]
 name = "rubah"
-version = "0.4.4"
+version = "0.4.5"
 edition = "2021"
 authors = ["Rubah Team"]
 description = "Ruang Baca Harian - High-performance cross-platform RSS Feed Reader TUI"
