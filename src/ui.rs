@@ -190,7 +190,7 @@ fn draw_feeds_pane(f: &mut Frame, app: &mut App, area: Rect) {
                 .border_style(border_style),
         );
 
-    f.render_widget(list, area);
+    f.render_stateful_widget(list, area, &mut app.feed_list_state);
 }
 
 fn draw_articles_pane(f: &mut Frame, app: &mut App, area: Rect) {
@@ -265,7 +265,7 @@ fn draw_articles_pane(f: &mut Frame, app: &mut App, area: Rect) {
                 .border_style(border_style),
         );
 
-    f.render_widget(list, area);
+    f.render_stateful_widget(list, area, &mut app.article_list_state);
 }
 
 fn draw_reader_pane(f: &mut Frame, app: &mut App, area: Rect) {

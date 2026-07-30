@@ -5,6 +5,8 @@ use crate::storage::Storage;
 use ratatui::text::Line;
 use std::collections::{HashMap, HashSet};
 
+use ratatui::widgets::ListState;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ActivePane {
     Feeds,
@@ -37,6 +39,8 @@ pub struct App {
     pub active_tab: ActiveTab,
     pub selected_feed_idx: usize,
     pub selected_article_idx: usize,
+    pub feed_list_state: ListState,
+    pub article_list_state: ListState,
     pub reader_scroll: u16,
     pub is_loading: bool,
     pub status_message: String,
@@ -64,6 +68,11 @@ impl App {
         let read_articles = storage.get_read_article_ids();
         let fetcher = Fetcher::new();
 
+        let mut feed_list_state = ListState::default();
+        feed_list_state.select(Some(0));
+        let mut article_list_state = ListState::default();
+        article_list_state.select(Some(0));
+
         Self {
             storage,
             fetcher,
@@ -75,6 +84,8 @@ impl App {
             active_tab: ActiveTab::AllFeeds,
             selected_feed_idx: 0,
             selected_article_idx: 0,
+            feed_list_state,
+            article_list_state,
             reader_scroll: 0,
             is_loading: false,
             status_message: "Tekan [?] Bantuan | [j/k] Pilih | [Enter] Baca Penuh | [i] Gambar | [/] Cari".to_string(),
@@ -281,6 +292,8 @@ impl App {
                 if !self.feeds.is_empty() {
                     self.selected_feed_idx = (self.selected_feed_idx + 1) % self.feeds.len();
                     self.selected_article_idx = 0;
+                    self.feed_list_state.select(Some(self.selected_feed_idx));
+                    self.article_list_state.select(Some(0));
                     self.reader_scroll = 0;
                     self.current_image_lines = None;
                 }
@@ -289,6 +302,7 @@ impl App {
                 let len = self.current_articles().len();
                 if len > 0 {
                     self.selected_article_idx = (self.selected_article_idx + 1) % len;
+                    self.article_list_state.select(Some(self.selected_article_idx));
                     self.reader_scroll = 0;
                     self.current_image_lines = None;
                     self.mark_current_read();
@@ -318,6 +332,8 @@ impl App {
                         self.selected_feed_idx -= 1;
                     }
                     self.selected_article_idx = 0;
+                    self.feed_list_state.select(Some(self.selected_feed_idx));
+                    self.article_list_state.select(Some(0));
                     self.reader_scroll = 0;
                     self.current_image_lines = None;
                 }
@@ -330,6 +346,7 @@ impl App {
                     } else {
                         self.selected_article_idx -= 1;
                     }
+                    self.article_list_state.select(Some(self.selected_article_idx));
                     self.reader_scroll = 0;
                     self.current_image_lines = None;
                     self.mark_current_read();
