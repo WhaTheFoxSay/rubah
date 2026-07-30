@@ -12,19 +12,20 @@ pub fn render_image_to_lines(img_bytes: &[u8], target_width: u32, max_height_row
         return None;
     }
 
-    // 1. Contrast & edge sharpening for maximum clarity in 24-bit block art
+    // 1. Contrast & edge sharpening
     let sharpened = img.adjust_contrast(12.0);
 
-    // 2. Terminal character font cell ratio (1 width : ~1.85 height)
-    let available_cols = target_width.clamp(45, 90);
+    // 2. Compact width fitting layout (max 52 columns)
+    let available_cols = target_width.clamp(35, 52);
     let font_aspect_ratio = 1.85;
     let img_aspect = orig_w as f32 / orig_h as f32;
 
     let target_pixel_w = available_cols;
     let target_pixel_h = ((available_cols as f32 / img_aspect) * font_aspect_ratio).round() as u32;
 
-    let max_pixel_h = (max_height_rows * 2).clamp(24, 70);
-    let final_pixel_h = target_pixel_h.clamp(18, max_pixel_h);
+    // Cap max height to 10-12 terminal rows for neat layout fitting
+    let max_pixel_h = (max_height_rows * 2).clamp(16, 24);
+    let final_pixel_h = target_pixel_h.clamp(12, max_pixel_h);
 
     // 3. Lanczos3 high-definition anti-aliased resampling
     let resized = sharpened.resize_exact(target_pixel_w, final_pixel_h, FilterType::Lanczos3);
