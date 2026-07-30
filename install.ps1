@@ -17,7 +17,7 @@ if (!(Test-Path $InstallDir)) {
 }
 
 $ExePath = Join-Path $InstallDir "baca.exe"
-$PrimaryUrl = "https://github.com/WhaTheFoxSay/rubah/releases/download/v0.3.3/rubah-windows-amd64.exe"
+$PrimaryUrl = "https://github.com/WhaTheFoxSay/rubah/releases/download/v0.3.4/rubah-windows-amd64.exe"
 $LatestUrl = "https://github.com/WhaTheFoxSay/rubah/releases/latest/download/rubah-windows-amd64.exe"
 
 Write-Host "--> Mengunduh binary 'baca.exe'..." -ForegroundColor Cyan

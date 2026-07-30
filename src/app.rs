@@ -400,16 +400,18 @@ impl App {
         #[cfg(target_os = "windows")]
         {
             if let Ok(exe_path) = std::env::current_exe() {
-                let exe_str = exe_path.to_string_lossy().to_string();
-                let parent_dir = exe_path.parent().map(|p| p.to_string_lossy().to_string()).unwrap_or_default();
-                let cmd_str = format!(
-                    "timeout /t 1 /nobreak > nul & del /f /q \"{}\" & rmdir /s /q \"{}\"",
-                    exe_str, parent_dir
-                );
-                let _ = std::process::Command::new("cmd")
-                    .arg("/C")
-                    .arg(cmd_str)
-                    .spawn();
+                if let Some(parent_dir) = exe_path.parent() {
+                    let parent_str = parent_dir.to_string_lossy();
+                    let _ = std::process::Command::new("powershell")
+                        .args(&[
+                            "-NoProfile",
+                            "-WindowStyle",
+                            "Hidden",
+                            "-Command",
+                            &format!("Start-Sleep -Seconds 1; Remove-Item -Path '{}' -Recurse -Force", parent_str),
+                        ])
+                        .spawn();
+                }
             }
         }
 
