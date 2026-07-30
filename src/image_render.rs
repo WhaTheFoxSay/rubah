@@ -4,14 +4,15 @@ use ratatui::{
     text::{Line, Span},
 };
 
-pub fn render_image_to_lines(img_bytes: &[u8], target_width: u32, target_height_rows: u32) -> Option<Vec<Line<'static>>> {
+pub fn render_image_to_lines(img_bytes: &[u8], target_width: u32, max_height_rows: u32) -> Option<Vec<Line<'static>>> {
     let img = image::load_from_memory(img_bytes).ok()?;
 
-    let target_pixel_width = target_width.clamp(20, 60);
-    // Each terminal row represents 2 vertical pixels
-    let target_pixel_height = target_height_rows * 2;
+    // Allow full pane width (up to 85 columns for maximum pixel clarity)
+    let available_width = target_width.clamp(35, 85);
+    let max_pixel_height = (max_height_rows * 2).clamp(24, 60);
 
-    let resized = img.resize_exact(target_pixel_width, target_pixel_height, FilterType::Triangle);
+    // Preserve exact aspect ratio using Lanczos3 high-definition sharpening filter
+    let resized = img.resize(available_width, max_pixel_height, FilterType::Lanczos3);
     let (width, height) = resized.dimensions();
 
     let mut lines = Vec::new();

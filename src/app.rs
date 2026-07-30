@@ -147,7 +147,7 @@ impl App {
                 // Fetch image if present
                 if let Some(img_url) = res.image_url {
                     if let Some(bytes) = self.fetcher.fetch_image_bytes(&img_url).await {
-                        if let Some(lines) = render_image_to_lines(&bytes, 50, 11) {
+                        if let Some(lines) = render_image_to_lines(&bytes, 75, 18) {
                             self.current_image_lines = Some(lines);
                         }
                     }
