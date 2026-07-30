@@ -185,9 +185,17 @@ impl App {
                 }
             }
             ActivePane::Reader => {
-                self.reader_scroll = self.reader_scroll.saturating_add(2);
+                self.reader_scroll = self.reader_scroll.saturating_add(1);
             }
         }
+    }
+
+    pub fn scroll_reader_down(&mut self) {
+        self.reader_scroll = self.reader_scroll.saturating_add(5);
+    }
+
+    pub fn scroll_reader_up(&mut self) {
+        self.reader_scroll = self.reader_scroll.saturating_sub(5);
     }
 
     pub fn prev_item(&mut self) {

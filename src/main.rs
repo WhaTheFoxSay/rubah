@@ -173,6 +173,11 @@ async fn run_app(
                             KeyCode::Char('j') | KeyCode::Down => app.next_item(),
                             KeyCode::Char('k') | KeyCode::Up => app.prev_item(),
 
+                            KeyCode::Char('d') if app.active_pane == app::ActivePane::Reader => app.scroll_reader_down(),
+                            KeyCode::Char('u') if app.active_pane == app::ActivePane::Reader => app.scroll_reader_up(),
+                            KeyCode::PageDown => app.scroll_reader_down(),
+                            KeyCode::PageUp => app.scroll_reader_up(),
+
                             KeyCode::Char('1') => {
                                 app.active_tab = ActiveTab::AllFeeds;
                                 app.selected_article_idx = 0;
@@ -188,21 +193,33 @@ async fn run_app(
                             KeyCode::Char('b') => {
                                 app.toggle_current_bookmark();
                             }
-                            KeyCode::Char('o') | KeyCode::Enter => {
+                            KeyCode::Char('o') => {
                                 app.mark_current_read();
                                 app.open_current_in_browser();
+                            }
+                            KeyCode::Enter | KeyCode::Char(' ') => {
+                                app.mark_current_read();
+                                match app.active_pane {
+                                    app::ActivePane::Feeds => app.active_pane = app::ActivePane::Articles,
+                                    app::ActivePane::Articles => app.active_pane = app::ActivePane::Reader,
+                                    app::ActivePane::Reader => app.active_pane = app::ActivePane::Articles,
+                                }
                             }
                             KeyCode::Char('a') => {
                                 app.input_mode = InputMode::AddFeedTitle;
                             }
-                            KeyCode::Char('d') => {
+                            KeyCode::Char('D') => {
                                 app.delete_selected_feed();
                             }
                             KeyCode::Char('/') => {
                                 app.input_mode = InputMode::Search;
                             }
                             KeyCode::Esc => {
-                                app.search_query.clear();
+                                if app.active_pane == app::ActivePane::Reader {
+                                    app.active_pane = app::ActivePane::Articles;
+                                } else {
+                                    app.search_query.clear();
+                                }
                             }
                             _ => {}
                         }

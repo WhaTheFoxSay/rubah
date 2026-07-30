@@ -238,40 +238,65 @@ fn draw_reader_pane(f: &mut Frame, app: &mut App, area: Rect) {
 
     let current_art = app.current_article();
     let text = if let Some(art) = current_art {
-        vec![
-            Line::from(Span::styled(
-                art.title.clone(),
-                Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD),
-            )),
-            Line::from(vec![
-                Span::styled("Sumber: ", Style::default().fg(THEME.muted)),
-                Span::styled(art.feed_title.clone(), Style::default().fg(THEME.highlight)),
-                Span::styled(" | Tanggal: ", Style::default().fg(THEME.muted)),
-                Span::styled(art.published.clone(), Style::default().fg(THEME.fg)),
-            ]),
-            Line::from(vec![
-                Span::styled("Penulis: ", Style::default().fg(THEME.muted)),
-                Span::styled(art.author.clone(), Style::default().fg(THEME.fg)),
-            ]),
-            Line::from(vec![
-                Span::styled("Link: ", Style::default().fg(THEME.muted)),
-                Span::styled(art.link.clone(), Style::default().fg(Color::Cyan).add_modifier(Modifier::UNDERLINED)),
-            ]),
-            Line::from("─".repeat(area.width.saturating_sub(4) as usize)),
-            Line::from(""),
-            Line::from(Span::styled(art.content.clone(), Style::default().fg(THEME.fg))),
-        ]
+        let mut lines = Vec::new();
+
+        lines.push(Line::from(Span::styled(
+            format!("📰 {}", art.title),
+            Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD),
+        )));
+        lines.push(Line::from(""));
+
+        lines.push(Line::from(vec![
+            Span::styled("📌 Sumber   : ", Style::default().fg(THEME.muted)),
+            Span::styled(art.feed_title.clone(), Style::default().fg(THEME.highlight).add_modifier(Modifier::BOLD)),
+            Span::styled("  |  ⏱ Waktu: ", Style::default().fg(THEME.muted)),
+            Span::styled(art.published.clone(), Style::default().fg(THEME.fg)),
+        ]));
+        lines.push(Line::from(vec![
+            Span::styled("✍️ Penulis  : ", Style::default().fg(THEME.muted)),
+            Span::styled(art.author.clone(), Style::default().fg(THEME.fg)),
+        ]));
+        lines.push(Line::from(vec![
+            Span::styled("🔗 Link Web : ", Style::default().fg(THEME.muted)),
+            Span::styled(art.link.clone(), Style::default().fg(Color::Cyan).add_modifier(Modifier::UNDERLINED)),
+        ]));
+
+        lines.push(Line::from(""));
+        lines.push(Line::from(Span::styled(
+            "─".repeat(area.width.saturating_sub(4) as usize),
+            Style::default().fg(THEME.border),
+        )));
+        lines.push(Line::from(""));
+
+        for paragraph in art.content.lines() {
+            if paragraph.trim().is_empty() {
+                lines.push(Line::from(""));
+            } else {
+                lines.push(Line::from(Span::styled(
+                    paragraph.to_string(),
+                    Style::default().fg(THEME.fg),
+                )));
+            }
+        }
+
+        lines
     } else {
         vec![Line::from(Span::styled(
-            "Pilih artikel untuk membaca konten...",
+            "Pilih berita dari daftar untuk membaca di terminal...",
             Style::default().fg(THEME.muted),
         ))]
+    };
+
+    let title = if is_active {
+        " 📖 Reader Mode (Tekan [j/k] Scroll | [Esc] Kembali ke Daftar Berita) "
+    } else {
+        " 📖 Preview Berita (Tekan [Enter] / [Space] untuk Membaca) "
     };
 
     let paragraph = Paragraph::new(text)
         .block(
             Block::default()
-                .title(" 📖 Pembaca Berita ")
+                .title(title)
                 .borders(Borders::ALL)
                 .border_type(BorderType::Rounded)
                 .border_style(border_style),
