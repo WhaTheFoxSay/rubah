@@ -1,11 +1,9 @@
-use base64::{engine::general_purpose::STANDARD, Engine as _};
 use image::{imageops::FilterType, GenericImageView};
 use ratatui::{
     style::{Color, Style},
     text::{Line, Span},
 };
 
-#[allow(dead_code)]
 pub fn render_image_to_lines(img_bytes: &[u8], target_width: u32, max_height_rows: u32) -> Option<Vec<Line<'static>>> {
     let img = image::load_from_memory(img_bytes).ok()?;
 
@@ -14,20 +12,22 @@ pub fn render_image_to_lines(img_bytes: &[u8], target_width: u32, max_height_row
         return None;
     }
 
-    // Determine target dimensions keeping exact aspect ratio
-    // Terminal character cells have ~1:2 width:height aspect ratio (height is 2x width)
-    let available_cols = target_width.clamp(40, 85);
-    let max_pixel_h = max_height_rows * 2;
+    // 1. Contrast & edge sharpening for maximum clarity in 24-bit block art
+    let sharpened = img.adjust_contrast(12.0);
 
-    // Calculate aspect-ratio preserving dimensions
-    let aspect = orig_w as f32 / orig_h as f32;
+    // 2. Terminal character font cell ratio (1 width : ~1.85 height)
+    let available_cols = target_width.clamp(45, 90);
+    let font_aspect_ratio = 1.85;
+    let img_aspect = orig_w as f32 / orig_h as f32;
+
     let target_pixel_w = available_cols;
-    let target_pixel_h = ((available_cols as f32 / aspect) / 1.0).round() as u32;
+    let target_pixel_h = ((available_cols as f32 / img_aspect) * font_aspect_ratio).round() as u32;
 
-    let final_pixel_h = target_pixel_h.clamp(16, max_pixel_h);
+    let max_pixel_h = (max_height_rows * 2).clamp(24, 70);
+    let final_pixel_h = target_pixel_h.clamp(18, max_pixel_h);
 
-    // High-definition Lanczos3 anti-aliasing downscaling
-    let resized = img.resize_exact(target_pixel_w, final_pixel_h, FilterType::Lanczos3);
+    // 3. Lanczos3 high-definition anti-aliased resampling
+    let resized = sharpened.resize_exact(target_pixel_w, final_pixel_h, FilterType::Lanczos3);
     let (width, height) = resized.dimensions();
 
     let mut lines = Vec::new();
@@ -53,16 +53,4 @@ pub fn render_image_to_lines(img_bytes: &[u8], target_width: u32, max_height_row
     }
 
     Some(lines)
-}
-
-#[allow(dead_code)]
-pub fn generate_iterm2_hd_string(img_bytes: &[u8], width_cols: u16) -> Option<String> {
-    if img_bytes.is_empty() {
-        return None;
-    }
-    let b64 = STANDARD.encode(img_bytes);
-    Some(format!(
-        "\x1b]1337;File=inline=1;width={}ch;preserveAspectRatio=1:{}\x07",
-        width_cols, b64
-    ))
 }

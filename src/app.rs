@@ -1,7 +1,8 @@
+use crate::image_render::render_image_to_lines;
 use crate::models::{Article, FeedSource};
 use crate::network::Fetcher;
 use crate::storage::Storage;
-use base64::{engine::general_purpose::STANDARD, Engine as _};
+use ratatui::text::Line;
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -41,7 +42,8 @@ pub struct App {
     pub status_message: String,
     pub show_help: bool,
     pub show_uninstall_confirm: bool,
-    pub current_image_url: Option<String>,
+    pub show_image: bool,
+    pub current_image_lines: Option<Vec<Line<'static>>>,
 
     // Search & Filter
     pub input_mode: InputMode,
@@ -72,15 +74,25 @@ impl App {
             selected_article_idx: 0,
             reader_scroll: 0,
             is_loading: false,
-            status_message: "Tekan [?] Bantuan | [Enter] Baca Penuh | [v] Lihat Foto HD | [r] Refresh | [/] Cari".to_string(),
+            status_message: "Tekan [?] Bantuan | [Enter] Baca Penuh | [i] Gambar On/Off | [r] Refresh | [/] Cari".to_string(),
             show_help: false,
             show_uninstall_confirm: false,
-            current_image_url: None,
+            show_image: true,
+            current_image_lines: None,
             input_mode: InputMode::Normal,
             search_query: String::new(),
             new_feed_title: String::new(),
             new_feed_url: String::new(),
             new_feed_category: "Umum".to_string(),
+        }
+    }
+
+    pub fn toggle_image_display(&mut self) {
+        self.show_image = !self.show_image;
+        if self.show_image {
+            self.status_message = "🖼️ Tampilan Gambar [ON]".to_string();
+        } else {
+            self.status_message = "🖼️ Tampilan Gambar [OFF]".to_string();
         }
     }
 
@@ -112,13 +124,12 @@ impl App {
             return;
         }
 
-        self.status_message = format!("📥 Mengunduh isi artikel: '{}'...", article_title);
-        self.current_image_url = None;
+        self.status_message = format!("📥 Mengunduh artikel & gambar HD: '{}'...", article_title);
+        self.current_image_lines = None;
 
         match self.fetcher.fetch_full_article_body(&article_link).await {
             Ok(res) => {
                 let full_text = res.body_text;
-                self.current_image_url = res.image_url;
 
                 if !full_text.trim().is_empty() {
                     // Update in articles_by_feed
@@ -134,71 +145,21 @@ impl App {
                     }
                 }
 
-                if let Some(img) = &self.current_image_url {
-                    self.status_message = format!("✅ Artikel dimuat! Tekan [v] untuk Buka Foto: {}", img);
-                } else {
-                    self.status_message = "✅ Artikel penuh berhasil dimuat!".to_string();
+                // Fetch image if present
+                if let Some(img_url) = res.image_url {
+                    if let Some(bytes) = self.fetcher.fetch_image_bytes(&img_url).await {
+                        if let Some(lines) = render_image_to_lines(&bytes, 80, 22) {
+                            self.current_image_lines = Some(lines);
+                        }
+                    }
                 }
+
+                self.status_message = "✅ Artikel & gambar tajam berhasil dimuat!".to_string();
             }
             Err(e) => {
                 self.status_message = format!("Gagal memuat artikel: {}", e);
             }
         }
-    }
-
-    pub fn view_real_image(&mut self) {
-        let (article_title, article_link) = match self.current_article() {
-            Some(art) => (art.title, art.link),
-            None => return,
-        };
-
-        if article_link.is_empty() {
-            return;
-        }
-
-        let existing_url = self.current_image_url.clone();
-        self.status_message = format!("📸 Mengunduh foto HD: '{}'...", article_title);
-
-        tokio::spawn(async move {
-            let img_target_url = if let Some(url) = existing_url {
-                Some(url)
-            } else {
-                let client = reqwest::Client::builder()
-                    .user_agent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36")
-                    .build()
-                    .unwrap_or_else(|_| reqwest::Client::new());
-                if let Ok(res) = client.get(&article_link).send().await {
-                    if let Ok(text) = res.text().await {
-                        crate::network::extract_first_image_url(&text)
-                    } else {
-                        None
-                    }
-                } else {
-                    None
-                }
-            };
-
-            if let Some(target) = img_target_url {
-                if let Ok(response) = reqwest::get(&target).await {
-                    if let Ok(bytes) = response.bytes().await {
-                        let cache_dir = dirs::cache_dir()
-                            .unwrap_or_else(|| std::path::PathBuf::from("/tmp"))
-                            .join("rubah");
-                        let _ = std::fs::create_dir_all(&cache_dir);
-                        let img_path = cache_dir.join("photo.jpg");
-                        if std::fs::write(&img_path, &bytes).is_ok() {
-                            // Try system viewer
-                            let opened = open::that(&img_path).is_ok();
-                            if !opened {
-                                // If SSH or no GUI display, output iTerm2 inline image escape code
-                                let b64 = STANDARD.encode(&bytes);
-                                print!("\x1b]1337;File=inline=1;width=70ch;preserveAspectRatio=1:{}\x07", b64);
-                            }
-                        }
-                    }
-                }
-            }
-        });
     }
 
     pub fn current_articles(&self) -> Vec<Article> {
@@ -278,7 +239,7 @@ impl App {
                     self.selected_feed_idx = (self.selected_feed_idx + 1) % self.feeds.len();
                     self.selected_article_idx = 0;
                     self.reader_scroll = 0;
-                    self.current_image_url = None;
+                    self.current_image_lines = None;
                 }
             }
             ActivePane::Articles => {
@@ -286,7 +247,7 @@ impl App {
                 if len > 0 {
                     self.selected_article_idx = (self.selected_article_idx + 1) % len;
                     self.reader_scroll = 0;
-                    self.current_image_url = None;
+                    self.current_image_lines = None;
                     self.mark_current_read();
                 }
             }
@@ -315,7 +276,7 @@ impl App {
                     }
                     self.selected_article_idx = 0;
                     self.reader_scroll = 0;
-                    self.current_image_url = None;
+                    self.current_image_lines = None;
                 }
             }
             ActivePane::Articles => {
@@ -327,7 +288,7 @@ impl App {
                         self.selected_article_idx -= 1;
                     }
                     self.reader_scroll = 0;
-                    self.current_image_url = None;
+                    self.current_image_lines = None;
                     self.mark_current_read();
                 }
             }

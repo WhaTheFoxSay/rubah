@@ -270,14 +270,24 @@ fn draw_reader_pane(f: &mut Frame, app: &mut App, area: Rect) {
             Style::default().fg(THEME.border),
         )));
 
-        // Show Real Photo Badge Indicator
-        lines.push(Line::from(vec![
-            Span::styled("📸 [Foto Berita] ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
-            Span::styled("Tekan ", Style::default().fg(THEME.fg)),
-            Span::styled("[v]", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
-            Span::styled(" untuk membuka Foto Asli 100% HD", Style::default().fg(THEME.highlight)),
-        ]));
-        lines.push(Line::from(""));
+        lines.push(Line::from(Span::styled(
+            "─".repeat(area.width.saturating_sub(4) as usize),
+            Style::default().fg(THEME.border),
+        )));
+
+        // Render 24-bit Sharpened Article Image
+        if app.show_image {
+            if let Some(img_lines) = &app.current_image_lines {
+                for line in img_lines {
+                    lines.push(line.clone());
+                }
+                lines.push(Line::from(Span::styled(
+                    "📷 [Foto Berita Utama] - Tekan [i] Toggle On/Off",
+                    Style::default().fg(THEME.muted).add_modifier(Modifier::ITALIC),
+                )));
+                lines.push(Line::from(""));
+            }
+        }
 
         let mut last_was_empty = true;
         for paragraph in art.content.lines() {
