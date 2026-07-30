@@ -270,6 +270,20 @@ fn draw_reader_pane(f: &mut Frame, app: &mut App, area: Rect) {
             Style::default().fg(THEME.border),
         )));
 
+        // Render Article Photo Image if available and enabled
+        if app.show_image {
+            if let Some(img_lines) = &app.current_image_lines {
+                for line in img_lines {
+                    lines.push(line.clone());
+                }
+                lines.push(Line::from(Span::styled(
+                    "📷 [Foto Berita Utama]",
+                    Style::default().fg(THEME.muted).add_modifier(Modifier::ITALIC),
+                )));
+                lines.push(Line::from(""));
+            }
+        }
+
         let mut last_was_empty = true;
         for paragraph in art.content.lines() {
             let trimmed = paragraph.trim();

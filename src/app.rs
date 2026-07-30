@@ -1,6 +1,8 @@
+use crate::image_render::render_image_to_lines;
 use crate::models::{Article, FeedSource};
 use crate::network::Fetcher;
 use crate::storage::Storage;
+use ratatui::text::Line;
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -40,6 +42,8 @@ pub struct App {
     pub status_message: String,
     pub show_help: bool,
     pub show_uninstall_confirm: bool,
+    pub show_image: bool,
+    pub current_image_lines: Option<Vec<Line<'static>>>,
 
     // Search & Filter
     pub input_mode: InputMode,
@@ -70,14 +74,25 @@ impl App {
             selected_article_idx: 0,
             reader_scroll: 0,
             is_loading: false,
-            status_message: "Tekan [?] Bantuan | [Enter] Baca Penuh | [f] Muat Artikel Penuh | [r] Refresh | [/] Cari".to_string(),
+            status_message: "Tekan [?] Bantuan | [Enter] Baca Penuh | [i] Gambar On/Off | [r] Refresh | [/] Cari".to_string(),
             show_help: false,
             show_uninstall_confirm: false,
+            show_image: true,
+            current_image_lines: None,
             input_mode: InputMode::Normal,
             search_query: String::new(),
             new_feed_title: String::new(),
             new_feed_url: String::new(),
             new_feed_category: "Umum".to_string(),
+        }
+    }
+
+    pub fn toggle_image_display(&mut self) {
+        self.show_image = !self.show_image;
+        if self.show_image {
+            self.status_message = "🖼️ Tampilan Gambar Ditampilkan [ON]".to_string();
+        } else {
+            self.status_message = "🖼️ Tampilan Gambar Disembunyikan [OFF]".to_string();
         }
     }
 
@@ -109,10 +124,12 @@ impl App {
             return;
         }
 
-        self.status_message = format!("📥 Mengunduh artikel penuh: '{}'...", article_title);
+        self.status_message = format!("📥 Mengunduh artikel & gambar: '{}'...", article_title);
+        self.current_image_lines = None;
 
         match self.fetcher.fetch_full_article_body(&article_link).await {
-            Ok(full_text) => {
+            Ok(res) => {
+                let full_text = res.body_text;
                 if !full_text.trim().is_empty() {
                     // Update in articles_by_feed
                     if !self.feeds.is_empty() && self.selected_feed_idx < self.feeds.len() {
@@ -125,11 +142,21 @@ impl App {
                             }
                         }
                     }
-                    self.status_message = "✅ Artikel penuh berhasil dimuat!".to_string();
                 }
+
+                // Fetch image if present
+                if let Some(img_url) = res.image_url {
+                    if let Some(bytes) = self.fetcher.fetch_image_bytes(&img_url).await {
+                        if let Some(lines) = render_image_to_lines(&bytes, 50, 11) {
+                            self.current_image_lines = Some(lines);
+                        }
+                    }
+                }
+
+                self.status_message = "✅ Artikel & gambar berhasil dimuat!".to_string();
             }
             Err(e) => {
-                self.status_message = format!("Gagal memuat artikel penuh: {}", e);
+                self.status_message = format!("Gagal memuat artikel: {}", e);
             }
         }
     }
@@ -211,6 +238,7 @@ impl App {
                     self.selected_feed_idx = (self.selected_feed_idx + 1) % self.feeds.len();
                     self.selected_article_idx = 0;
                     self.reader_scroll = 0;
+                    self.current_image_lines = None;
                 }
             }
             ActivePane::Articles => {
@@ -218,6 +246,7 @@ impl App {
                 if len > 0 {
                     self.selected_article_idx = (self.selected_article_idx + 1) % len;
                     self.reader_scroll = 0;
+                    self.current_image_lines = None;
                     self.mark_current_read();
                 }
             }
@@ -246,6 +275,7 @@ impl App {
                     }
                     self.selected_article_idx = 0;
                     self.reader_scroll = 0;
+                    self.current_image_lines = None;
                 }
             }
             ActivePane::Articles => {
@@ -257,6 +287,7 @@ impl App {
                         self.selected_article_idx -= 1;
                     }
                     self.reader_scroll = 0;
+                    self.current_image_lines = None;
                     self.mark_current_read();
                 }
             }

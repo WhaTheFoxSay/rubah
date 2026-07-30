@@ -1,5 +1,6 @@
 mod app;
 mod cli;
+mod image_render;
 mod models;
 mod network;
 mod storage;
@@ -218,6 +219,9 @@ async fn run_app(
                             }
                             KeyCode::Char('f') | KeyCode::Char('F') => {
                                 app.fetch_full_content_for_selected().await;
+                            }
+                            KeyCode::Char('i') | KeyCode::Char('I') => {
+                                app.toggle_image_display();
                             }
                             KeyCode::Char('b') => {
                                 app.toggle_current_bookmark();

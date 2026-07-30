@@ -8,6 +8,11 @@ pub struct Fetcher {
     client: Client,
 }
 
+pub struct FullArticleResult {
+    pub body_text: String,
+    pub image_url: Option<String>,
+}
+
 impl Fetcher {
     pub fn new() -> Self {
         let client = Client::builder()
@@ -102,7 +107,7 @@ impl Fetcher {
         results
     }
 
-    pub async fn fetch_full_article_body(&self, url: &str) -> Result<String, String> {
+    pub async fn fetch_full_article_body(&self, url: &str) -> Result<FullArticleResult, String> {
         if url.is_empty() {
             return Err("URL kosong".to_string());
         }
@@ -119,13 +124,41 @@ impl Fetcher {
             .await
             .map_err(|e| format!("Gagal membaca HTML: {}", e))?;
 
+        let image_url = extract_first_image_url(&html_text);
         let extracted = extract_article_paragraphs(&html_text);
-        if extracted.trim().is_empty() {
-            Ok(clean_html(&html_text))
+
+        let body_text = if extracted.trim().is_empty() {
+            clean_html(&html_text)
         } else {
-            Ok(extracted)
+            extracted
+        };
+
+        Ok(FullArticleResult { body_text, image_url })
+    }
+
+    pub async fn fetch_image_bytes(&self, url: &str) -> Option<Vec<u8>> {
+        if url.is_empty() {
+            return None;
+        }
+        let response = self.client.get(url).send().await.ok()?;
+        let bytes = response.bytes().await.ok()?;
+        Some(bytes.to_vec())
+    }
+}
+
+fn extract_first_image_url(html: &str) -> Option<String> {
+    let re_img = Regex::new(r#"(?i)<img[^>]+src=["']([^"']+)["']"#).ok()?;
+    for cap in re_img.captures_iter(html) {
+        let src = &cap[1];
+        if src.starts_with("http://") || src.starts_with("https://") {
+            if src.contains(".jpg") || src.contains(".jpeg") || src.contains(".png") || src.contains(".webp") {
+                if !src.contains("icon") && !src.contains("logo") && !src.contains("avatar") {
+                    return Some(src.to_string());
+                }
+            }
         }
     }
+    None
 }
 
 fn clean_html(html: &str) -> String {
