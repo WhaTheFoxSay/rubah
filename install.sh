@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # ==============================================================================
 # 🦊 RUBAH (Ruang Baca Harian) - Instant Pre-Compiled Installer (1-2 Seconds)
-# Supported OS: Linux, macOS, Windows
+# Supported OS: Linux (RHEL, CentOS, Ubuntu, Debian, Alpine, etc.), macOS, Windows
 # Usage: curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/install.sh | bash
 # ==============================================================================
 
@@ -17,7 +17,7 @@ RESET='\033[0m'
 echo -e "${CYAN}${BOLD}"
 echo "  🦊 RUBAH - Ruang Baca Harian"
 echo "  ================================================="
-echo "  Instant Binary Installer (1-2 Detik Tanpa Kompilasi)"
+echo "  Instant Static Binary Installer (1-2 Detik Tanpa Kompilasi)"
 echo -e "${RESET}"
 
 INSTALL_DIR="$HOME/.local/bin"
@@ -51,28 +51,29 @@ ARM64_FALLBACK_URL="https://github.com/${REPO}/releases/download/v0.1.4/rubah-${
 LATEST_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
 
 echo -e "${YELLOW}--> Mendeteksi OS: ${BOLD}${OS}${RESET}${YELLOW} (${ARCH})...${RESET}"
-echo -e "${YELLOW}--> Mengunduh binary rilis terkompilasi...${RESET}"
+echo -e "${YELLOW}--> Mengunduh static binary terkompilasi (9.8MB)...${RESET}"
 
 TMP_FILE=$(mktemp /tmp/rubah_bin_XXXXXX 2>/dev/null || mktemp -t rubah_bin)
 trap 'rm -f "$TMP_FILE"' EXIT
 
 DOWNLOAD_SUCCESS=0
+USER_AGENT="Mozilla/5.0 (compatible; RubahInstaller/1.0)"
 
-# Try v0.1.3 release URL first
-HTTP_CODE=$(curl -sL -w "%{http_code}" -o "$TMP_FILE" "$RELEASE_URL" || echo "000")
+# Try v0.1.4 release URL first with User-Agent
+HTTP_CODE=$(curl -sL -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$RELEASE_URL" || echo "000")
 if [ "$HTTP_CODE" -eq 200 ]; then
     DOWNLOAD_SUCCESS=1
 fi
 
 if [ $DOWNLOAD_SUCCESS -eq 0 ]; then
-    HTTP_CODE=$(curl -sL -w "%{http_code}" -o "$TMP_FILE" "$ARM64_FALLBACK_URL" || echo "000")
+    HTTP_CODE=$(curl -sL -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$ARM64_FALLBACK_URL" || echo "000")
     if [ "$HTTP_CODE" -eq 200 ]; then
         DOWNLOAD_SUCCESS=1
     fi
 fi
 
 if [ $DOWNLOAD_SUCCESS -eq 0 ]; then
-    HTTP_CODE=$(curl -sL -w "%{http_code}" -o "$TMP_FILE" "$LATEST_URL" || echo "000")
+    HTTP_CODE=$(curl -sL -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$LATEST_URL" || echo "000")
     if [ "$HTTP_CODE" -eq 200 ]; then
         DOWNLOAD_SUCCESS=1
     fi
