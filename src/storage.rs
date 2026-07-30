@@ -14,12 +14,10 @@ impl Storage {
             let _ = std::fs::create_dir_all(parent);
         }
 
-        let conn = Connection::open(&db_path)
-            .or_else(|_| Connection::open_in_memory())
-            .expect("Failed to open SQLite database");
+        let conn = Self::open_or_fallback(&db_path);
 
         let storage = Self { conn };
-        storage.init_tables().expect("Failed to initialize database tables");
+        let _ = storage.init_tables();
 
         // Pre-populate default feeds if empty
         if storage.get_feeds().map(|f| f.is_empty()).unwrap_or(true) {
@@ -29,6 +27,39 @@ impl Storage {
         }
 
         storage
+    }
+
+    fn open_or_fallback(db_path: &PathBuf) -> Connection {
+        // Try opening target DB path
+        if let Ok(conn) = Connection::open(db_path) {
+            if conn.execute("PRAGMA journal_mode=DELETE;", []).is_ok() {
+                return conn;
+            }
+        }
+
+        // If corrupted or permission failed, try recreating file
+        if db_path.exists() {
+            let _ = std::fs::remove_file(db_path);
+            let _ = std::fs::remove_file(db_path.with_extension("db-journal"));
+            let _ = std::fs::remove_file(db_path.with_extension("db-wal"));
+            let _ = std::fs::remove_file(db_path.with_extension("db-shm"));
+            if let Ok(conn) = Connection::open(db_path) {
+                let _ = conn.execute("PRAGMA journal_mode=DELETE;", []);
+                return conn;
+            }
+        }
+
+        // Fallback to home dir ~/.rubah.db
+        if let Some(home) = dirs::home_dir() {
+            let fallback_path = home.join(".rubah.db");
+            if let Ok(conn) = Connection::open(&fallback_path) {
+                let _ = conn.execute("PRAGMA journal_mode=DELETE;", []);
+                return conn;
+            }
+        }
+
+        // Guaranteed in-memory fallback
+        Connection::open_in_memory().unwrap_or_else(|_| Connection::open(":memory:").unwrap())
     }
 
     fn get_db_path() -> PathBuf {
