@@ -49,7 +49,8 @@ fi
 
 REPO="WhaTheFoxSay/rubah"
 RAW_URL="https://raw.githubusercontent.com/${REPO}/main/bin/${BINARY_NAME}"
-RELEASE_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
+RELEASE_URL="https://github.com/${REPO}/releases/download/v0.1.3/${BINARY_NAME}"
+LATEST_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
 
 echo -e "${YELLOW}--> Mendeteksi OS: ${BOLD}${OS}${RESET}${YELLOW} (${ARCH})...${RESET}"
 
