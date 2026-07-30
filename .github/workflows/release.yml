@@ -29,7 +29,7 @@ jobs:
             binary_name: rubah-macos-arm64
 
           # macOS Intel
-          - os: macos-13
+          - os: macos-latest
             target: x86_64-apple-darwin
             binary_name: rubah-macos-amd64
 

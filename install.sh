@@ -40,11 +40,15 @@ case "$ARCH_TYPE" in
     *)              ARCH="amd64" ;;
 esac
 
-# Special check for Apple Silicon macOS (even if terminal runs under x86_64 Rosetta)
+# Special check for macOS: Intel (amd64) vs Apple Silicon (arm64)
 if [ "$OS" = "macos" ]; then
     IS_ARM=$(sysctl -n hw.optional.arm64 2>/dev/null || echo "0")
-    if [ "$IS_ARM" = "1" ]; then
+    if [ "$ARCH_TYPE" = "x86_64" ]; then
+        ARCH="amd64"
+    elif [ "$IS_ARM" = "1" ] || [ "$ARCH_TYPE" = "arm64" ]; then
         ARCH="arm64"
+    else
+        ARCH="amd64"
     fi
 fi
 
@@ -54,8 +58,7 @@ if [ "$OS" = "windows" ]; then
 fi
 
 REPO="WhaTheFoxSay/rubah"
-RELEASE_URL="https://github.com/${REPO}/releases/download/v0.2.8/${BINARY_NAME}"
-ARM64_FALLBACK_URL="https://github.com/${REPO}/releases/download/v0.2.8/rubah-macos-arm64"
+RELEASE_URL="https://github.com/${REPO}/releases/download/v0.2.9/${BINARY_NAME}"
 LATEST_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
 
 echo -e "${YELLOW}--> OS: ${BOLD}${OS}${RESET}${YELLOW} (${ARCH})${RESET}"
@@ -71,13 +74,6 @@ USER_AGENT="Mozilla/5.0 (compatible; RubahInstaller/1.0)"
 HTTP_CODE=$(curl -sL -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$RELEASE_URL" || echo "000")
 if [ "$HTTP_CODE" -eq 200 ]; then
     DOWNLOAD_SUCCESS=1
-fi
-
-if [ $DOWNLOAD_SUCCESS -eq 0 ]; then
-    HTTP_CODE=$(curl -sL -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$ARM64_FALLBACK_URL" || echo "000")
-    if [ "$HTTP_CODE" -eq 200 ]; then
-        DOWNLOAD_SUCCESS=1
-    fi
 fi
 
 if [ $DOWNLOAD_SUCCESS -eq 0 ]; then
