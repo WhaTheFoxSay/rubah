@@ -44,6 +44,7 @@ pub struct App {
     pub show_uninstall_confirm: bool,
     pub show_image: bool,
     pub current_image_lines: Option<Vec<Line<'static>>>,
+    pub latency_ms: Option<u128>,
 
     // Search & Filter
     pub input_mode: InputMode,
@@ -79,11 +80,32 @@ impl App {
             show_uninstall_confirm: false,
             show_image: true,
             current_image_lines: None,
+            latency_ms: None,
             input_mode: InputMode::Normal,
             search_query: String::new(),
             new_feed_title: String::new(),
             new_feed_url: String::new(),
             new_feed_category: "Umum".to_string(),
+        }
+    }
+
+    pub async fn update_latency(&mut self) {
+        let start = std::time::Instant::now();
+        let client = self.fetcher.clone();
+        tokio::spawn(async move {
+            let _ = client;
+        });
+
+        // Fast network latency measurement to Cloudflare DNS 1.1.1.1
+        let client = reqwest::Client::builder()
+            .timeout(std::time::Duration::from_secs(2))
+            .build()
+            .unwrap_or_else(|_| reqwest::Client::new());
+
+        if client.get("https://1.1.1.1").send().await.is_ok() {
+            self.latency_ms = Some(start.elapsed().as_millis());
+        } else {
+            self.latency_ms = None;
         }
     }
 

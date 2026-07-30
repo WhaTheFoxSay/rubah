@@ -25,13 +25,13 @@ pub struct Theme {
 pub const THEME: Theme = Theme {
     bg: Color::Reset,
     fg: Color::Rgb(220, 220, 224),
-    accent: Color::Rgb(255, 158, 59),     // Rubah Warm Orange / Fox Gold
-    highlight: Color::Rgb(126, 156, 216), // Steel Blue
-    muted: Color::Rgb(114, 113, 133),     // Muted Gray
-    border: Color::Rgb(84, 88, 117),      // Dark Slate
+    accent: Color::Rgb(255, 158, 59),        // Rubah Warm Orange / Fox Gold
+    highlight: Color::Rgb(126, 156, 216),    // Steel Blue
+    muted: Color::Rgb(114, 113, 133),        // Muted Gray
+    border: Color::Rgb(84, 88, 117),         // Dark Slate
     border_active: Color::Rgb(255, 158, 59), // Active Orange Border
-    success: Color::Rgb(152, 187, 108),  // Sage Green
-    warning: Color::Rgb(224, 108, 117),  // Crimson Red
+    success: Color::Rgb(152, 187, 108),     // Sage Green (Bright Active Item)
+    warning: Color::Rgb(224, 108, 117),     // Crimson Red
 };
 
 pub fn draw(f: &mut Frame, app: &mut App) {
@@ -69,13 +69,26 @@ pub fn draw(f: &mut Frame, app: &mut App) {
 fn draw_header(f: &mut Frame, app: &App, area: Rect) {
     let header_layout = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([Constraint::Percentage(50), Constraint::Percentage(50)])
+        .constraints([Constraint::Percentage(60), Constraint::Percentage(40)])
         .split(area);
+
+    let latency_span = match app.latency_ms {
+        Some(ms) if ms < 120 => Span::styled(format!("🟢 {}ms", ms), Style::default().fg(THEME.success).add_modifier(Modifier::BOLD)),
+        Some(ms) if ms < 300 => Span::styled(format!("🟡 {}ms", ms), Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
+        Some(ms) => Span::styled(format!("🔴 {}ms", ms), Style::default().fg(THEME.warning).add_modifier(Modifier::BOLD)),
+        None => Span::styled("🔴 Offline", Style::default().fg(THEME.warning).add_modifier(Modifier::BOLD)),
+    };
+
+    let now = chrono::Local::now();
+    let clock_str = now.format("%a, %d %b %Y  %H:%M:%S").to_string();
 
     let title_spans = vec![
         Span::styled(" 🦊 RUBAH ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
         Span::styled(concat!("v", env!("CARGO_PKG_VERSION"), " "), Style::default().fg(THEME.muted)),
-        Span::styled("| Ruang Baca Harian ", Style::default().fg(THEME.fg).add_modifier(Modifier::ITALIC)),
+        Span::styled("│ ", Style::default().fg(THEME.border)),
+        latency_span,
+        Span::styled(" │ ", Style::default().fg(THEME.border)),
+        Span::styled(format!("📅 {} ", clock_str), Style::default().fg(THEME.fg)),
     ];
 
     let title_block = Block::default()
@@ -89,22 +102,16 @@ fn draw_header(f: &mut Frame, app: &App, area: Rect) {
     let tab_all = if app.active_tab == ActiveTab::AllFeeds {
         Span::styled(" [1] All Feeds ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))
     } else {
-        Span::styled("  [1] All Feeds ", Style::default().fg(THEME.muted))
+        Span::styled(" [1] All Feeds ", Style::default().fg(THEME.muted))
     };
 
     let tab_fav = if app.active_tab == ActiveTab::Bookmarks {
         Span::styled(" [2] Bookmarks ★ ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))
     } else {
-        Span::styled("  [2] Bookmarks ★ ", Style::default().fg(THEME.muted))
+        Span::styled(" [2] Bookmarks ★ ", Style::default().fg(THEME.muted))
     };
 
-    let status_text = if app.is_loading {
-        Span::styled(" ⏳ Memuat RSS... ", Style::default().fg(THEME.highlight))
-    } else {
-        Span::styled(format!(" {} ", app.status_message), Style::default().fg(THEME.fg))
-    };
-
-    let right_spans = vec![tab_all, Span::styled(" | ", Style::default().fg(THEME.border)), tab_fav, status_text];
+    let right_spans = vec![tab_all, Span::styled(" | ", Style::default().fg(THEME.border)), tab_fav];
     let right_p = Paragraph::new(Line::from(right_spans))
         .alignment(Alignment::Right)
         .block(Block::default().borders(Borders::ALL).border_type(BorderType::Rounded).border_style(Style::default().fg(THEME.border)));
@@ -140,21 +147,23 @@ fn draw_feeds_pane(f: &mut Frame, app: &mut App, area: Rect) {
         .iter()
         .enumerate()
         .map(|(idx, feed)| {
-            let prefix = if idx == app.selected_feed_idx && is_active {
+            let is_selected = idx == app.selected_feed_idx;
+            let dot_color = if is_selected { THEME.success } else { THEME.accent };
+            let prefix = if is_selected && is_active {
                 "▶ "
-            } else if idx == app.selected_feed_idx {
+            } else if is_selected {
                 "• "
             } else {
                 "  "
             };
 
             let content = vec![
-                Span::styled(prefix, Style::default().fg(THEME.accent)),
+                Span::styled(prefix, Style::default().fg(dot_color)),
                 Span::styled(format!("[{}] ", feed.category), Style::default().fg(THEME.highlight)),
                 Span::styled(&feed.title, Style::default().fg(THEME.fg)),
             ];
 
-            let style = if idx == app.selected_feed_idx {
+            let style = if is_selected {
                 Style::default().bg(Color::Rgb(40, 40, 55)).add_modifier(Modifier::BOLD)
             } else {
                 Style::default()
@@ -190,13 +199,16 @@ fn draw_articles_pane(f: &mut Frame, app: &mut App, area: Rect) {
         .iter()
         .enumerate()
         .map(|(idx, art)| {
+            let is_selected = idx == app.selected_article_idx;
             let read_symbol = if art.is_read { "○ " } else { "● " };
-            let read_color = if art.is_read { THEME.muted } else { THEME.accent };
+            
+            // Selected item dot becomes Green (THEME.success); unselected stays Warm Orange (THEME.accent)
+            let dot_color = if is_selected { THEME.success } else { THEME.accent };
 
             let star_symbol = if art.is_bookmarked { "★ " } else { "  " };
 
             let content = vec![
-                Span::styled(read_symbol, Style::default().fg(read_color)),
+                Span::styled(read_symbol, Style::default().fg(dot_color)),
                 Span::styled(star_symbol, Style::default().fg(Color::Yellow)),
                 Span::styled(&art.title, Style::default().fg(THEME.fg)),
             ];
@@ -209,7 +221,7 @@ fn draw_articles_pane(f: &mut Frame, app: &mut App, area: Rect) {
 
             let item_lines = vec![Line::from(content), Line::from(sub_line)];
 
-            let style = if idx == app.selected_article_idx {
+            let style = if is_selected {
                 Style::default().bg(Color::Rgb(40, 40, 55)).add_modifier(Modifier::BOLD)
             } else {
                 Style::default()
@@ -240,97 +252,87 @@ fn draw_reader_pane(f: &mut Frame, app: &mut App, area: Rect) {
         Style::default().fg(THEME.border)
     };
 
-    let current_art = app.current_article();
-    let text = if let Some(art) = current_art {
-        let mut lines = Vec::new();
+    let art = match app.current_article() {
+        Some(a) => a,
+        None => {
+            let p = Paragraph::new("Tidak ada berita terpilih")
+                .alignment(Alignment::Center)
+                .block(
+                    Block::default()
+                        .title(" 📖 Reader Mode ")
+                        .borders(Borders::ALL)
+                        .border_type(BorderType::Rounded)
+                        .border_style(border_style),
+                );
+            f.render_widget(p, area);
+            return;
+        }
+    };
 
-        lines.push(Line::from(Span::styled(
-            format!("📰 {}", art.title),
-            Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD),
-        )));
-        lines.push(Line::from(""));
+    let mut lines = Vec::new();
+    lines.push(Line::from(vec![
+        Span::styled("📌 ", Style::default().fg(THEME.accent)),
+        Span::styled(&art.title, Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
+    ]));
+    lines.push(Line::from(""));
 
-        lines.push(Line::from(vec![
-            Span::styled("📌 Sumber   : ", Style::default().fg(THEME.muted)),
-            Span::styled(art.feed_title.clone(), Style::default().fg(THEME.highlight).add_modifier(Modifier::BOLD)),
-            Span::styled("  |  ⏱ Waktu: ", Style::default().fg(THEME.muted)),
-            Span::styled(art.published.clone(), Style::default().fg(THEME.fg)),
-        ]));
-        lines.push(Line::from(vec![
-            Span::styled("✍️ Penulis  : ", Style::default().fg(THEME.muted)),
-            Span::styled(art.author.clone(), Style::default().fg(THEME.fg)),
-        ]));
+    lines.push(Line::from(vec![
+        Span::styled("📌 Sumber   : ", Style::default().fg(THEME.muted)),
+        Span::styled(&art.feed_title, Style::default().fg(THEME.highlight)),
+        Span::styled("  │  ", Style::default().fg(THEME.border)),
+        Span::styled("⏱ Waktu: ", Style::default().fg(THEME.muted)),
+        Span::styled(&art.published, Style::default().fg(THEME.fg)),
+    ]));
+
+    lines.push(Line::from(vec![
+        Span::styled("✍️ Penulis  : ", Style::default().fg(THEME.muted)),
+        Span::styled(&art.author, Style::default().fg(THEME.fg)),
+    ]));
+
+    if !art.link.is_empty() {
         lines.push(Line::from(vec![
             Span::styled("🔗 Link Web : ", Style::default().fg(THEME.muted)),
-            Span::styled(art.link.clone(), Style::default().fg(Color::Cyan).add_modifier(Modifier::UNDERLINED)),
+            Span::styled(&art.link, Style::default().fg(THEME.highlight).add_modifier(Modifier::UNDERLINED)),
         ]));
+    }
 
-        lines.push(Line::from(Span::styled(
-            "─".repeat(area.width.saturating_sub(4) as usize),
-            Style::default().fg(THEME.border),
-        )));
+    lines.push(Line::from(Span::styled(
+        "─".repeat(area.width.saturating_sub(4) as usize),
+        Style::default().fg(THEME.border),
+    )));
 
-        lines.push(Line::from(Span::styled(
-            "─".repeat(area.width.saturating_sub(4) as usize),
-            Style::default().fg(THEME.border),
-        )));
+    // Render 24-bit Sharpened Article Image
+    if app.show_image {
+        if let Some(img_lines) = &app.current_image_lines {
+            for line in img_lines {
+                lines.push(line.clone());
+            }
+            lines.push(Line::from(Span::styled(
+                "📷 [Foto Berita Utama] - Tekan [i] Toggle On/Off",
+                Style::default().fg(THEME.muted).add_modifier(Modifier::ITALIC),
+            )));
+            lines.push(Line::from(""));
+        }
+    }
 
-        // Render 24-bit Sharpened Article Image
-        if app.show_image {
-            if let Some(img_lines) = &app.current_image_lines {
-                for line in img_lines {
-                    lines.push(line.clone());
-                }
-                lines.push(Line::from(Span::styled(
-                    "📷 [Foto Berita Utama] - Tekan [i] Toggle On/Off",
-                    Style::default().fg(THEME.muted).add_modifier(Modifier::ITALIC),
-                )));
+    let mut last_was_empty = true;
+    for paragraph in art.content.lines() {
+        let trimmed = paragraph.trim();
+        if trimmed.is_empty() {
+            if !last_was_empty {
                 lines.push(Line::from(""));
+                last_was_empty = true;
             }
+        } else {
+            lines.push(Line::from(Span::styled(trimmed, Style::default().fg(THEME.fg))));
+            last_was_empty = false;
         }
+    }
 
-        let mut last_was_empty = true;
-        for paragraph in art.content.lines() {
-            let trimmed = paragraph.trim();
-            if trimmed.is_empty() {
-                if !last_was_empty {
-                    lines.push(Line::from(""));
-                    last_was_empty = true;
-                }
-            } else {
-                let lower = trimmed.to_lowercase();
-                if !lower.contains("tercopy")
-                    && !lower.contains("copy url")
-                    && !lower.contains("link tercopy")
-                    && !lower.contains("url telah")
-                {
-                    lines.push(Line::from(Span::styled(
-                        trimmed.to_string(),
-                        Style::default().fg(THEME.fg),
-                    )));
-                    last_was_empty = false;
-                }
-            }
-        }
-
-        lines
-    } else {
-        vec![Line::from(Span::styled(
-            "Pilih berita dari daftar untuk membaca di terminal...",
-            Style::default().fg(THEME.muted),
-        ))]
-    };
-
-    let title = if is_active {
-        " 📖 Reader Mode (Tekan [j/k] Scroll | [Esc] Kembali ke Daftar Berita) "
-    } else {
-        " 📖 Preview Berita (Tekan [Enter] / [Space] untuk Membaca) "
-    };
-
-    let paragraph = Paragraph::new(text)
+    let paragraph_widget = Paragraph::new(lines)
         .block(
             Block::default()
-                .title(title)
+                .title(" 📖 Reader Mode (Tekan [j/k] Scroll │ [Esc] Kembali ke Daftar Berita) ")
                 .borders(Borders::ALL)
                 .border_type(BorderType::Rounded)
                 .border_style(border_style),
@@ -338,21 +340,29 @@ fn draw_reader_pane(f: &mut Frame, app: &mut App, area: Rect) {
         .wrap(Wrap { trim: false })
         .scroll((app.reader_scroll, 0));
 
-    f.render_widget(paragraph, area);
+    f.render_widget(paragraph_widget, area);
 }
 
 fn draw_search_bar(f: &mut Frame, app: &App, area: Rect) {
-    if app.input_mode == InputMode::Search || !app.search_query.is_empty() {
-        let text = vec![
+    if app.input_mode == InputMode::Search {
+        let spans = vec![
             Span::styled(" 🔍 Cari: ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
             Span::styled(&app.search_query, Style::default().fg(THEME.fg)),
-            if app.input_mode == InputMode::Search {
-                Span::styled("█", Style::default().fg(THEME.accent))
-            } else {
-                Span::styled("", Style::default())
-            },
+            Span::styled(" █", Style::default().fg(THEME.accent)),
         ];
-        let p = Paragraph::new(Line::from(text));
+        let p = Paragraph::new(Line::from(spans)).block(
+            Block::default()
+                .borders(Borders::ALL)
+                .border_type(BorderType::Rounded)
+                .border_style(Style::default().fg(THEME.border_active)),
+        );
+        f.render_widget(p, area);
+    } else {
+        let spans = vec![
+            Span::styled(" 💡 Tip: ", Style::default().fg(THEME.muted)),
+            Span::styled(&app.status_message, Style::default().fg(THEME.fg)),
+        ];
+        let p = Paragraph::new(Line::from(spans));
         f.render_widget(p, area);
     }
 }
@@ -387,144 +397,117 @@ fn draw_footer(f: &mut Frame, _app: &App, area: Rect) {
 }
 
 fn draw_help_modal(f: &mut Frame, area: Rect) {
-    let modal_area = centered_rect(60, 60, area);
-    f.render_widget(Clear, modal_area);
+    let popup_area = centered_rect(60, 70, area);
+    f.render_widget(Clear, popup_area);
 
-    let help_text = vec![
-        Line::from(Span::styled("🦊 RUBAH - RUANG BACA HARIAN HELP", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))),
+    let text = vec![
+        Line::from(Span::styled("🦊 RUBAH - Bantuan Shortcut Keyboard", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))),
         Line::from("──────────────────────────────────────────────────"),
-        Line::from(vec![Span::styled("  Tab / Shift+Tab", Style::default().fg(THEME.highlight)), Span::raw(" : Pindah antar panel (Channel, Berita, Reader)")]),
-        Line::from(vec![Span::styled("  j / k atau ↓ / ↑", Style::default().fg(THEME.highlight)), Span::raw(" : Navigasi item ke bawah / atas")]),
-        Line::from(vec![Span::styled("  Enter / o", Style::default().fg(THEME.highlight)), Span::raw("        : Membuka berita di Web Browser default OS")]),
-        Line::from(vec![Span::styled("  b", Style::default().fg(THEME.highlight)), Span::raw("                : Simpan / Hapus bookmark artikel")]),
-        Line::from(vec![Span::styled("  r", Style::default().fg(THEME.highlight)), Span::raw("                : Refresh / Muat ulang seluruh RSS feed")]),
-        Line::from(vec![Span::styled("  a", Style::default().fg(THEME.highlight)), Span::raw("                : Tambah channel RSS feed baru")]),
-        Line::from(vec![Span::styled("  d", Style::default().fg(THEME.highlight)), Span::raw("                : Hapus channel RSS feed terpilih")]),
-        Line::from(vec![Span::styled("  /", Style::default().fg(THEME.highlight)), Span::raw("                : Cari kata kunci di judul/konten berita")]),
-        Line::from(vec![Span::styled("  1 / 2", Style::default().fg(THEME.highlight)), Span::raw("            : Switch tab All Feeds (1) / Bookmarks (2)")]),
-        Line::from(vec![Span::styled("  Shift + U", Style::default().fg(THEME.warning)), Span::raw("        : Uninstall aplikasi Rubah dan hapus seluruh data")]),
-        Line::from(vec![Span::styled("  Esc", Style::default().fg(THEME.highlight)), Span::raw("              : Reset pencarian / Tutup modal bantuan")]),
-        Line::from(vec![Span::styled("  q", Style::default().fg(THEME.highlight)), Span::raw("                : Keluar dari aplikasi Rubah")]),
-        Line::from(""),
-        Line::from(Span::styled("Tekan [Esc] atau [?] untuk menutup bantuan.", Style::default().fg(THEME.muted))),
+        Line::from(vec![Span::styled("Tab / Shift+Tab  ", Style::default().fg(THEME.accent)), Span::raw(": Pindah antar panel")]),
+        Line::from(vec![Span::styled("j / k / ↑ / ↓    ", Style::default().fg(THEME.accent)), Span::raw(": Navigasi item")]),
+        Line::from(vec![Span::styled("Enter / Space    ", Style::default().fg(THEME.accent)), Span::raw(": Buka dan baca artikel penuh")]),
+        Line::from(vec![Span::styled("Esc              ", Style::default().fg(THEME.accent)), Span::raw(": Kembali ke daftar / reset cari")]),
+        Line::from(vec![Span::styled("i                ", Style::default().fg(THEME.accent)), Span::raw(": Toggle Gambar ON/OFF")]),
+        Line::from(vec![Span::styled("b                ", Style::default().fg(THEME.accent)), Span::raw(": Simpan / hapus Bookmark")]),
+        Line::from(vec![Span::styled("o                ", Style::default().fg(THEME.accent)), Span::raw(": Buka artikel di Web Browser")]),
+        Line::from(vec![Span::styled("r                ", Style::default().fg(THEME.accent)), Span::raw(": Refresh / reload seluruh feed")]),
+        Line::from(vec![Span::styled("a                ", Style::default().fg(THEME.accent)), Span::raw(": Tambah channel RSS Feed baru")]),
+        Line::from(vec![Span::styled("/                ", Style::default().fg(THEME.accent)), Span::raw(": Cari berita realtime")]),
+        Line::from(vec![Span::styled("1 / 2            ", Style::default().fg(THEME.accent)), Span::raw(": Switch Tab (All Feeds / Bookmarks)")]),
+        Line::from(vec![Span::styled("q                ", Style::default().fg(THEME.accent)), Span::raw(": Keluar dari aplikasi")]),
+        Line::from("──────────────────────────────────────────────────"),
+        Line::from(Span::styled("Tekan Esc atau [?] untuk menutup bantuan ini", Style::default().fg(THEME.muted).add_modifier(Modifier::ITALIC))),
     ];
 
-    let help_p = Paragraph::new(help_text)
-        .block(
-            Block::default()
-                .title(" Bantuan Shortcut ")
-                .borders(Borders::ALL)
-                .border_type(BorderType::Double)
-                .border_style(Style::default().fg(THEME.accent)),
-        )
-        .alignment(Alignment::Left);
-
-    f.render_widget(help_p, modal_area);
-}
-
-fn draw_add_feed_modal(f: &mut Frame, app: &App, area: Rect) {
-    let modal_area = centered_rect(50, 40, area);
-    f.render_widget(Clear, modal_area);
-
     let block = Block::default()
-        .title(" ➕ Tambah RSS Feed Baru ")
+        .title(" Bantuan ")
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded)
         .border_style(Style::default().fg(THEME.accent));
 
-    f.render_widget(block, modal_area);
+    let p = Paragraph::new(text).block(block).wrap(Wrap { trim: true });
+    f.render_widget(p, popup_area);
+}
 
-    let inner_chunks = Layout::default()
-        .direction(Direction::Vertical)
-        .margin(2)
-        .constraints([
-            Constraint::Length(3), // Title
-            Constraint::Length(3), // URL
-            Constraint::Length(3), // Category
-            Constraint::Min(1),    // Instruction
-        ])
-        .split(modal_area);
+fn draw_uninstall_modal(f: &mut Frame, area: Rect) {
+    let popup_area = centered_rect(50, 30, area);
+    f.render_widget(Clear, popup_area);
+
+    let text = vec![
+        Line::from(Span::styled("⚠️ Konfirmasi Uninstall Rubah", Style::default().fg(THEME.warning).add_modifier(Modifier::BOLD))),
+        Line::from("──────────────────────────────────────────"),
+        Line::from("Apakah Anda yakin ingin menghapus Rubah"),
+        Line::from("dan seluruh data konfigurasinya dari sistem?"),
+        Line::from(""),
+        Line::from(vec![
+            Span::styled("Tekan ", Style::default().fg(THEME.fg)),
+            Span::styled("[y]", Style::default().fg(THEME.warning).add_modifier(Modifier::BOLD)),
+            Span::styled(" untuk Ya, atau ", Style::default().fg(THEME.fg)),
+            Span::styled("[n]", Style::default().fg(THEME.success).add_modifier(Modifier::BOLD)),
+            Span::styled(" untuk Batal", Style::default().fg(THEME.fg)),
+        ]),
+    ];
+
+    let block = Block::default()
+        .title(" Uninstall ")
+        .borders(Borders::ALL)
+        .border_type(BorderType::Rounded)
+        .border_style(Style::default().fg(THEME.warning));
+
+    let p = Paragraph::new(text).block(block).alignment(Alignment::Center);
+    f.render_widget(p, popup_area);
+}
+
+fn draw_add_feed_modal(f: &mut Frame, app: &App, area: Rect) {
+    let popup_area = centered_rect(60, 45, area);
+    f.render_widget(Clear, popup_area);
 
     let title_style = if app.input_mode == InputMode::AddFeedTitle {
         Style::default().fg(THEME.accent)
     } else {
-        Style::default().fg(THEME.border)
+        Style::default().fg(THEME.fg)
     };
-    let title_p = Paragraph::new(app.new_feed_title.as_str()).block(
-        Block::default()
-            .title("Judul Feed")
-            .borders(Borders::ALL)
-            .border_style(title_style),
-    );
-    f.render_widget(title_p, inner_chunks[0]);
-
     let url_style = if app.input_mode == InputMode::AddFeedUrl {
         Style::default().fg(THEME.accent)
     } else {
-        Style::default().fg(THEME.border)
+        Style::default().fg(THEME.fg)
     };
-    let url_p = Paragraph::new(app.new_feed_url.as_str()).block(
-        Block::default()
-            .title("URL RSS/Atom Feed")
-            .borders(Borders::ALL)
-            .border_style(url_style),
-    );
-    f.render_widget(url_p, inner_chunks[1]);
-
     let cat_style = if app.input_mode == InputMode::AddFeedCategory {
         Style::default().fg(THEME.accent)
     } else {
-        Style::default().fg(THEME.border)
+        Style::default().fg(THEME.fg)
     };
-    let cat_p = Paragraph::new(app.new_feed_category.as_str()).block(
-        Block::default()
-            .title("Kategori (Contoh: Teknologi, Berita)")
-            .borders(Borders::ALL)
-            .border_style(cat_style),
-    );
-    f.render_widget(cat_p, inner_chunks[2]);
 
-    let hint = Line::from(vec![
-        Span::styled("[Tab] ", Style::default().fg(THEME.accent)),
-        Span::styled("Next field | ", Style::default().fg(THEME.fg)),
-        Span::styled("[Enter] ", Style::default().fg(THEME.accent)),
-        Span::styled("Simpan | ", Style::default().fg(THEME.fg)),
-        Span::styled("[Esc] ", Style::default().fg(THEME.accent)),
-        Span::styled("Batal ", Style::default().fg(THEME.fg)),
-    ]);
-    f.render_widget(Paragraph::new(hint), inner_chunks[3]);
-}
-
-fn draw_uninstall_modal(f: &mut Frame, area: Rect) {
-    let modal_area = centered_rect(55, 30, area);
-    f.render_widget(Clear, modal_area);
-
-    let help_text = vec![
-        Line::from(Span::styled("⚠️ UNINSTALL APLIKASI RUBAH", Style::default().fg(THEME.warning).add_modifier(Modifier::BOLD))),
-        Line::from("──────────────────────────────────────────────────"),
-        Line::from(""),
-        Line::from(Span::styled("Apakah Anda yakin ingin menghapus aplikasi Rubah,", Style::default().fg(THEME.fg))),
-        Line::from(Span::styled("executable binary, dan seluruh database lokal?", Style::default().fg(THEME.fg))),
-        Line::from(""),
+    let text = vec![
+        Line::from(Span::styled("➕ Tambah Channel RSS Feed Baru", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))),
+        Line::from("────────────────────────────────────────────"),
         Line::from(vec![
-            Span::styled("  [Y]", Style::default().fg(THEME.warning).add_modifier(Modifier::BOLD)),
-            Span::raw(" : Ya, Uninstall    "),
-            Span::styled("  [N] / [Esc]", Style::default().fg(THEME.success).add_modifier(Modifier::BOLD)),
-            Span::raw(" : Batal"),
+            Span::styled("1. Judul Channel  : ", title_style),
+            Span::styled(&app.new_feed_title, Style::default().fg(THEME.fg)),
+            if app.input_mode == InputMode::AddFeedTitle { Span::styled("█", Style::default().fg(THEME.accent)) } else { Span::raw("") },
         ]),
+        Line::from(vec![
+            Span::styled("2. URL Feed RSS   : ", url_style),
+            Span::styled(&app.new_feed_url, Style::default().fg(THEME.fg)),
+            if app.input_mode == InputMode::AddFeedUrl { Span::styled("█", Style::default().fg(THEME.accent)) } else { Span::raw("") },
+        ]),
+        Line::from(vec![
+            Span::styled("3. Kategori       : ", cat_style),
+            Span::styled(&app.new_feed_category, Style::default().fg(THEME.fg)),
+            if app.input_mode == InputMode::AddFeedCategory { Span::styled("█", Style::default().fg(THEME.accent)) } else { Span::raw("") },
+        ]),
+        Line::from("────────────────────────────────────────────"),
+        Line::from(Span::styled("Tekan [Tab] Pindah Input │ [Enter] Simpan │ [Esc] Batal", Style::default().fg(THEME.muted))),
     ];
 
-    let p = Paragraph::new(help_text)
-        .block(
-            Block::default()
-                .title(" Konfirmasi Uninstall ")
-                .borders(Borders::ALL)
-                .border_type(BorderType::Double)
-                .border_style(Style::default().fg(THEME.warning)),
-        )
-        .alignment(Alignment::Center);
+    let block = Block::default()
+        .title(" Tambah Feed ")
+        .borders(Borders::ALL)
+        .border_type(BorderType::Rounded)
+        .border_style(Style::default().fg(THEME.accent));
 
-    f.render_widget(p, modal_area);
+    let p = Paragraph::new(text).block(block);
+    f.render_widget(p, popup_area);
 }
 
 fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {

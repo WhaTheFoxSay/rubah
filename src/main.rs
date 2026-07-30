@@ -90,8 +90,16 @@ async fn run_app(
     terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
     app: &mut App,
 ) -> io::Result<()> {
+    let mut last_latency_check = std::time::Instant::now();
+    app.update_latency().await;
+
     loop {
         terminal.draw(|f| ui::draw(f, app))?;
+
+        if last_latency_check.elapsed() > Duration::from_secs(5) {
+            app.update_latency().await;
+            last_latency_check = std::time::Instant::now();
+        }
 
         if event::poll(Duration::from_millis(50))? {
             if let Event::Key(key) = event::read()? {
