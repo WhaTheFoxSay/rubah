@@ -1,6 +1,7 @@
 use crate::models::{Article, FeedSource};
 use crate::network::Fetcher;
 use crate::storage::Storage;
+use base64::{engine::general_purpose::STANDARD, Engine as _};
 use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -71,7 +72,7 @@ impl App {
             selected_article_idx: 0,
             reader_scroll: 0,
             is_loading: false,
-            status_message: "Tekan [?] Bantuan | [Enter] Baca Penuh | [v] Lihat Foto Asli HD | [r] Refresh | [/] Cari".to_string(),
+            status_message: "Tekan [?] Bantuan | [Enter] Baca Penuh | [v] Lihat Foto HD | [r] Refresh | [/] Cari".to_string(),
             show_help: false,
             show_uninstall_confirm: false,
             current_image_url: None,
@@ -133,8 +134,8 @@ impl App {
                     }
                 }
 
-                if self.current_image_url.is_some() {
-                    self.status_message = "✅ Artikel dimuat! Tekan [v] untuk melihat Foto Asli HD.".to_string();
+                if let Some(img) = &self.current_image_url {
+                    self.status_message = format!("✅ Artikel dimuat! Tekan [v] untuk Buka Foto: {}", img);
                 } else {
                     self.status_message = "✅ Artikel penuh berhasil dimuat!".to_string();
                 }
@@ -156,7 +157,7 @@ impl App {
         }
 
         let existing_url = self.current_image_url.clone();
-        self.status_message = format!("📸 Membuka foto asli HD: '{}'...", article_title);
+        self.status_message = format!("📸 Mengunduh foto HD: '{}'...", article_title);
 
         tokio::spawn(async move {
             let img_target_url = if let Some(url) = existing_url {
@@ -186,7 +187,13 @@ impl App {
                         let _ = std::fs::create_dir_all(&cache_dir);
                         let img_path = cache_dir.join("photo.jpg");
                         if std::fs::write(&img_path, &bytes).is_ok() {
-                            let _ = open::that(&img_path);
+                            // Try system viewer
+                            let opened = open::that(&img_path).is_ok();
+                            if !opened {
+                                // If SSH or no GUI display, output iTerm2 inline image escape code
+                                let b64 = STANDARD.encode(&bytes);
+                                print!("\x1b]1337;File=inline=1;width=70ch;preserveAspectRatio=1:{}\x07", b64);
+                            }
                         }
                     }
                 }
