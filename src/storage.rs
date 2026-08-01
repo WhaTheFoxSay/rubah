@@ -131,6 +131,19 @@ impl Storage {
         Ok(())
     }
 
+    pub fn update_feed_category(&self, feed_id: &str, new_category: &str) -> Result<()> {
+        self.conn.execute(
+            "UPDATE feeds SET category = ?1 WHERE id = ?2",
+            params![new_category, feed_id],
+        )?;
+        Ok(())
+    }
+
+    pub fn delete_category(&self, category: &str) -> Result<()> {
+        self.conn.execute("DELETE FROM feeds WHERE category = ?1", params![category])?;
+        Ok(())
+    }
+
     pub fn get_read_article_ids(&self) -> HashSet<String> {
         let mut stmt = match self.conn.prepare("SELECT article_id FROM read_articles") {
             Ok(s) => s,

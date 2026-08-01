@@ -31,22 +31,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 let feed_title = title.unwrap_or_else(|| url.clone());
                 let feed = FeedSource::new(&feed_title, &url, &category);
                 storage.add_feed(&feed)?;
-                println!("✅ Berhasil menambahkan RSS Feed: '{}' ({})", feed_title, url);
+                println!("[OK] Berhasil menambahkan RSS Feed: '{}' ({})", feed_title, url);
                 return Ok(());
             }
             Commands::List => {
                 let storage = Storage::new();
                 let feeds = storage.get_feeds()?;
-                println!("📡 DAFTAR CHANNEL RSS RUBAH ({} channel):\n", feeds.len());
+                println!("[LIST] DAFTAR CHANNEL RSS RUBAH ({} channel):\n", feeds.len());
                 for (idx, feed) in feeds.iter().enumerate() {
                     println!("  {:2}. [{}] {} - {}", idx + 1, feed.category, feed.title, feed.url);
                 }
                 return Ok(());
             }
             Commands::Uninstall => {
-                println!("🗑️  Menghapus aplikasi Rubah dan data konfigurasi...");
+                println!("[REMOVE] Menghapus aplikasi Rubah dan data konfigurasi...");
                 App::perform_uninstall()?;
-                println!("✅ Aplikasi Rubah berhasil di-uninstall dari sistem Anda.");
+                println!("[OK] Aplikasi Rubah berhasil di-uninstall dari sistem Anda.");
                 return Ok(());
             }
         }
@@ -149,8 +149,8 @@ async fn run_app(
                         KeyCode::Enter => {
                             app.submit_new_feed();
                         }
-                        KeyCode::Tab => {
-                            app.input_mode = InputMode::AddFeedTitle;
+                        KeyCode::Tab | KeyCode::Up | KeyCode::Down => {
+                            app.cycle_category_suggestion();
                         }
                         KeyCode::Esc => {
                             app.input_mode = InputMode::Normal;
@@ -160,6 +160,31 @@ async fn run_app(
                         }
                         KeyCode::Backspace => {
                             app.new_feed_category.pop();
+                        }
+                        _ => {}
+                    },
+                    InputMode::MoveFeedCategory => match key.code {
+                        KeyCode::Enter => {
+                            app.submit_move_feed_category();
+                        }
+                        KeyCode::Esc => {
+                            app.input_mode = InputMode::Normal;
+                        }
+                        KeyCode::Char(c) => {
+                            app.move_feed_category_input.push(c);
+                        }
+                        KeyCode::Backspace => {
+                            app.move_feed_category_input.pop();
+                        }
+                        _ => {}
+                    },
+                    InputMode::DeleteCategoryConfirm => match key.code {
+                        KeyCode::Char('y') | KeyCode::Char('Y') | KeyCode::Enter => {
+                            app.confirm_delete_category();
+                        }
+                        KeyCode::Char('n') | KeyCode::Char('N') | KeyCode::Esc => {
+                            app.input_mode = InputMode::Normal;
+                            app.target_category_to_delete = None;
                         }
                         _ => {}
                     },
@@ -245,6 +270,12 @@ async fn run_app(
                             KeyCode::Char('b') => {
                                 app.toggle_current_bookmark();
                             }
+                            KeyCode::Char('m') => {
+                                app.start_move_feed_category();
+                            }
+                            KeyCode::Char('C') => {
+                                app.start_delete_category();
+                            }
                             KeyCode::Char('o') => {
                                 app.mark_current_read();
                                 app.open_current_in_browser();
@@ -252,7 +283,13 @@ async fn run_app(
                             KeyCode::Enter | KeyCode::Char(' ') => {
                                 app.mark_current_read();
                                 match app.active_pane {
-                                    app::ActivePane::Feeds => app.active_pane = app::ActivePane::Articles,
+                                    app::ActivePane::Feeds => {
+                                        if let Some(app::ChannelTreeItem::CategoryHeader { .. }) = app.current_selected_channel_item() {
+                                            app.toggle_selected_category_expand();
+                                        } else {
+                                            app.active_pane = app::ActivePane::Articles;
+                                        }
+                                    }
                                     app::ActivePane::Articles => {
                                         app.active_pane = app::ActivePane::Reader;
                                         app.fetch_full_content_for_selected().await;

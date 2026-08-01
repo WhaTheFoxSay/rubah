@@ -27,6 +27,21 @@ pub enum InputMode {
     AddFeedTitle,
     AddFeedUrl,
     AddFeedCategory,
+    MoveFeedCategory,
+    DeleteCategoryConfirm,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ChannelTreeItem {
+    CategoryHeader {
+        name: String,
+        is_expanded: bool,
+        count: usize,
+    },
+    FeedItem {
+        feed: FeedSource,
+        category: String,
+    },
 }
 
 pub struct App {
@@ -37,10 +52,11 @@ pub struct App {
     pub read_articles: HashSet<String>,
     pub active_pane: ActivePane,
     pub active_tab: ActiveTab,
-    pub selected_feed_idx: usize,
+    pub selected_tree_idx: usize,
     pub selected_article_idx: usize,
     pub feed_list_state: ListState,
     pub article_list_state: ListState,
+    pub expanded_categories: HashSet<String>,
     pub marquee_tick: usize,
     pub reader_scroll: u16,
     pub is_loading: bool,
@@ -60,6 +76,10 @@ pub struct App {
     pub new_feed_title: String,
     pub new_feed_url: String,
     pub new_feed_category: String,
+
+    // Move Feed Form & Delete Category
+    pub move_feed_category_input: String,
+    pub target_category_to_delete: Option<String>,
 }
 
 impl App {
@@ -68,6 +88,14 @@ impl App {
         let feeds = storage.get_feeds().unwrap_or_default();
         let read_articles = storage.get_read_article_ids();
         let fetcher = Fetcher::new();
+
+        let mut expanded_categories = HashSet::new();
+        for feed in &feeds {
+            expanded_categories.insert(feed.category.clone());
+        }
+        if expanded_categories.is_empty() {
+            expanded_categories.insert("Umum".to_string());
+        }
 
         let mut feed_list_state = ListState::default();
         feed_list_state.select(Some(0));
@@ -83,14 +111,15 @@ impl App {
             read_articles,
             active_pane: ActivePane::Feeds,
             active_tab: ActiveTab::AllFeeds,
-            selected_feed_idx: 0,
+            selected_tree_idx: 0,
             selected_article_idx: 0,
             feed_list_state,
             article_list_state,
+            expanded_categories,
             marquee_tick: 0,
             reader_scroll: 0,
             is_loading: false,
-            status_message: "Tekan [?] Bantuan | [j/k] Pilih | [Enter] Baca Penuh | [i] Gambar | [/] Cari".to_string(),
+            status_message: "Tekan [?] Bantuan | [j/k] Pilih | [Enter] Buka/Baca | [m] Pindah Kategori | [/] Cari".to_string(),
             show_help: false,
             show_uninstall_confirm: false,
             show_image: true,
@@ -101,6 +130,80 @@ impl App {
             new_feed_title: String::new(),
             new_feed_url: String::new(),
             new_feed_category: "Umum".to_string(),
+            move_feed_category_input: String::new(),
+            target_category_to_delete: None,
+        }
+    }
+
+    pub fn get_existing_categories(&self) -> Vec<String> {
+        let mut categories = Vec::new();
+        for feed in &self.feeds {
+            if !categories.contains(&feed.category) {
+                categories.push(feed.category.clone());
+            }
+        }
+        if categories.is_empty() {
+            categories.push("Umum".to_string());
+        }
+        categories
+    }
+
+    pub fn visible_channel_items(&self) -> Vec<ChannelTreeItem> {
+        let mut items = Vec::new();
+        let categories = self.get_existing_categories();
+
+        for cat in categories {
+            let cat_feeds: Vec<&FeedSource> = self.feeds.iter().filter(|f| f.category == cat).collect();
+            let count = cat_feeds.len();
+            let is_expanded = self.expanded_categories.contains(&cat);
+
+            items.push(ChannelTreeItem::CategoryHeader {
+                name: cat.clone(),
+                is_expanded,
+                count,
+            });
+
+            if is_expanded {
+                for feed in cat_feeds {
+                    items.push(ChannelTreeItem::FeedItem {
+                        feed: feed.clone(),
+                        category: cat.clone(),
+                    });
+                }
+            }
+        }
+        items
+    }
+
+    pub fn current_selected_channel_item(&self) -> Option<ChannelTreeItem> {
+        let items = self.visible_channel_items();
+        if items.is_empty() || self.selected_tree_idx >= items.len() {
+            None
+        } else {
+            Some(items[self.selected_tree_idx].clone())
+        }
+    }
+
+    pub fn toggle_selected_category_expand(&mut self) {
+        if let Some(ChannelTreeItem::CategoryHeader { name, is_expanded, .. }) = self.current_selected_channel_item() {
+            if is_expanded {
+                self.expanded_categories.remove(&name);
+            } else {
+                self.expanded_categories.insert(name);
+            }
+        }
+    }
+
+    pub fn cycle_category_suggestion(&mut self) {
+        let categories = self.get_existing_categories();
+        if categories.is_empty() {
+            return;
+        }
+        if let Some(pos) = categories.iter().position(|c| c == &self.new_feed_category) {
+            let next_pos = (pos + 1) % categories.len();
+            self.new_feed_category = categories[next_pos].clone();
+        } else {
+            self.new_feed_category = categories[0].clone();
         }
     }
 
@@ -165,13 +268,10 @@ impl App {
         if let Some((cached_text, cached_img)) = self.article_cache.get(&article_id) {
             let full_text = cached_text.clone();
             self.current_image_lines = cached_img.clone();
-            if !self.feeds.is_empty() && self.selected_feed_idx < self.feeds.len() {
-                let feed_id = &self.feeds[self.selected_feed_idx].id;
-                if let Some(articles) = self.articles_by_feed.get_mut(feed_id) {
-                    for art in articles.iter_mut() {
-                        if art.id == article_id {
-                            art.content = full_text.clone();
-                        }
+            for articles in self.articles_by_feed.values_mut() {
+                for art in articles.iter_mut() {
+                    if art.id == article_id {
+                        art.content = full_text.clone();
                     }
                 }
             }
@@ -187,13 +287,10 @@ impl App {
                 let full_text = res.body_text;
 
                 if !full_text.trim().is_empty() {
-                    if !self.feeds.is_empty() && self.selected_feed_idx < self.feeds.len() {
-                        let feed_id = &self.feeds[self.selected_feed_idx].id;
-                        if let Some(articles) = self.articles_by_feed.get_mut(feed_id) {
-                            for art in articles.iter_mut() {
-                                if art.id == article_id {
-                                    art.content = full_text.clone();
-                                }
+                    for articles in self.articles_by_feed.values_mut() {
+                        for art in articles.iter_mut() {
+                            if art.id == article_id {
+                                art.content = full_text.clone();
                             }
                         }
                     }
@@ -228,23 +325,33 @@ impl App {
             return self.filter_articles(bookmarks);
         }
 
-        if self.feeds.is_empty() || self.selected_feed_idx >= self.feeds.len() {
-            return Vec::new();
-        }
+        let current_item = match self.current_selected_channel_item() {
+            Some(item) => item,
+            None => return Vec::new(),
+        };
 
-        let feed_id = &self.feeds[self.selected_feed_idx].id;
-        let articles = self.articles_by_feed.get(feed_id).cloned().unwrap_or_default();
+        let target_feeds: Vec<FeedSource> = match current_item {
+            ChannelTreeItem::CategoryHeader { name, .. } => {
+                self.feeds.iter().filter(|f| f.category == name).cloned().collect()
+            }
+            ChannelTreeItem::FeedItem { feed, .. } => vec![feed],
+        };
 
-        let mut processed = Vec::new();
+        let mut all_articles = Vec::new();
         let bookmarked_ids: HashSet<String> = self.storage.get_bookmarks().iter().map(|b| b.id.clone()).collect();
 
-        for mut art in articles {
-            art.is_read = self.read_articles.contains(&art.id);
-            art.is_bookmarked = bookmarked_ids.contains(&art.id);
-            processed.push(art);
+        for feed in target_feeds {
+            if let Some(articles) = self.articles_by_feed.get(&feed.id) {
+                for art in articles {
+                    let mut processed = art.clone();
+                    processed.is_read = self.read_articles.contains(&art.id);
+                    processed.is_bookmarked = bookmarked_ids.contains(&art.id);
+                    all_articles.push(processed);
+                }
+            }
         }
 
-        self.filter_articles(processed)
+        self.filter_articles(all_articles)
     }
 
     fn filter_articles(&self, articles: Vec<Article>) -> Vec<Article> {
@@ -292,10 +399,11 @@ impl App {
         self.marquee_tick = 0;
         match self.active_pane {
             ActivePane::Feeds => {
-                if !self.feeds.is_empty() {
-                    self.selected_feed_idx = (self.selected_feed_idx + 1) % self.feeds.len();
+                let len = self.visible_channel_items().len();
+                if len > 0 {
+                    self.selected_tree_idx = (self.selected_tree_idx + 1) % len;
+                    self.feed_list_state.select(Some(self.selected_tree_idx));
                     self.selected_article_idx = 0;
-                    self.feed_list_state.select(Some(self.selected_feed_idx));
                     self.article_list_state.select(Some(0));
                     self.reader_scroll = 0;
                     self.current_image_lines = None;
@@ -329,14 +437,15 @@ impl App {
         self.marquee_tick = 0;
         match self.active_pane {
             ActivePane::Feeds => {
-                if !self.feeds.is_empty() {
-                    if self.selected_feed_idx == 0 {
-                        self.selected_feed_idx = self.feeds.len() - 1;
+                let len = self.visible_channel_items().len();
+                if len > 0 {
+                    if self.selected_tree_idx == 0 {
+                        self.selected_tree_idx = len - 1;
                     } else {
-                        self.selected_feed_idx -= 1;
+                        self.selected_tree_idx -= 1;
                     }
+                    self.feed_list_state.select(Some(self.selected_tree_idx));
                     self.selected_article_idx = 0;
-                    self.feed_list_state.select(Some(self.selected_feed_idx));
                     self.article_list_state.select(Some(0));
                     self.reader_scroll = 0;
                     self.current_image_lines = None;
@@ -395,21 +504,91 @@ impl App {
         }
     }
 
-    pub fn delete_selected_feed(&mut self) {
-        if !self.feeds.is_empty() && self.selected_feed_idx < self.feeds.len() {
-            let feed = self.feeds.remove(self.selected_feed_idx);
-            let _ = self.storage.delete_feed(&feed.id);
-            self.status_message = format!("Feed '{}' berhasil dihapus.", feed.title);
-            if self.selected_feed_idx >= self.feeds.len() && !self.feeds.is_empty() {
-                self.selected_feed_idx = self.feeds.len() - 1;
+    pub fn start_move_feed_category(&mut self) {
+        if let Some(ChannelTreeItem::FeedItem { feed, .. }) = self.current_selected_channel_item() {
+            self.move_feed_category_input = feed.category.clone();
+            self.input_mode = InputMode::MoveFeedCategory;
+        } else {
+            self.status_message = "Pilih Feed di bawah kategori untuk memindahkan ke kategori lain.".to_string();
+        }
+    }
+
+    pub fn submit_move_feed_category(&mut self) {
+        let new_cat = self.move_feed_category_input.trim().to_string();
+        if new_cat.is_empty() {
+            self.status_message = "Nama kategori baru tidak boleh kosong!".to_string();
+            return;
+        }
+
+        if let Some(ChannelTreeItem::FeedItem { feed, .. }) = self.current_selected_channel_item() {
+            let feed_id = feed.id.clone();
+            let feed_title = feed.title.clone();
+            let _ = self.storage.update_feed_category(&feed_id, &new_cat);
+            if let Some(f) = self.feeds.iter_mut().find(|f| f.id == feed_id) {
+                f.category = new_cat.clone();
             }
+            self.expanded_categories.insert(new_cat.clone());
+            self.status_message = format!("Feed '{}' berhasil dipindahkan ke kategori '{}'.", feed_title, new_cat);
+            self.input_mode = InputMode::Normal;
+            self.move_feed_category_input.clear();
+        }
+    }
+
+    pub fn start_delete_category(&mut self) {
+        if let Some(item) = self.current_selected_channel_item() {
+            let cat_name = match item {
+                ChannelTreeItem::CategoryHeader { name, .. } => name,
+                ChannelTreeItem::FeedItem { category, .. } => category,
+            };
+            self.target_category_to_delete = Some(cat_name);
+            self.input_mode = InputMode::DeleteCategoryConfirm;
+        }
+    }
+
+    pub fn confirm_delete_category(&mut self) {
+        if let Some(cat) = self.target_category_to_delete.take() {
+            let _ = self.storage.delete_category(&cat);
+            self.feeds.retain(|f| f.category != cat);
+            self.expanded_categories.remove(&cat);
+            self.status_message = format!("Kategori '{}' dan seluruh feed di dalamnya berhasil dihapus.", cat);
+            let len = self.visible_channel_items().len();
+            if self.selected_tree_idx >= len && len > 0 {
+                self.selected_tree_idx = len - 1;
+            } else if len == 0 {
+                self.selected_tree_idx = 0;
+            }
+            self.input_mode = InputMode::Normal;
+        }
+    }
+
+    pub fn delete_selected_feed(&mut self) {
+        if let Some(ChannelTreeItem::FeedItem { feed, .. }) = self.current_selected_channel_item() {
+            let feed_id = feed.id.clone();
+            let title = feed.title.clone();
+            let _ = self.storage.delete_feed(&feed_id);
+            self.feeds.retain(|f| f.id != feed_id);
+            self.status_message = format!("Feed '{}' berhasil dihapus.", title);
+            let len = self.visible_channel_items().len();
+            if self.selected_tree_idx >= len && len > 0 {
+                self.selected_tree_idx = len - 1;
+            }
+        } else if let Some(ChannelTreeItem::CategoryHeader { name, .. }) = self.current_selected_channel_item() {
+            self.target_category_to_delete = Some(name);
+            self.input_mode = InputMode::DeleteCategoryConfirm;
         }
     }
 
     pub fn submit_new_feed(&mut self) {
         if !self.new_feed_title.is_empty() && !self.new_feed_url.is_empty() {
-            let feed = FeedSource::new(&self.new_feed_title, &self.new_feed_url, &self.new_feed_category);
+            let category = if self.new_feed_category.trim().is_empty() {
+                "Umum".to_string()
+            } else {
+                self.new_feed_category.trim().to_string()
+            };
+
+            let feed = FeedSource::new(&self.new_feed_title, &self.new_feed_url, &category);
             let _ = self.storage.add_feed(&feed);
+            self.expanded_categories.insert(category);
             self.status_message = format!("Feed baru '{}' ditambahkan!", feed.title);
             self.feeds.push(feed);
             self.new_feed_title.clear();

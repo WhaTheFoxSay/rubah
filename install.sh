@@ -49,7 +49,7 @@ fi
 
 BINARY_NAME="rubah-${OS}-${ARCH}"
 REPO="WhaTheFoxSay/rubah"
-RELEASE_URL="https://github.com/${REPO}/releases/download/v0.5.0/${BINARY_NAME}"
+RELEASE_URL="https://github.com/${REPO}/releases/download/v0.6.0/${BINARY_NAME}"
 LATEST_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
 
 echo -e "${GRAY}--> OS: ${OS} (${ARCH})${RESET}"
