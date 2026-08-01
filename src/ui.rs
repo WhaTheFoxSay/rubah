@@ -177,7 +177,7 @@ fn draw_feeds_pane(f: &mut Frame, app: &mut App, area: Rect) {
 
             match item {
                 ChannelTreeItem::CategoryHeader { name, is_expanded, count } => {
-                    let symbol = if *is_expanded { "[-] " } else { "[+] " };
+                    let symbol = if *is_expanded { "▼ " } else { "▶ " };
                     let display_name = crate::i18n::translate_category(name, app.language);
                     let header_text = format!("{} ({})", display_name, count);
 
