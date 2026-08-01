@@ -195,8 +195,20 @@ fn draw_feeds_pane(f: &mut Frame, app: &mut App, area: Rect) {
                     ListItem::new(Line::from(content)).style(style)
                 }
                 ChannelTreeItem::FeedItem { feed, .. } => {
+                    let is_last_in_category = if idx + 1 >= tree_items.len() {
+                        true
+                    } else {
+                        matches!(tree_items[idx + 1], ChannelTreeItem::CategoryHeader { .. })
+                    };
+
+                    let prefix = if is_last_in_category {
+                        "  └─ "
+                    } else {
+                        "  ├─ "
+                    };
+
                     let content = vec![
-                        Span::styled("  └─ ", Style::default().fg(if is_selected { Color::Rgb(20, 20, 35) } else { THEME.muted })),
+                        Span::styled(prefix, Style::default().fg(if is_selected { Color::Rgb(20, 20, 35) } else { THEME.muted })),
                         Span::styled(&feed.title, Style::default().fg(if is_selected { Color::Rgb(15, 15, 20) } else { THEME.fg })),
                     ];
 
