@@ -10,15 +10,15 @@
 
 ---
 
-## 💻 Instalasi
+## Instalasi
 
-### 🐧 Linux / 🍎 macOS / 🔌 BSD / 🌀 Haiku OS:
+### Linux / macOS / BSD / Haiku OS:
 Jalankan perintah berikut di terminal Anda:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/install.sh | bash
 ```
 
-### 🪟 Windows (PowerShell / CMD):
+### Windows (PowerShell / CMD):
 
 **Metode 1: Perintah 1 Baris PowerShell (Otomatis)**
 ```powershell
@@ -32,7 +32,7 @@ irm https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/install.ps1 | iex
 
 ---
 
-## 🚀 Cara Menjalankan
+## Cara Menjalankan
 
 Setelah instalasi selesai, jalankan aplikasi di terminal / CMD / PowerShell dengan mengetik:
 ```bash
@@ -43,7 +43,7 @@ baca
 
 ---
 
-## 📋 Fitur Utama
+## Fitur Utama
 
 - **TUI 3 Panel**: Tampilan terpisah untuk Kategori/Channel, Daftar Berita, dan Reader.
 - **Dukungan Multibahasa**: Pilihan 6 bahasa (Inggris, Indonesia, Jepang, Belanda, Spanyol, Arab).
@@ -53,7 +53,7 @@ baca
 
 ---
 
-## ⌨️ Shortcut Keyboard
+## Shortcut Keyboard
 
 | Shortcut | Fungsi |
 | :--- | :--- |
@@ -79,7 +79,7 @@ baca
 
 ---
 
-## 🛠️ Perintah CLI
+## Perintah CLI
 
 Selain antarmuka TUI, Anda juga dapat mengelola RSS Feed dari command line:
 
@@ -96,21 +96,21 @@ baca uninstall
 
 ---
 
-## 🗑️ Uninstall
+## Uninstall
 
-### 🐧 Linux / 🍎 macOS / 🔌 BSD / 🌀 Haiku OS:
+### Linux / macOS / BSD / Haiku OS:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/uninstall.sh | bash
 ```
 
-### 🪟 Windows (PowerShell):
+### Windows (PowerShell):
 ```powershell
 irm https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/uninstall.ps1 | iex
 ```
 
 ---
 
-## 📄 Lisensi & Privasi
+## Lisensi & Privasi
 
 - **Lisensi**: Proyek ini dirilis di bawah lisensi **GNU General Public License v3.0 (GPL-3.0)**. Lihat file [LICENSE](LICENSE) mengenai ketentuan lisensi.
 - **Privasi & Kebijakan**: Seluruh proses pengambilan data dilakukan secara langsung dari perangkat pengguna ke penerbit tanpa melalui server perantara (*zero cloud/telemetry*). Lihat **[LEGAL.md](LEGAL.md)** untuk rincian kebijakan penggunaan dan hak cipta.
