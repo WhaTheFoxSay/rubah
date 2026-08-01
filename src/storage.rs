@@ -95,6 +95,27 @@ impl Storage {
             [],
         )?;
 
+        self.conn.execute(
+            "CREATE TABLE IF NOT EXISTS settings (
+                key TEXT PRIMARY KEY,
+                value TEXT NOT NULL
+            );",
+            [],
+        )?;
+
+        Ok(())
+    }
+
+    pub fn get_setting(&self, key: &str) -> Option<String> {
+        let mut stmt = self.conn.prepare("SELECT value FROM settings WHERE key = ?1").ok()?;
+        stmt.query_row(params![key], |row| row.get(0)).ok()
+    }
+
+    pub fn set_setting(&self, key: &str, value: &str) -> Result<()> {
+        self.conn.execute(
+            "INSERT OR REPLACE INTO settings (key, value) VALUES (?1, ?2)",
+            params![key, value],
+        )?;
         Ok(())
     }
 

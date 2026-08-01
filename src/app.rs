@@ -88,6 +88,9 @@ pub struct App {
     pub is_checking_update: bool,
     pub update_info: Option<crate::network::UpdateInfo>,
     pub show_update_modal: bool,
+
+    // Internationalization (i18n)
+    pub language: crate::i18n::Language,
 }
 
 impl App {
@@ -96,6 +99,11 @@ impl App {
         let feeds = storage.get_feeds().unwrap_or_default();
         let read_articles = storage.get_read_article_ids();
         let fetcher = Fetcher::new();
+
+        let language = storage
+            .get_setting("language")
+            .map(|code| crate::i18n::Language::from_code(&code))
+            .unwrap_or_default();
 
         let mut expanded_categories = HashSet::new();
         for feed in &feeds {
@@ -110,6 +118,8 @@ impl App {
             feed_list_state.select(Some(0));
         }
         let article_list_state = ListState::default();
+
+        let default_status = crate::i18n::t(language, "default_status").to_string();
 
         Self {
             storage,
@@ -128,7 +138,7 @@ impl App {
             marquee_tick: 0,
             reader_scroll: 0,
             is_loading: false,
-            status_message: "Tekan [?] untuk bantuan keyboard".to_string(),
+            status_message: default_status,
             show_help: false,
             show_uninstall_confirm: false,
             show_image: true,
@@ -145,7 +155,18 @@ impl App {
             is_checking_update: false,
             update_info: None,
             show_update_modal: false,
+            language,
         }
+    }
+
+    pub fn toggle_language(&mut self) {
+        self.language = self.language.toggle();
+        let _ = self.storage.set_setting("language", self.language.code());
+        let msg = match self.language {
+            crate::i18n::Language::English => "Language changed to English (EN)",
+            crate::i18n::Language::Indonesian => "Bahasa diubah ke Bahasa Indonesia (ID)",
+        };
+        self.status_message = format!("[OK] {}", msg);
     }
 
     pub async fn check_for_update_async(&mut self) {

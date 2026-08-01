@@ -1,4 +1,5 @@
 use crate::app::{ActivePane, ActiveTab, App, ChannelTreeItem, InputMode};
+use crate::i18n::t;
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
@@ -96,8 +97,12 @@ fn draw_header(f: &mut Frame, app: &App, area: Rect) {
     let now = chrono::Local::now();
     let clock_str = now.format("%a, %d %b %Y %H:%M:%S").to_string();
 
+    let sub_title = t(app.language, "sub_title");
+    let tab_all_str = format!(" [1] {} ", t(app.language, "tab_all_feeds"));
+    let tab_fav_str = format!(" [2] {} ", t(app.language, "tab_bookmarks"));
+
     let title_spans = vec![
-        Span::styled(" 🦊 Rubah [Ruang Baca Harian] ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
+        Span::styled(format!(" 🦊 Rubah [{}] ", sub_title), Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
         Span::styled(concat!("v", env!("CARGO_PKG_VERSION"), " "), Style::default().fg(THEME.muted)),
         Span::styled("| ", Style::default().fg(THEME.border)),
         latency_span,
@@ -114,15 +119,15 @@ fn draw_header(f: &mut Frame, app: &App, area: Rect) {
     f.render_widget(title_p, header_layout[0]);
 
     let tab_all = if app.active_tab == ActiveTab::AllFeeds {
-        Span::styled(" [1] All Feeds ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))
+        Span::styled(tab_all_str, Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))
     } else {
-        Span::styled(" [1] All Feeds ", Style::default().fg(THEME.muted))
+        Span::styled(tab_all_str, Style::default().fg(THEME.muted))
     };
 
     let tab_fav = if app.active_tab == ActiveTab::Bookmarks {
-        Span::styled(" [2] Bookmarks ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))
+        Span::styled(tab_fav_str, Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))
     } else {
-        Span::styled(" [2] Bookmarks ", Style::default().fg(THEME.muted))
+        Span::styled(tab_fav_str, Style::default().fg(THEME.muted))
     };
 
     let right_spans = vec![tab_all, Span::styled(" | ", Style::default().fg(THEME.border)), tab_fav];
@@ -205,7 +210,8 @@ fn draw_feeds_pane(f: &mut Frame, app: &mut App, area: Rect) {
         .collect();
 
     let total_feeds = app.feeds.len();
-    let title = format!(" Channel & Kategori ({}) ", total_feeds);
+    let feeds_title_label = t(app.language, "pane_channels").trim();
+    let title = format!(" {} ({}) ", feeds_title_label, total_feeds);
     let list = List::new(items)
         .block(
             Block::default()
@@ -254,21 +260,20 @@ fn draw_articles_pane(f: &mut Frame, app: &mut App, area: Rect) {
             };
 
             let author_color = if is_selected {
-                Color::Rgb(20, 20, 35)
+                Color::Rgb(20, 40, 25)
             } else {
-                THEME.highlight
+                THEME.success
             };
 
-            // Marquee Title Logic for Selected Article
-            let max_title_len = area.width.saturating_sub(9) as usize;
+            // Dynamic marquee animation for selected article title if wider than column width
+            let max_title_len = (area.width.saturating_sub(10)) as usize;
             let title_chars: Vec<char> = art.title.chars().collect();
-
             let display_title = if is_selected && title_chars.len() > max_title_len {
                 let overflow = title_chars.len() - max_title_len;
-                let pause_ticks = 13;
-                let cycle_len = pause_ticks + overflow + pause_ticks;
-                let current_step = app.marquee_tick % cycle_len;
+                let total_steps = overflow + 10; // 5 steps pause at start + 5 steps pause at end
+                let current_step = app.marquee_tick % total_steps;
 
+                let pause_ticks = 5;
                 let offset = if current_step < pause_ticks {
                     0
                 } else if current_step < pause_ticks + overflow {
@@ -292,7 +297,6 @@ fn draw_articles_pane(f: &mut Frame, app: &mut App, area: Rect) {
             ];
 
             let sub_line = vec![
-                Span::styled("   Waktu: ", Style::default().fg(sub_color)),
                 Span::styled(&art.published, Style::default().fg(sub_color)),
                 Span::styled(format!(" | {}", art.author), Style::default().fg(author_color)),
             ];
@@ -309,10 +313,11 @@ fn draw_articles_pane(f: &mut Frame, app: &mut App, area: Rect) {
         })
         .collect();
 
+    let articles_title_label = t(app.language, "pane_articles").trim();
     let title = if !app.search_query.trim().is_empty() {
-        format!(" Berita ({}) [Cari: '{}'] (Esc: Reset) ", articles.len(), app.search_query.trim())
+        format!(" {} ({}) [Search: '{}'] (Esc: Reset) ", articles_title_label, articles.len(), app.search_query.trim())
     } else {
-        format!(" Berita ({}) ", articles.len())
+        format!(" {} ({}) ", articles_title_label, articles.len())
     };
     let list = List::new(items)
         .block(
@@ -337,11 +342,11 @@ fn draw_reader_pane(f: &mut Frame, app: &mut App, area: Rect) {
     let art = match app.current_article() {
         Some(a) => a,
         None => {
-            let p = Paragraph::new("Tidak ada berita terpilih")
+            let p = Paragraph::new(t(app.language, "reader_select_prompt"))
                 .alignment(Alignment::Center)
                 .block(
                     Block::default()
-                        .title(" Reader Mode ")
+                        .title(t(app.language, "pane_reader"))
                         .borders(Borders::ALL)
                         .border_type(BorderType::Rounded)
                         .border_style(border_style),
@@ -359,15 +364,15 @@ fn draw_reader_pane(f: &mut Frame, app: &mut App, area: Rect) {
     lines.push(Line::from(""));
 
     lines.push(Line::from(vec![
-        Span::styled("Sumber  : ", Style::default().fg(THEME.muted)),
+        Span::styled(t(app.language, "reader_source"), Style::default().fg(THEME.muted)),
         Span::styled(&art.feed_title, Style::default().fg(THEME.highlight)),
         Span::styled("  |  ", Style::default().fg(THEME.border)),
-        Span::styled("Waktu: ", Style::default().fg(THEME.muted)),
+        Span::styled(t(app.language, "reader_published"), Style::default().fg(THEME.muted)),
         Span::styled(&art.published, Style::default().fg(THEME.fg)),
     ]));
 
     lines.push(Line::from(vec![
-        Span::styled("Penulis : ", Style::default().fg(THEME.muted)),
+        Span::styled(t(app.language, "reader_author"), Style::default().fg(THEME.muted)),
         Span::styled(&art.author, Style::default().fg(THEME.fg)),
     ]));
 

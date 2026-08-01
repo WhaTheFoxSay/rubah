@@ -1,5 +1,6 @@
 mod app;
 mod cli;
+mod i18n;
 mod image_render;
 mod models;
 mod network;
@@ -269,6 +270,7 @@ async fn run_app(
                         match key.code {
                             KeyCode::Char('q') => return Ok(()),
                             KeyCode::Char('?') => app.show_help = true,
+                            KeyCode::Char('l') | KeyCode::Char('L') => app.toggle_language(),
                             KeyCode::Tab => app.next_pane(),
                             KeyCode::BackTab => app.prev_pane(),
 
