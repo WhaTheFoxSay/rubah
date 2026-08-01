@@ -49,6 +49,10 @@ pub fn draw(f: &mut Frame, app: &mut App) {
     draw_body(f, app, main_chunks[1]);
     draw_footer_box(f, app, main_chunks[2]);
 
+    if app.is_initial_loading {
+        draw_startup_loading_modal(f, app, f.area());
+    }
+
     if app.show_help {
         draw_help_modal(f, app, f.area());
     }
@@ -956,4 +960,47 @@ fn format_localized_datetime(now: chrono::DateTime<chrono::Local>, lang: Languag
     };
 
     format!("{}, {:02} {} {} {:02}:{:02}:{:02}", day_name, now.day(), month_name, now.year(), now.hour(), now.minute(), now.second())
+}
+
+fn draw_startup_loading_modal(f: &mut Frame, app: &App, area: Rect) {
+    let popup_area = centered_rect(68, 38, area);
+    f.render_widget(Clear, popup_area);
+
+    let track_width = 34;
+    let block_size = 5;
+    let cycle = app.marquee_tick % (track_width + block_size);
+    let mut track_vec = vec!["░"; track_width];
+
+    for i in 0..block_size {
+        if cycle >= i {
+            let pos = cycle - i;
+            if pos < track_width {
+                track_vec[pos] = "█";
+            }
+        }
+    }
+    let load_bar_str = format!("[ {} ]", track_vec.join(""));
+
+    let lines = vec![
+        Line::from(Span::styled("📰 Loading news feeds, getting ready to display...", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))),
+        Line::from("------------------------------------------------------------------"),
+        Line::from(Span::styled("Initializing RSS channels & caching articles. Please wait...", Style::default().fg(THEME.fg))),
+        Line::from(""),
+        Line::from(Span::styled(load_bar_str, Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))),
+        Line::from(""),
+        Line::from(Span::styled("Windows 2000 / NT 5.0 High-Performance Loading Engine", Style::default().fg(THEME.muted).add_modifier(Modifier::ITALIC))),
+    ];
+
+    let title_str = format!(" 🦊 Rubah [Ruang Baca Harian] v{} - Startup ", env!("CARGO_PKG_VERSION"));
+    let block = Block::default()
+        .title(Span::styled(title_str, Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)))
+        .borders(Borders::ALL)
+        .border_type(BorderType::Rounded)
+        .border_style(Style::default().fg(THEME.border_active));
+
+    let p = Paragraph::new(lines)
+        .alignment(Alignment::Center)
+        .block(block);
+
+    f.render_widget(p, popup_area);
 }

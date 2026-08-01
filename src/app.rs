@@ -100,6 +100,7 @@ pub struct App {
     pub update_stage_status: String,
     pub update_completed: bool,
     pub update_failed: Option<String>,
+    pub is_initial_loading: bool,
 }
 
 impl App {
@@ -172,7 +173,29 @@ impl App {
             update_stage_status: String::new(),
             update_completed: false,
             update_failed: None,
+            is_initial_loading: true,
         }
+    }
+
+    pub fn start_initial_feed_refresh(
+        &mut self,
+        tx: tokio::sync::mpsc::UnboundedSender<HashMap<String, Vec<Article>>>,
+    ) {
+        self.is_initial_loading = true;
+        self.is_loading = true;
+        let fetcher = self.fetcher.clone();
+        let feeds = self.feeds.clone();
+
+        tokio::spawn(async move {
+            let results = fetcher.fetch_all_feeds(&feeds).await;
+            let mut articles_by_feed = HashMap::new();
+            for (feed_id, res) in results {
+                if let Ok(articles) = res {
+                    articles_by_feed.insert(feed_id, articles);
+                }
+            }
+            let _ = tx.send(articles_by_feed);
+        });
     }
 
     pub fn start_in_app_update(&mut self, tx: tokio::sync::mpsc::UnboundedSender<crate::network::UpdateProgress>) {
@@ -396,6 +419,7 @@ impl App {
         }
     }
 
+    #[allow(dead_code)]
     pub async fn refresh_all_feeds(&mut self) {
         self.is_loading = true;
         self.status_message = match self.language {

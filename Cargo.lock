@@ -1531,7 +1531,7 @@ dependencies = [
 
 [[package]]
 name = "rubah"
-version = "1.6.9"
+version = "1.7.0"
 dependencies = [
  "base64",
  "chrono",

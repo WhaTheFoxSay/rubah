@@ -68,9 +68,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut app = App::new();
 
-    // Spawn initial RSS fetch in background
-    app.refresh_all_feeds().await;
-
     let res = run_app(&mut terminal, &mut app).await;
 
     // Restore Terminal
@@ -92,9 +89,30 @@ async fn run_app(
     let mut last_latency_check = std::time::Instant::now();
     let mut last_marquee_time = std::time::Instant::now();
     let (update_tx, mut update_rx) = tokio::sync::mpsc::unbounded_channel();
+    let (feed_tx, mut feed_rx) = tokio::sync::mpsc::unbounded_channel();
+
     app.update_latency().await;
+    app.start_initial_feed_refresh(feed_tx.clone());
 
     loop {
+        while let Ok(articles_map) = feed_rx.try_recv() {
+            let mut count = 0;
+            for (feed_id, articles) in articles_map {
+                count += articles.len();
+                app.articles_by_feed.insert(feed_id, articles);
+            }
+            app.is_initial_loading = false;
+            app.is_loading = false;
+            app.status_message = match app.language {
+                i18n::Language::Indonesian => format!("Selesai! Dimuat {} berita dari {} channel.", count, app.feeds.len()),
+                i18n::Language::Japanese => format!("完了！{} チャンネルから {} 件の記事を読み込みました。", app.feeds.len(), count),
+                i18n::Language::Dutch => format!("Klaar! {} artikelen geladen van {} kanalen.", count, app.feeds.len()),
+                i18n::Language::Spanish => format!("¡Hecho! {} artículos cargados de {} canales.", count, app.feeds.len()),
+                i18n::Language::Arabic => format!("تم! تم تحميل {} مقالاً من {} قناة.", count, app.feeds.len()),
+                _ => format!("Done! Loaded {} articles from {} channels.", count, app.feeds.len()),
+            };
+        }
+
         while let Ok(progress) = update_rx.try_recv() {
             match progress {
                 crate::network::UpdateProgress::Downloading { downloaded, total, percentage } => {
@@ -361,7 +379,7 @@ async fn run_app(
                             }
 
                             KeyCode::Char('r') => {
-                                app.refresh_all_feeds().await;
+                                app.start_initial_feed_refresh(feed_tx.clone());
                             }
                             KeyCode::Char('f') | KeyCode::Char('F') => {
                                 app.toggle_fullscreen_reader().await;
