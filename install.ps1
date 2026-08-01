@@ -15,7 +15,7 @@ if (!(Test-Path $InstallDir)) {
 }
 
 $ExePath = Join-Path $InstallDir "baca.exe"
-$PrimaryUrl = "https://github.com/WhaTheFoxSay/rubah/releases/download/v0.8.0/rubah-windows-amd64.exe"
+$PrimaryUrl = "https://github.com/WhaTheFoxSay/rubah/releases/download/v0.8.1/rubah-windows-amd64.exe"
 $LatestUrl = "https://github.com/WhaTheFoxSay/rubah/releases/latest/download/rubah-windows-amd64.exe"
 
 Write-Host "--> Mengunduh binary 'baca.exe'..." -ForegroundColor Yellow
@@ -43,7 +43,7 @@ if (-not $downloadSuccess) {
 
 if (-not $downloadSuccess) {
     try {
-        $ApiUrl = "https://api.github.com/repos/WhaTheFoxSay/rubah/releases/tags/v0.8.0"
+        $ApiUrl = "https://api.github.com/repos/WhaTheFoxSay/rubah/releases/tags/v0.8.1"
         $ReleaseInfo = Invoke-RestMethod -Uri $ApiUrl -UserAgent "RubahInstaller/1.0"
         $Asset = $ReleaseInfo.assets | Where-Object { $_.name -eq "rubah-windows-amd64.exe" }
         if ($Asset -and $Asset.url) {

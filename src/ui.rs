@@ -35,12 +35,14 @@ pub const THEME: Theme = Theme {
 };
 
 pub fn draw(f: &mut Frame, app: &mut App) {
+    let search_height = if app.input_mode == InputMode::Search { 3 } else { 1 };
+
     let main_chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
             Constraint::Length(3), // Header Banner
-            Constraint::Min(10),   // Main 3-Pane Body
-            Constraint::Length(1), // Search input if active / Status bar
+            Constraint::Min(5),    // Main 3-Pane Body
+            Constraint::Length(search_height), // Search input (3 baris) / Status bar (1 baris)
             Constraint::Length(1), // Footer Keybindings
         ])
         .split(f.area());
@@ -421,11 +423,17 @@ fn draw_reader_pane(f: &mut Frame, app: &mut App, area: Rect) {
 
 fn draw_search_bar(f: &mut Frame, app: &App, area: Rect) {
     if app.input_mode == InputMode::Search {
+        let (query_text, query_style) = if app.search_query.is_empty() {
+            ("[Ketik kata kunci di sini...]", Style::default().fg(THEME.muted))
+        } else {
+            (app.search_query.as_str(), Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD))
+        };
+
         let spans = vec![
-            Span::styled(" Cari: ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
-            Span::styled(&app.search_query, Style::default().fg(THEME.fg)),
+            Span::styled(" Kata Kunci: ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
+            Span::styled(query_text, query_style),
             Span::styled(" █", Style::default().fg(THEME.accent)),
-            Span::styled("  (Enter: Buka | Down/Up: Pilih | Esc: Batal)", Style::default().fg(THEME.muted)),
+            Span::styled("   [Enter] Buka | [Down/Up] Pilih | [Esc] Reset", Style::default().fg(THEME.muted)),
         ];
         let p = Paragraph::new(Line::from(spans)).block(
             Block::default()

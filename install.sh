@@ -49,7 +49,7 @@ fi
 
 BINARY_NAME="rubah-${OS}-${ARCH}"
 REPO="WhaTheFoxSay/rubah"
-RELEASE_URL="https://github.com/${REPO}/releases/download/v0.8.0/${BINARY_NAME}"
+RELEASE_URL="https://github.com/${REPO}/releases/download/v0.8.1/${BINARY_NAME}"
 LATEST_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
 
 echo -e "${GRAY}--> OS: ${OS} (${ARCH})${RESET}"
@@ -66,7 +66,7 @@ HTTP_CODE=$(curl -sL -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$RELEASE
 FILE_SIZE=$(wc -c < "$TMP_FILE" 2>/dev/null || echo "0")
 if [ "$HTTP_CODE" -ne 200 ] || [ "$FILE_SIZE" -lt 3000000 ]; then
     # Direct GitHub API stream fallback (bypasses GitHub release CDN BlobNotFound propagation delay)
-    API_URL="https://api.github.com/repos/${REPO}/releases/tags/v0.8.0"
+    API_URL="https://api.github.com/repos/${REPO}/releases/tags/v0.8.1"
     ASSET_URL=$(curl -sL -A "$USER_AGENT" "$API_URL" | grep -B 2 -A 8 "\"name\": \"${BINARY_NAME}\"" | grep '"url":' | head -n 1 | cut -d '"' -f 4)
     if [ -n "$ASSET_URL" ]; then
         curl -sL -H "Accept: application/octet-stream" -A "$USER_AGENT" -o "$TMP_FILE" "$ASSET_URL" || true
