@@ -282,6 +282,18 @@ pub fn t<'a>(lang: Language, key: &'a str) -> &'a str {
         (Language::English, "reader_author") => "Author: ",
         (Language::Indonesian, "reader_author") => "Penulis: ",
 
+        (Language::English, "reader_title_label") => "Title   : ",
+        (Language::Indonesian, "reader_title_label") => "Judul   : ",
+
+        (Language::English, "reader_link_label") => "Web Link: ",
+        (Language::Indonesian, "reader_link_label") => "Link Web: ",
+
+        (Language::English, "reader_image_caption") => "[Main Article Image] - Press [i] Toggle On/Off",
+        (Language::Indonesian, "reader_image_caption") => "[Foto Berita Utama] - Tekan [i] Toggle On/Off",
+
+        (Language::English, "reader_mode_title") => " Reader Mode (Press [j/k] Scroll | [Esc] Back to Article List) ",
+        (Language::Indonesian, "reader_mode_title") => " Reader Mode (Tekan [j/k] Scroll | [Esc] Kembali ke Daftar Berita) ",
+
         (Language::English, "reader_source") => "Source: ",
         (Language::Indonesian, "reader_source") => "Sumber: ",
 

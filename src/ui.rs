@@ -360,7 +360,7 @@ fn draw_reader_pane(f: &mut Frame, app: &mut App, area: Rect) {
 
     let mut lines = Vec::new();
     lines.push(Line::from(vec![
-        Span::styled("Judul   : ", Style::default().fg(THEME.muted)),
+        Span::styled(t(app.language, "reader_title_label"), Style::default().fg(THEME.muted)),
         Span::styled(&art.title, Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
     ]));
     lines.push(Line::from(""));
@@ -380,7 +380,7 @@ fn draw_reader_pane(f: &mut Frame, app: &mut App, area: Rect) {
 
     if !art.link.is_empty() {
         lines.push(Line::from(vec![
-            Span::styled("Link Web: ", Style::default().fg(THEME.muted)),
+            Span::styled(t(app.language, "reader_link_label"), Style::default().fg(THEME.muted)),
             Span::styled(&art.link, Style::default().fg(THEME.highlight).add_modifier(Modifier::UNDERLINED)),
         ]));
     }
@@ -397,7 +397,7 @@ fn draw_reader_pane(f: &mut Frame, app: &mut App, area: Rect) {
                 lines.push(line.clone());
             }
             lines.push(Line::from(Span::styled(
-                "[Foto Berita Utama] - Tekan [i] Toggle On/Off",
+                t(app.language, "reader_image_caption"),
                 Style::default().fg(THEME.muted).add_modifier(Modifier::ITALIC),
             )));
             lines.push(Line::from(""));
@@ -421,7 +421,7 @@ fn draw_reader_pane(f: &mut Frame, app: &mut App, area: Rect) {
     let paragraph_widget = Paragraph::new(lines)
         .block(
             Block::default()
-                .title(" Reader Mode (Tekan [j/k] Scroll | [Esc] Kembali ke Daftar Berita) ")
+                .title(t(app.language, "reader_mode_title"))
                 .borders(Borders::ALL)
                 .border_type(BorderType::Rounded)
                 .border_style(border_style),
