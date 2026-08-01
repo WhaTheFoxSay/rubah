@@ -845,6 +845,7 @@ fn format_localized_datetime(now: chrono::DateTime<chrono::Local>, lang: Languag
         (Language::English, chrono::Weekday::Fri) => "Fri",
         (Language::English, chrono::Weekday::Sat) => "Sat",
         (Language::English, chrono::Weekday::Sun) => "Sun",
+
         (Language::Indonesian, chrono::Weekday::Mon) => "Sen",
         (Language::Indonesian, chrono::Weekday::Tue) => "Sel",
         (Language::Indonesian, chrono::Weekday::Wed) => "Rab",
@@ -852,6 +853,38 @@ fn format_localized_datetime(now: chrono::DateTime<chrono::Local>, lang: Languag
         (Language::Indonesian, chrono::Weekday::Fri) => "Jum",
         (Language::Indonesian, chrono::Weekday::Sat) => "Sab",
         (Language::Indonesian, chrono::Weekday::Sun) => "Min",
+
+        (Language::Japanese, chrono::Weekday::Mon) => "月",
+        (Language::Japanese, chrono::Weekday::Tue) => "火",
+        (Language::Japanese, chrono::Weekday::Wed) => "水",
+        (Language::Japanese, chrono::Weekday::Thu) => "木",
+        (Language::Japanese, chrono::Weekday::Fri) => "金",
+        (Language::Japanese, chrono::Weekday::Sat) => "土",
+        (Language::Japanese, chrono::Weekday::Sun) => "日",
+
+        (Language::Dutch, chrono::Weekday::Mon) => "Ma",
+        (Language::Dutch, chrono::Weekday::Tue) => "Di",
+        (Language::Dutch, chrono::Weekday::Wed) => "Wo",
+        (Language::Dutch, chrono::Weekday::Thu) => "Do",
+        (Language::Dutch, chrono::Weekday::Fri) => "Vr",
+        (Language::Dutch, chrono::Weekday::Sat) => "Za",
+        (Language::Dutch, chrono::Weekday::Sun) => "Zo",
+
+        (Language::Spanish, chrono::Weekday::Mon) => "Lun",
+        (Language::Spanish, chrono::Weekday::Tue) => "Mar",
+        (Language::Spanish, chrono::Weekday::Wed) => "Mié",
+        (Language::Spanish, chrono::Weekday::Thu) => "Jue",
+        (Language::Spanish, chrono::Weekday::Fri) => "Vie",
+        (Language::Spanish, chrono::Weekday::Sat) => "Sáb",
+        (Language::Spanish, chrono::Weekday::Sun) => "Dom",
+
+        (Language::Arabic, chrono::Weekday::Mon) => "الاثنين",
+        (Language::Arabic, chrono::Weekday::Tue) => "الثلاثاء",
+        (Language::Arabic, chrono::Weekday::Wed) => "الأربعاء",
+        (Language::Arabic, chrono::Weekday::Thu) => "الخميس",
+        (Language::Arabic, chrono::Weekday::Fri) => "الجمعة",
+        (Language::Arabic, chrono::Weekday::Sat) => "السبت",
+        (Language::Arabic, chrono::Weekday::Sun) => "الأحد",
     };
 
     let month_name = match (lang, now.month()) {
@@ -859,10 +892,32 @@ fn format_localized_datetime(now: chrono::DateTime<chrono::Local>, lang: Languag
         (Language::English, 4) => "Apr", (Language::English, 5) => "May", (Language::English, 6) => "Jun",
         (Language::English, 7) => "Jul", (Language::English, 8) => "Aug", (Language::English, 9) => "Sep",
         (Language::English, 10) => "Oct", (Language::English, 11) => "Nov", (Language::English, 12) => "Dec",
+
         (Language::Indonesian, 1) => "Jan", (Language::Indonesian, 2) => "Feb", (Language::Indonesian, 3) => "Mar",
         (Language::Indonesian, 4) => "Apr", (Language::Indonesian, 5) => "Mei", (Language::Indonesian, 6) => "Jun",
         (Language::Indonesian, 7) => "Jul", (Language::Indonesian, 8) => "Agt", (Language::Indonesian, 9) => "Sep",
         (Language::Indonesian, 10) => "Okt", (Language::Indonesian, 11) => "Nov", (Language::Indonesian, 12) => "Des",
+
+        (Language::Japanese, 1) => "1月", (Language::Japanese, 2) => "2月", (Language::Japanese, 3) => "3月",
+        (Language::Japanese, 4) => "4月", (Language::Japanese, 5) => "5月", (Language::Japanese, 6) => "6月",
+        (Language::Japanese, 7) => "7月", (Language::Japanese, 8) => "8月", (Language::Japanese, 9) => "9月",
+        (Language::Japanese, 10) => "10月", (Language::Japanese, 11) => "11月", (Language::Japanese, 12) => "12月",
+
+        (Language::Dutch, 1) => "Jan", (Language::Dutch, 2) => "Feb", (Language::Dutch, 3) => "Maart",
+        (Language::Dutch, 4) => "Apr", (Language::Dutch, 5) => "Mei", (Language::Dutch, 6) => "Juni",
+        (Language::Dutch, 7) => "Juli", (Language::Dutch, 8) => "Aug", (Language::Dutch, 9) => "Sep",
+        (Language::Dutch, 10) => "Okt", (Language::Dutch, 11) => "Nov", (Language::Dutch, 12) => "Dec",
+
+        (Language::Spanish, 1) => "Ene", (Language::Spanish, 2) => "Feb", (Language::Spanish, 3) => "Mar",
+        (Language::Spanish, 4) => "Abr", (Language::Spanish, 5) => "May", (Language::Spanish, 6) => "Jun",
+        (Language::Spanish, 7) => "Jul", (Language::Spanish, 8) => "Ago", (Language::Spanish, 9) => "Sep",
+        (Language::Spanish, 10) => "Oct", (Language::Spanish, 11) => "Nov", (Language::Spanish, 12) => "Dic",
+
+        (Language::Arabic, 1) => "يناير", (Language::Arabic, 2) => "فبراير", (Language::Arabic, 3) => "مارس",
+        (Language::Arabic, 4) => "أبريل", (Language::Arabic, 5) => "مايو", (Language::Arabic, 6) => "يونيو",
+        (Language::Arabic, 7) => "يوليو", (Language::Arabic, 8) => "أغسطس", (Language::Arabic, 9) => "سبتمبر",
+        (Language::Arabic, 10) => "أكتوبر", (Language::Arabic, 11) => "نوفمبر", (Language::Arabic, 12) => "ديسمبر",
+
         _ => "Jan",
     };
 

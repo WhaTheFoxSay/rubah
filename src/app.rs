@@ -199,6 +199,10 @@ impl App {
         let msg = match self.language {
             crate::i18n::Language::English => "Language changed to English (EN)",
             crate::i18n::Language::Indonesian => "Bahasa diubah ke Bahasa Indonesia (ID)",
+            crate::i18n::Language::Japanese => "言語を日本語 (JA) に変更しました",
+            crate::i18n::Language::Dutch => "Taal gewijzigd naar Nederlands (NL)",
+            crate::i18n::Language::Spanish => "Idioma cambiado a Español (ES)",
+            crate::i18n::Language::Arabic => "تم تغيير اللغة إلى العربية (AR)",
         };
         self.status_message = format!("[OK] {}", msg);
     }
@@ -323,10 +327,18 @@ impl App {
     pub fn toggle_image_display(&mut self) {
         self.show_image = !self.show_image;
         self.status_message = match (self.language, self.show_image) {
-            (crate::i18n::Language::English, true) => "Images [ON]".to_string(),
-            (crate::i18n::Language::English, false) => "Images [OFF]".to_string(),
             (crate::i18n::Language::Indonesian, true) => "Gambar [ON]".to_string(),
             (crate::i18n::Language::Indonesian, false) => "Gambar [OFF]".to_string(),
+            (crate::i18n::Language::Japanese, true) => "画像 [ON]".to_string(),
+            (crate::i18n::Language::Japanese, false) => "画像 [OFF]".to_string(),
+            (crate::i18n::Language::Dutch, true) => "Afbeeldingen [AAN]".to_string(),
+            (crate::i18n::Language::Dutch, false) => "Afbeeldingen [UIT]".to_string(),
+            (crate::i18n::Language::Spanish, true) => "Imágenes [ON]".to_string(),
+            (crate::i18n::Language::Spanish, false) => "Imágenes [OFF]".to_string(),
+            (crate::i18n::Language::Arabic, true) => "الصور [مفعل]".to_string(),
+            (crate::i18n::Language::Arabic, false) => "الصور [معطل]".to_string(),
+            (_, true) => "Images [ON]".to_string(),
+            (_, false) => "Images [OFF]".to_string(),
         };
     }
 
@@ -337,13 +349,21 @@ impl App {
             self.mark_current_read();
             self.fetch_full_content_for_selected().await;
             self.status_message = match self.language {
-                crate::i18n::Language::English => "Fullscreen Reader Mode [ON] (Press [f] or [Esc] to exit)".to_string(),
                 crate::i18n::Language::Indonesian => "Fullscreen Reader Mode [ON] (Tekan [f] atau [Esc] untuk keluar)".to_string(),
+                crate::i18n::Language::Japanese => "全画面リーダーモード [ON] ([f] または [Esc] で終了)".to_string(),
+                crate::i18n::Language::Dutch => "Volledig Scherm Lezersmodus [AAN] (Druk [f] of [Esc] om te sluiten)".to_string(),
+                crate::i18n::Language::Spanish => "Modo Lector Pantalla Completa [ON] (Presione [f] o [Esc] para salir)".to_string(),
+                crate::i18n::Language::Arabic => "وضع القراءة ملء الشاشة [مفعل] (اضغط [f] أو [Esc] للخروج)".to_string(),
+                _ => "Fullscreen Reader Mode [ON] (Press [f] or [Esc] to exit)".to_string(),
             };
         } else {
             self.status_message = match self.language {
-                crate::i18n::Language::English => "Exited Fullscreen Reader Mode".to_string(),
                 crate::i18n::Language::Indonesian => "Keluar dari Fullscreen Reader Mode".to_string(),
+                crate::i18n::Language::Japanese => "全画面リーダーモードを終了しました".to_string(),
+                crate::i18n::Language::Dutch => "Volledig Scherm Lezersmodus verlaten".to_string(),
+                crate::i18n::Language::Spanish => "Salió del Modo Lector de Pantalla Completa".to_string(),
+                crate::i18n::Language::Arabic => "تم الخروج من وضع القراءة ملء الشاشة".to_string(),
+                _ => "Exited Fullscreen Reader Mode".to_string(),
             };
         }
     }
@@ -351,8 +371,12 @@ impl App {
     pub async fn refresh_all_feeds(&mut self) {
         self.is_loading = true;
         self.status_message = match self.language {
-            crate::i18n::Language::English => "Reloading all RSS feeds...".to_string(),
             crate::i18n::Language::Indonesian => "Memuat ulang seluruh RSS feed...".to_string(),
+            crate::i18n::Language::Japanese => "すべてのRSSフィードを再読み込み中...".to_string(),
+            crate::i18n::Language::Dutch => "Alle RSS-feeds vernieuwen...".to_string(),
+            crate::i18n::Language::Spanish => "Actualizando todas las fuentes RSS...".to_string(),
+            crate::i18n::Language::Arabic => "جاري إعادة تحميل جميع خلاصات RSS...".to_string(),
+            _ => "Reloading all RSS feeds...".to_string(),
         };
 
         let results = self.fetcher.fetch_all_feeds(&self.feeds).await;
@@ -367,8 +391,12 @@ impl App {
 
         self.is_loading = false;
         self.status_message = match self.language {
-            crate::i18n::Language::English => format!("Done! Loaded {} articles from {} channels.", count, self.feeds.len()),
             crate::i18n::Language::Indonesian => format!("Selesai! Dimuat {} berita dari {} channel.", count, self.feeds.len()),
+            crate::i18n::Language::Japanese => format!("完了！{} チャンネルから {} 件の記事を読み込みました。", self.feeds.len(), count),
+            crate::i18n::Language::Dutch => format!("Klaar! {} artikelen geladen van {} kanalen.", count, self.feeds.len()),
+            crate::i18n::Language::Spanish => format!("¡Hecho! {} artículos cargados de {} canales.", count, self.feeds.len()),
+            crate::i18n::Language::Arabic => format!("تم! تم تحميل {} مقالاً من {} قناة.", count, self.feeds.len()),
+            _ => format!("Done! Loaded {} articles from {} channels.", count, self.feeds.len()),
         };
     }
 
@@ -394,15 +422,23 @@ impl App {
                 }
             }
             self.status_message = match self.language {
-                crate::i18n::Language::English => "Press [?] Help | [j/k] Select | [Enter] Read Full | [i] Image | [/] Search".to_string(),
                 crate::i18n::Language::Indonesian => "Tekan [?] Bantuan | [j/k] Pilih | [Enter] Baca Penuh | [i] Gambar | [/] Cari".to_string(),
+                crate::i18n::Language::Japanese => "[?] ヘルプ | [j/k] 選択 | [Enter] 全文表示 | [i] 画像 | [/] 検索".to_string(),
+                crate::i18n::Language::Dutch => "Druk [?] Hulp | [j/k] Selecteer | [Enter] Lees Volledig | [i] Afbeelding | [/] Zoeken".to_string(),
+                crate::i18n::Language::Spanish => "Presione [?] Ayuda | [j/k] Seleccionar | [Enter] Leer Completo | [i] Imagen | [/] Buscar".to_string(),
+                crate::i18n::Language::Arabic => "اضغط [?] مساعدة | [j/k] تحديد | [Enter] قراءة كاملة | [i] صورة | [/] بحث".to_string(),
+                _ => "Press [?] Help | [j/k] Select | [Enter] Read Full | [i] Image | [/] Search".to_string(),
             };
             return;
         }
 
         self.status_message = match self.language {
-            crate::i18n::Language::English => format!("Loading: '{}'...", article_title),
             crate::i18n::Language::Indonesian => format!("Memuat: '{}'...", article_title),
+            crate::i18n::Language::Japanese => format!("読み込み中: '{}'...", article_title),
+            crate::i18n::Language::Dutch => format!("Laden: '{}'...", article_title),
+            crate::i18n::Language::Spanish => format!("Cargando: '{}'...", article_title),
+            crate::i18n::Language::Arabic => format!("جاري التحميل: '{}'...", article_title),
+            _ => format!("Loading: '{}'...", article_title),
         };
         self.current_image_lines = None;
 
@@ -432,14 +468,22 @@ impl App {
 
                 self.article_cache.insert(article_id, (full_text, rendered_img));
                 self.status_message = match self.language {
-                    crate::i18n::Language::English => "Press [?] Help | [j/k] Select | [Enter] Read Full | [i] Image | [/] Search".to_string(),
                     crate::i18n::Language::Indonesian => "Tekan [?] Bantuan | [j/k] Pilih | [Enter] Baca Penuh | [i] Gambar | [/] Cari".to_string(),
+                    crate::i18n::Language::Japanese => "[?] ヘルプ | [j/k] 選択 | [Enter] 全文表示 | [i] 画像 | [/] 検索".to_string(),
+                    crate::i18n::Language::Dutch => "Druk [?] Hulp | [j/k] Selecteer | [Enter] Lees Volledig | [i] Afbeelding | [/] Zoeken".to_string(),
+                    crate::i18n::Language::Spanish => "Presione [?] Ayuda | [j/k] Seleccionar | [Enter] Leer Completo | [i] Imagen | [/] Buscar".to_string(),
+                    crate::i18n::Language::Arabic => "اضغط [?] مساعدة | [j/k] تحديد | [Enter] قراءة كاملة | [i] صورة | [/] بحث".to_string(),
+                    _ => "Press [?] Help | [j/k] Select | [Enter] Read Full | [i] Image | [/] Search".to_string(),
                 };
             }
             Err(e) => {
                 self.status_message = match self.language {
-                    crate::i18n::Language::English => format!("Failed to load article: {}", e),
                     crate::i18n::Language::Indonesian => format!("Gagal memuat artikel: {}", e),
+                    crate::i18n::Language::Japanese => format!("記事の読み込みに失敗しました: {}", e),
+                    crate::i18n::Language::Dutch => format!("Artikel laden mislukt: {}", e),
+                    crate::i18n::Language::Spanish => format!("Error al cargar el artículo: {}", e),
+                    crate::i18n::Language::Arabic => format!("فشل في تحميل المقال: {}", e),
+                    _ => format!("Failed to load article: {}", e),
                 };
             }
         }
@@ -450,8 +494,12 @@ impl App {
         self.input_mode = InputMode::Normal;
         self.selected_article_idx = 0;
         self.status_message = match self.language {
-            crate::i18n::Language::English => "Search cleared.".to_string(),
             crate::i18n::Language::Indonesian => "Pencarian dibersihkan.".to_string(),
+            crate::i18n::Language::Japanese => "検索をクリアしました。".to_string(),
+            crate::i18n::Language::Dutch => "Zoekopdracht gewist.".to_string(),
+            crate::i18n::Language::Spanish => "Búsqueda borrada.".to_string(),
+            crate::i18n::Language::Arabic => "تم مسح البحث.".to_string(),
+            _ => "Search cleared.".to_string(),
         };
     }
 
@@ -641,10 +689,18 @@ impl App {
         if let Some(art) = self.current_article() {
             if let Ok(added) = self.storage.toggle_bookmark(&art) {
                 self.status_message = match (self.language, added) {
-                    (crate::i18n::Language::English, true) => format!("Saved to Bookmarks: '{}'", art.title),
-                    (crate::i18n::Language::English, false) => format!("Removed from Bookmarks: '{}'", art.title),
                     (crate::i18n::Language::Indonesian, true) => format!("Disimpan ke Bookmark: '{}'", art.title),
                     (crate::i18n::Language::Indonesian, false) => format!("Dihapus dari Bookmark: '{}'", art.title),
+                    (crate::i18n::Language::Japanese, true) => format!("ブックマークに保存しました: '{}'", art.title),
+                    (crate::i18n::Language::Japanese, false) => format!("ブックマークから削除しました: '{}'", art.title),
+                    (crate::i18n::Language::Dutch, true) => format!("Opgeslagen in Bladwijzers: '{}'", art.title),
+                    (crate::i18n::Language::Dutch, false) => format!("Verwijderd uit Bladwijzers: '{}'", art.title),
+                    (crate::i18n::Language::Spanish, true) => format!("Guardado en Marcadores: '{}'", art.title),
+                    (crate::i18n::Language::Spanish, false) => format!("Eliminado de Marcadores: '{}'", art.title),
+                    (crate::i18n::Language::Arabic, true) => format!("تم الحفظ في الإشارات المرجعية: '{}'", art.title),
+                    (crate::i18n::Language::Arabic, false) => format!("تم الحذف من الإشارات المرجعية: '{}'", art.title),
+                    (_, true) => format!("Saved to Bookmarks: '{}'", art.title),
+                    (_, false) => format!("Removed from Bookmarks: '{}'", art.title),
                 };
             }
         }
@@ -655,13 +711,21 @@ impl App {
             if !art.link.is_empty() {
                 if open::that(&art.link).is_ok() {
                     self.status_message = match self.language {
-                        crate::i18n::Language::English => format!("Opening browser: {}", art.link),
                         crate::i18n::Language::Indonesian => format!("Membuka browser: {}", art.link),
+                        crate::i18n::Language::Japanese => format!("ブラウザで開きます: {}", art.link),
+                        crate::i18n::Language::Dutch => format!("Browser openen: {}", art.link),
+                        crate::i18n::Language::Spanish => format!("Abriendo navegador: {}", art.link),
+                        crate::i18n::Language::Arabic => format!("جاري فتح المتصفح: {}", art.link),
+                        _ => format!("Opening browser: {}", art.link),
                     };
                 } else {
                     self.status_message = match self.language {
-                        crate::i18n::Language::English => format!("Failed to open link: {}", art.link),
                         crate::i18n::Language::Indonesian => format!("Gagal membuka link: {}", art.link),
+                        crate::i18n::Language::Japanese => format!("リンクを開くのに失敗しました: {}", art.link),
+                        crate::i18n::Language::Dutch => format!("Link openen mislukt: {}", art.link),
+                        crate::i18n::Language::Spanish => format!("Error al abrir enlace: {}", art.link),
+                        crate::i18n::Language::Arabic => format!("فشل فتح الرابط: {}", art.link),
+                        _ => format!("Failed to open link: {}", art.link),
                     };
                 }
             }
@@ -674,8 +738,8 @@ impl App {
             self.input_mode = InputMode::MoveFeedCategory;
         } else {
             self.status_message = match self.language {
-                crate::i18n::Language::English => "Select a Feed under a category to move to another category.".to_string(),
                 crate::i18n::Language::Indonesian => "Pilih Feed di bawah kategori untuk memindahkan ke kategori lain.".to_string(),
+                _ => "Select a Feed under a category to move to another category.".to_string(),
             };
         }
     }
@@ -684,8 +748,8 @@ impl App {
         let new_cat = self.move_feed_category_input.trim().to_string();
         if new_cat.is_empty() {
             self.status_message = match self.language {
-                crate::i18n::Language::English => "New category name cannot be empty!".to_string(),
                 crate::i18n::Language::Indonesian => "Nama kategori baru tidak boleh kosong!".to_string(),
+                _ => "New category name cannot be empty!".to_string(),
             };
             return;
         }
@@ -699,8 +763,8 @@ impl App {
             }
             self.expanded_categories.insert(new_cat.clone());
             self.status_message = match self.language {
-                crate::i18n::Language::English => format!("Feed '{}' moved to category '{}'.", feed_title, new_cat),
                 crate::i18n::Language::Indonesian => format!("Feed '{}' berhasil dipindahkan ke kategori '{}'.", feed_title, new_cat),
+                _ => format!("Feed '{}' moved to category '{}'.", feed_title, new_cat),
             };
             self.input_mode = InputMode::Normal;
             self.move_feed_category_input.clear();
@@ -724,8 +788,8 @@ impl App {
             self.feeds.retain(|f| f.category != cat);
             self.expanded_categories.remove(&cat);
             self.status_message = match self.language {
-                crate::i18n::Language::English => format!("Category '{}' and all feeds inside were deleted.", cat),
                 crate::i18n::Language::Indonesian => format!("Kategori '{}' dan seluruh feed di dalamnya berhasil dihapus.", cat),
+                _ => format!("Category '{}' and all feeds inside were deleted.", cat),
             };
             let len = self.visible_channel_items().len();
             if self.selected_tree_idx >= len && len > 0 {
@@ -744,8 +808,8 @@ impl App {
             let _ = self.storage.delete_feed(&feed_id);
             self.feeds.retain(|f| f.id != feed_id);
             self.status_message = match self.language {
-                crate::i18n::Language::English => format!("Feed '{}' deleted.", title),
                 crate::i18n::Language::Indonesian => format!("Feed '{}' berhasil dihapus.", title),
+                _ => format!("Feed '{}' deleted.", title),
             };
             let len = self.visible_channel_items().len();
             if self.selected_tree_idx >= len && len > 0 {
@@ -769,8 +833,8 @@ impl App {
             let _ = self.storage.add_feed(&feed);
             self.expanded_categories.insert(category);
             self.status_message = match self.language {
-                crate::i18n::Language::English => format!("New feed '{}' added!", feed.title),
                 crate::i18n::Language::Indonesian => format!("Feed baru '{}' ditambahkan!", feed.title),
+                _ => format!("New feed '{}' added!", feed.title),
             };
             self.feeds.push(feed);
             self.new_feed_title.clear();
@@ -779,8 +843,8 @@ impl App {
             self.input_mode = InputMode::Normal;
         } else {
             self.status_message = match self.language {
-                crate::i18n::Language::English => "Feed title and URL cannot be empty!".to_string(),
                 crate::i18n::Language::Indonesian => "Judul dan URL feed tidak boleh kosong!".to_string(),
+                _ => "Feed title and URL cannot be empty!".to_string(),
             };
         }
     }
