@@ -43,9 +43,24 @@ if (-not $downloadSuccess) {
 
 if (-not $downloadSuccess) {
     try {
+        $ApiUrl = "https://api.github.com/repos/WhaTheFoxSay/rubah/releases/tags/v0.8.0"
+        $ReleaseInfo = Invoke-RestMethod -Uri $ApiUrl -UserAgent "RubahInstaller/1.0"
+        $Asset = $ReleaseInfo.assets | Where-Object { $_.name -eq "rubah-windows-amd64.exe" }
+        if ($Asset -and $Asset.url) {
+            $ProgressPreference = 'SilentlyContinue'
+            Invoke-WebRequest -Uri $Asset.url -Headers @{ "Accept" = "application/octet-stream" } -OutFile $ExePath -UseBasicParsing -UserAgent "RubahInstaller/1.0"
+            if ((Test-Path $ExePath) -and ((Get-Item $ExePath).Length -gt 3000000)) {
+                $downloadSuccess = $true
+            }
+        }
+    } catch {}
+}
+
+if (-not $downloadSuccess) {
+    try {
         $ProgressPreference = 'SilentlyContinue'
         Invoke-WebRequest -Uri $LatestUrl -OutFile $ExePath -UseBasicParsing -MaximumRedirection 10
-        if ((Test-Path $ExePath) -and ((Get-Item $ExePath).Length -gt 1000000)) {
+        if ((Test-Path $ExePath) -and ((Get-Item $ExePath).Length -gt 3000000)) {
             $downloadSuccess = $true
         }
     } catch {}
