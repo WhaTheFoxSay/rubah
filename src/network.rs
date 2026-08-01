@@ -149,6 +149,70 @@ impl Fetcher {
         let bytes = response.bytes().await.ok()?;
         Some(bytes.to_vec())
     }
+
+    pub async fn check_for_update(&self) -> Result<UpdateInfo, String> {
+        let current_version = env!("CARGO_PKG_VERSION").to_string();
+        let api_url = "https://api.github.com/repos/WhaTheFoxSay/rubah/releases/latest";
+
+        let response = self
+            .client
+            .get(api_url)
+            .header("User-Agent", "RubahInstaller/1.0")
+            .send()
+            .await
+            .map_err(|e| format!("Gagal menghubungi GitHub API: {}", e))?;
+
+        let json_text = response
+            .text()
+            .await
+            .map_err(|e| format!("Gagal membaca data rilis: {}", e))?;
+
+        let re_tag = Regex::new(r#""tag_name"\s*:\s*"v?([^"]+)""#).map_err(|e| e.to_string())?;
+        let latest_version = if let Some(cap) = re_tag.captures(&json_text) {
+            cap[1].to_string()
+        } else {
+            return Err("Format versi tidak ditemukan dari GitHub API".to_string());
+        };
+
+        let re_body = Regex::new(r#""body"\s*:\s*"([^"]*)""#).ok();
+        let release_notes = re_body
+            .and_then(|re| re.captures(&json_text))
+            .map(|cap| cap[1].replace("\\n", "\n").replace("\\r", ""))
+            .unwrap_or_else(|| "Catatan pembaruan rilis terbaru tersedia di GitHub.".to_string());
+
+        let has_update = is_newer_version(&current_version, &latest_version);
+
+        Ok(UpdateInfo {
+            current_version,
+            latest_version,
+            has_update,
+            release_notes,
+        })
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct UpdateInfo {
+    pub current_version: String,
+    pub latest_version: String,
+    pub has_update: bool,
+    pub release_notes: String,
+}
+
+fn is_newer_version(current: &str, latest: &str) -> bool {
+    let parse_ver = |v: &str| -> (u32, u32, u32) {
+        let parts: Vec<u32> = v
+            .trim_start_matches('v')
+            .split('.')
+            .filter_map(|p| p.parse().ok())
+            .collect();
+        (
+            *parts.get(0).unwrap_or(&0),
+            *parts.get(1).unwrap_or(&0),
+            *parts.get(2).unwrap_or(&0),
+        )
+    };
+    parse_ver(latest) > parse_ver(current)
 }
 
 pub fn extract_first_image_url(html: &str) -> Option<String> {

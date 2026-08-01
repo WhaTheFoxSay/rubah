@@ -259,10 +259,16 @@ async fn run_app(
                             continue;
                         }
 
+                        if app.show_update_modal {
+                            if key.code == KeyCode::Esc || key.code == KeyCode::Enter || key.code == KeyCode::Char('q') || key.code == KeyCode::Char('u') {
+                                app.show_update_modal = false;
+                            }
+                            continue;
+                        }
+
                         match key.code {
                             KeyCode::Char('q') => return Ok(()),
                             KeyCode::Char('?') => app.show_help = true,
-                            KeyCode::Char('U') => app.show_uninstall_confirm = true,
                             KeyCode::Tab => app.next_pane(),
                             KeyCode::BackTab => app.prev_pane(),
 
@@ -271,6 +277,7 @@ async fn run_app(
 
                             KeyCode::Char('d') if app.active_pane == app::ActivePane::Reader => app.scroll_reader_down(),
                             KeyCode::Char('u') if app.active_pane == app::ActivePane::Reader => app.scroll_reader_up(),
+                            KeyCode::Char('u') | KeyCode::Char('U') => app.check_for_update_async().await,
                             KeyCode::PageDown => app.scroll_reader_down(),
                             KeyCode::PageUp => app.scroll_reader_up(),
 

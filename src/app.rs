@@ -83,6 +83,11 @@ pub struct App {
 
     // Fullscreen Reader Mode
     pub is_fullscreen_reader: bool,
+
+    // Check Update Modal
+    pub is_checking_update: bool,
+    pub update_info: Option<crate::network::UpdateInfo>,
+    pub show_update_modal: bool,
 }
 
 impl App {
@@ -101,9 +106,10 @@ impl App {
         }
 
         let mut feed_list_state = ListState::default();
-        feed_list_state.select(Some(0));
-        let mut article_list_state = ListState::default();
-        article_list_state.select(Some(0));
+        if !feeds.is_empty() {
+            feed_list_state.select(Some(0));
+        }
+        let article_list_state = ListState::default();
 
         Self {
             storage,
@@ -122,7 +128,7 @@ impl App {
             marquee_tick: 0,
             reader_scroll: 0,
             is_loading: false,
-            status_message: "Tekan [?] Bantuan | [j/k] Pilih | [Enter] Buka/Baca | [f] Fullscreen Reader | [/] Cari".to_string(),
+            status_message: "Tekan [?] untuk bantuan keyboard".to_string(),
             show_help: false,
             show_uninstall_confirm: false,
             show_image: true,
@@ -132,10 +138,38 @@ impl App {
             search_query: String::new(),
             new_feed_title: String::new(),
             new_feed_url: String::new(),
-            new_feed_category: "Umum".to_string(),
+            new_feed_category: String::new(),
             move_feed_category_input: String::new(),
             target_category_to_delete: None,
             is_fullscreen_reader: false,
+            is_checking_update: false,
+            update_info: None,
+            show_update_modal: false,
+        }
+    }
+
+    pub async fn check_for_update_async(&mut self) {
+        self.is_checking_update = true;
+        self.status_message = "🔄 Memeriksa pembaruan rilis terbaru dari GitHub...".to_string();
+
+        let fetcher = self.fetcher.clone();
+        match fetcher.check_for_update().await {
+            Ok(info) => {
+                self.is_checking_update = false;
+                if info.has_update {
+                    self.status_message = format!("✨ Pembaruan tersedia: v{}! (Versi saat ini: v{}).", info.latest_version, info.current_version);
+                    self.update_info = Some(info);
+                    self.show_update_modal = true;
+                } else {
+                    self.status_message = format!("[OK] Rubah sudah di versi terbaru (v{}). Tidak ada pembaruan.", info.current_version);
+                    self.update_info = Some(info);
+                    self.show_update_modal = true;
+                }
+            }
+            Err(err) => {
+                self.is_checking_update = false;
+                self.status_message = format!("⚠️ Gagal periksa update: {}", err);
+            }
         }
     }
 

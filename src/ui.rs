@@ -60,6 +60,10 @@ pub fn draw(f: &mut Frame, app: &mut App) {
         draw_uninstall_modal(f, f.area());
     }
 
+    if app.show_update_modal {
+        draw_update_modal(f, app, f.area());
+    }
+
     if app.input_mode == InputMode::AddFeedTitle
         || app.input_mode == InputMode::AddFeedUrl
         || app.input_mode == InputMode::AddFeedCategory
@@ -479,6 +483,8 @@ fn draw_footer(f: &mut Frame, _app: &App, area: Rect) {
         Span::styled("Tambah  ", Style::default().fg(THEME.fg)),
         Span::styled("[Shift+D] ", Style::default().fg(THEME.accent)),
         Span::styled("Hapus Feed  ", Style::default().fg(THEME.fg)),
+        Span::styled("[u] ", Style::default().fg(THEME.accent)),
+        Span::styled("Update  ", Style::default().fg(THEME.fg)),
         Span::styled("[?] ", Style::default().fg(THEME.accent)),
         Span::styled("Bantuan  ", Style::default().fg(THEME.fg)),
         Span::styled("[q] ", Style::default().fg(THEME.accent)),
@@ -489,7 +495,7 @@ fn draw_footer(f: &mut Frame, _app: &App, area: Rect) {
 }
 
 fn draw_help_modal(f: &mut Frame, area: Rect) {
-    let popup_area = centered_rect(60, 75, area);
+    let popup_area = centered_rect(60, 78, area);
     f.render_widget(Clear, popup_area);
 
     let text = vec![
@@ -499,6 +505,7 @@ fn draw_help_modal(f: &mut Frame, area: Rect) {
         Line::from(vec![Span::styled("j / k / Up / Down", Style::default().fg(THEME.accent)), Span::raw(": Navigasi item")]),
         Line::from(vec![Span::styled("Enter / Space    ", Style::default().fg(THEME.accent)), Span::raw(": Toggle Kategori / Buka Artikel")]),
         Line::from(vec![Span::styled("f / F            ", Style::default().fg(THEME.accent)), Span::raw(": Toggle Fullscreen Reader Mode")]),
+        Line::from(vec![Span::styled("u / U            ", Style::default().fg(THEME.accent)), Span::raw(": Periksa Pembaruan Rilis Terbaru")]),
         Line::from(vec![Span::styled("m                ", Style::default().fg(THEME.accent)), Span::raw(": Pindahkan Feed ke Kategori lain")]),
         Line::from(vec![Span::styled("Shift + C        ", Style::default().fg(THEME.accent)), Span::raw(": Hapus Kategori beserta seluruh feed")]),
         Line::from(vec![Span::styled("Shift + D        ", Style::default().fg(THEME.accent)), Span::raw(": Hapus Feed terpilih")]),
@@ -519,10 +526,62 @@ fn draw_help_modal(f: &mut Frame, area: Rect) {
         .title(" Bantuan ")
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded)
-        .border_style(Style::default().fg(THEME.accent));
+        .border_style(Style::default().fg(THEME.border_active));
 
-    let p = Paragraph::new(text).block(block).wrap(Wrap { trim: true });
-    f.render_widget(p, popup_area);
+    let p = Paragraph::new(text).wrap(Wrap { trim: true });
+    f.render_widget(p.block(block), popup_area);
+}
+
+fn draw_update_modal(f: &mut Frame, app: &App, area: Rect) {
+    let popup_area = centered_rect(60, 50, area);
+    f.render_widget(Clear, popup_area);
+
+    let (title, border_color, lines) = if let Some(ref info) = app.update_info {
+        if info.has_update {
+            let lines = vec![
+                Line::from(Span::styled("🦊 Pembaruan Aplikasi Rubah Tersedia!", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))),
+                Line::from("--------------------------------------------------"),
+                Line::from(vec![Span::styled("Versi Terpasang : ", Style::default().fg(THEME.muted)), Span::styled(format!("v{}", info.current_version), Style::default().fg(THEME.fg))]),
+                Line::from(vec![Span::styled("Versi Terbaru   : ", Style::default().fg(THEME.muted)), Span::styled(format!("v{}", info.latest_version), Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD))]),
+                Line::from("--------------------------------------------------"),
+                Line::from(Span::styled("Catatan Pembaruan Rilis:", Style::default().fg(THEME.fg).add_modifier(Modifier::BOLD))),
+                Line::from(Span::styled(&info.release_notes, Style::default().fg(THEME.muted))),
+                Line::from("--------------------------------------------------"),
+                Line::from(Span::styled("Untuk meng-update ke versi v".to_string() + &info.latest_version + ", jalankan installer:", Style::default().fg(THEME.fg))),
+                Line::from(Span::styled("  curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/install.sh | bash", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))),
+                Line::from("--------------------------------------------------"),
+                Line::from(Span::styled("Tekan Esc atau [Enter] untuk menutup modal ini", Style::default().fg(THEME.muted).add_modifier(Modifier::ITALIC))),
+            ];
+            (" Pembaruan Tersedia ", THEME.accent, lines)
+        } else {
+            let lines = vec![
+                Line::from(Span::styled("🦊 Rubah [Ruang Baca Harian]", Style::default().fg(THEME.success).add_modifier(Modifier::BOLD))),
+                Line::from("--------------------------------------------------"),
+                Line::from(vec![Span::styled("Status Versi    : ", Style::default().fg(THEME.muted)), Span::styled("Sudah Menggunakan Versi Terbaru", Style::default().fg(THEME.success).add_modifier(Modifier::BOLD))]),
+                Line::from(vec![Span::styled("Versi Terpasang : ", Style::default().fg(THEME.muted)), Span::styled(format!("v{}", info.current_version), Style::default().fg(THEME.fg))]),
+                Line::from("--------------------------------------------------"),
+                Line::from(Span::styled("Aplikasi Anda sudah di versi paling terupdate dan aman.", Style::default().fg(THEME.fg))),
+                Line::from("--------------------------------------------------"),
+                Line::from(Span::styled("Tekan Esc atau [Enter] untuk menutup modal ini", Style::default().fg(THEME.muted).add_modifier(Modifier::ITALIC))),
+            ];
+            (" Versi Terupdate ", THEME.success, lines)
+        }
+    } else {
+        let lines = vec![
+            Line::from(Span::styled(" 🦊 Memeriksa Pembaruan... ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))),
+            Line::from("Menghubungi server GitHub API..."),
+        ];
+        (" Periksa Update ", THEME.border_active, lines)
+    };
+
+    let p = Paragraph::new(lines).wrap(Wrap { trim: true });
+    let block = Block::default()
+        .title(title)
+        .borders(Borders::ALL)
+        .border_type(BorderType::Rounded)
+        .border_style(Style::default().fg(border_color));
+
+    f.render_widget(p.block(block), popup_area);
 }
 
 fn draw_uninstall_modal(f: &mut Frame, area: Rect) {
