@@ -1,5 +1,5 @@
 use crate::app::{ActivePane, ActiveTab, App, ChannelTreeItem, InputMode};
-use crate::i18n::t;
+use crate::i18n::{t, Language};
 use ratatui::{
     layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
@@ -97,7 +97,7 @@ fn draw_header(f: &mut Frame, app: &App, area: Rect) {
     };
 
     let now = chrono::Local::now();
-    let clock_str = now.format("%a, %d %b %Y %H:%M:%S").to_string();
+    let clock_str = format_localized_datetime(now, app.language);
 
     let sub_title = t(app.language, "sub_title");
     let tab_all_str = format!(" [1] {} ", t(app.language, "tab_all_feeds"));
@@ -828,4 +828,40 @@ fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
             Constraint::Percentage((100 - percent_x) / 2),
         ])
         .split(popup_layout[1])[1]
+}
+
+fn format_localized_datetime(now: chrono::DateTime<chrono::Local>, lang: Language) -> String {
+    use crate::i18n::Language;
+    use chrono::Datelike;
+    use chrono::Timelike;
+    let day_name = match (lang, now.weekday()) {
+        (Language::English, chrono::Weekday::Mon) => "Mon",
+        (Language::English, chrono::Weekday::Tue) => "Tue",
+        (Language::English, chrono::Weekday::Wed) => "Wed",
+        (Language::English, chrono::Weekday::Thu) => "Thu",
+        (Language::English, chrono::Weekday::Fri) => "Fri",
+        (Language::English, chrono::Weekday::Sat) => "Sat",
+        (Language::English, chrono::Weekday::Sun) => "Sun",
+        (Language::Indonesian, chrono::Weekday::Mon) => "Sen",
+        (Language::Indonesian, chrono::Weekday::Tue) => "Sel",
+        (Language::Indonesian, chrono::Weekday::Wed) => "Rab",
+        (Language::Indonesian, chrono::Weekday::Thu) => "Kam",
+        (Language::Indonesian, chrono::Weekday::Fri) => "Jum",
+        (Language::Indonesian, chrono::Weekday::Sat) => "Sab",
+        (Language::Indonesian, chrono::Weekday::Sun) => "Min",
+    };
+
+    let month_name = match (lang, now.month()) {
+        (Language::English, 1) => "Jan", (Language::English, 2) => "Feb", (Language::English, 3) => "Mar",
+        (Language::English, 4) => "Apr", (Language::English, 5) => "May", (Language::English, 6) => "Jun",
+        (Language::English, 7) => "Jul", (Language::English, 8) => "Aug", (Language::English, 9) => "Sep",
+        (Language::English, 10) => "Oct", (Language::English, 11) => "Nov", (Language::English, 12) => "Dec",
+        (Language::Indonesian, 1) => "Jan", (Language::Indonesian, 2) => "Feb", (Language::Indonesian, 3) => "Mar",
+        (Language::Indonesian, 4) => "Apr", (Language::Indonesian, 5) => "Mei", (Language::Indonesian, 6) => "Jun",
+        (Language::Indonesian, 7) => "Jul", (Language::Indonesian, 8) => "Agt", (Language::Indonesian, 9) => "Sep",
+        (Language::Indonesian, 10) => "Okt", (Language::Indonesian, 11) => "Nov", (Language::Indonesian, 12) => "Des",
+        _ => "Jan",
+    };
+
+    format!("{}, {:02} {} {} {:02}:{:02}:{:02}", day_name, now.day(), month_name, now.year(), now.hour(), now.minute(), now.second())
 }

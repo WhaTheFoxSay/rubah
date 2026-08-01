@@ -322,11 +322,12 @@ impl App {
 
     pub fn toggle_image_display(&mut self) {
         self.show_image = !self.show_image;
-        if self.show_image {
-            self.status_message = "Gambar [ON]".to_string();
-        } else {
-            self.status_message = "Gambar [OFF]".to_string();
-        }
+        self.status_message = match (self.language, self.show_image) {
+            (crate::i18n::Language::English, true) => "Images [ON]".to_string(),
+            (crate::i18n::Language::English, false) => "Images [OFF]".to_string(),
+            (crate::i18n::Language::Indonesian, true) => "Gambar [ON]".to_string(),
+            (crate::i18n::Language::Indonesian, false) => "Gambar [OFF]".to_string(),
+        };
     }
 
     pub async fn toggle_fullscreen_reader(&mut self) {
@@ -335,15 +336,24 @@ impl App {
             self.active_pane = ActivePane::Reader;
             self.mark_current_read();
             self.fetch_full_content_for_selected().await;
-            self.status_message = "Fullscreen Reader Mode [ON] (Tekan [f] atau [Esc] untuk keluar)".to_string();
+            self.status_message = match self.language {
+                crate::i18n::Language::English => "Fullscreen Reader Mode [ON] (Press [f] or [Esc] to exit)".to_string(),
+                crate::i18n::Language::Indonesian => "Fullscreen Reader Mode [ON] (Tekan [f] atau [Esc] untuk keluar)".to_string(),
+            };
         } else {
-            self.status_message = "Keluar dari Fullscreen Reader Mode".to_string();
+            self.status_message = match self.language {
+                crate::i18n::Language::English => "Exited Fullscreen Reader Mode".to_string(),
+                crate::i18n::Language::Indonesian => "Keluar dari Fullscreen Reader Mode".to_string(),
+            };
         }
     }
 
     pub async fn refresh_all_feeds(&mut self) {
         self.is_loading = true;
-        self.status_message = "Memuat ulang seluruh RSS feed...".to_string();
+        self.status_message = match self.language {
+            crate::i18n::Language::English => "Reloading all RSS feeds...".to_string(),
+            crate::i18n::Language::Indonesian => "Memuat ulang seluruh RSS feed...".to_string(),
+        };
 
         let results = self.fetcher.fetch_all_feeds(&self.feeds).await;
         let mut count = 0;
@@ -356,7 +366,10 @@ impl App {
         }
 
         self.is_loading = false;
-        self.status_message = format!("Selesai! Dimuat {} berita dari {} channel.", count, self.feeds.len());
+        self.status_message = match self.language {
+            crate::i18n::Language::English => format!("Done! Loaded {} articles from {} channels.", count, self.feeds.len()),
+            crate::i18n::Language::Indonesian => format!("Selesai! Dimuat {} berita dari {} channel.", count, self.feeds.len()),
+        };
     }
 
     pub async fn fetch_full_content_for_selected(&mut self) {
@@ -380,11 +393,17 @@ impl App {
                     }
                 }
             }
-            self.status_message = "Tekan [?] Bantuan | [j/k] Pilih | [Enter] Baca Penuh | [i] Gambar | [/] Cari".to_string();
+            self.status_message = match self.language {
+                crate::i18n::Language::English => "Press [?] Help | [j/k] Select | [Enter] Read Full | [i] Image | [/] Search".to_string(),
+                crate::i18n::Language::Indonesian => "Tekan [?] Bantuan | [j/k] Pilih | [Enter] Baca Penuh | [i] Gambar | [/] Cari".to_string(),
+            };
             return;
         }
 
-        self.status_message = format!("Memuat: '{}'...", article_title);
+        self.status_message = match self.language {
+            crate::i18n::Language::English => format!("Loading: '{}'...", article_title),
+            crate::i18n::Language::Indonesian => format!("Memuat: '{}'...", article_title),
+        };
         self.current_image_lines = None;
 
         match self.fetcher.fetch_full_article_body(&article_link).await {
@@ -412,10 +431,16 @@ impl App {
                 }
 
                 self.article_cache.insert(article_id, (full_text, rendered_img));
-                self.status_message = "Tekan [?] Bantuan | [j/k] Pilih | [Enter] Baca Penuh | [i] Gambar | [/] Cari".to_string();
+                self.status_message = match self.language {
+                    crate::i18n::Language::English => "Press [?] Help | [j/k] Select | [Enter] Read Full | [i] Image | [/] Search".to_string(),
+                    crate::i18n::Language::Indonesian => "Tekan [?] Bantuan | [j/k] Pilih | [Enter] Baca Penuh | [i] Gambar | [/] Cari".to_string(),
+                };
             }
             Err(e) => {
-                self.status_message = format!("Gagal memuat artikel: {}", e);
+                self.status_message = match self.language {
+                    crate::i18n::Language::English => format!("Failed to load article: {}", e),
+                    crate::i18n::Language::Indonesian => format!("Gagal memuat artikel: {}", e),
+                };
             }
         }
     }
@@ -424,7 +449,10 @@ impl App {
         self.search_query.clear();
         self.input_mode = InputMode::Normal;
         self.selected_article_idx = 0;
-        self.status_message = "Pencarian dibersihkan.".to_string();
+        self.status_message = match self.language {
+            crate::i18n::Language::English => "Search cleared.".to_string(),
+            crate::i18n::Language::Indonesian => "Pencarian dibersihkan.".to_string(),
+        };
     }
 
     pub fn current_articles(&self) -> Vec<Article> {
@@ -612,11 +640,12 @@ impl App {
     pub fn toggle_current_bookmark(&mut self) {
         if let Some(art) = self.current_article() {
             if let Ok(added) = self.storage.toggle_bookmark(&art) {
-                if added {
-                    self.status_message = format!("Disimpan ke Bookmark: '{}'", art.title);
-                } else {
-                    self.status_message = format!("Dihapus dari Bookmark: '{}'", art.title);
-                }
+                self.status_message = match (self.language, added) {
+                    (crate::i18n::Language::English, true) => format!("Saved to Bookmarks: '{}'", art.title),
+                    (crate::i18n::Language::English, false) => format!("Removed from Bookmarks: '{}'", art.title),
+                    (crate::i18n::Language::Indonesian, true) => format!("Disimpan ke Bookmark: '{}'", art.title),
+                    (crate::i18n::Language::Indonesian, false) => format!("Dihapus dari Bookmark: '{}'", art.title),
+                };
             }
         }
     }
@@ -625,9 +654,15 @@ impl App {
         if let Some(art) = self.current_article() {
             if !art.link.is_empty() {
                 if open::that(&art.link).is_ok() {
-                    self.status_message = format!("Membuka browser: {}", art.link);
+                    self.status_message = match self.language {
+                        crate::i18n::Language::English => format!("Opening browser: {}", art.link),
+                        crate::i18n::Language::Indonesian => format!("Membuka browser: {}", art.link),
+                    };
                 } else {
-                    self.status_message = format!("Gagal membuka link: {}", art.link);
+                    self.status_message = match self.language {
+                        crate::i18n::Language::English => format!("Failed to open link: {}", art.link),
+                        crate::i18n::Language::Indonesian => format!("Gagal membuka link: {}", art.link),
+                    };
                 }
             }
         }
@@ -638,14 +673,20 @@ impl App {
             self.move_feed_category_input = feed.category.clone();
             self.input_mode = InputMode::MoveFeedCategory;
         } else {
-            self.status_message = "Pilih Feed di bawah kategori untuk memindahkan ke kategori lain.".to_string();
+            self.status_message = match self.language {
+                crate::i18n::Language::English => "Select a Feed under a category to move to another category.".to_string(),
+                crate::i18n::Language::Indonesian => "Pilih Feed di bawah kategori untuk memindahkan ke kategori lain.".to_string(),
+            };
         }
     }
 
     pub fn submit_move_feed_category(&mut self) {
         let new_cat = self.move_feed_category_input.trim().to_string();
         if new_cat.is_empty() {
-            self.status_message = "Nama kategori baru tidak boleh kosong!".to_string();
+            self.status_message = match self.language {
+                crate::i18n::Language::English => "New category name cannot be empty!".to_string(),
+                crate::i18n::Language::Indonesian => "Nama kategori baru tidak boleh kosong!".to_string(),
+            };
             return;
         }
 
@@ -657,7 +698,10 @@ impl App {
                 f.category = new_cat.clone();
             }
             self.expanded_categories.insert(new_cat.clone());
-            self.status_message = format!("Feed '{}' berhasil dipindahkan ke kategori '{}'.", feed_title, new_cat);
+            self.status_message = match self.language {
+                crate::i18n::Language::English => format!("Feed '{}' moved to category '{}'.", feed_title, new_cat),
+                crate::i18n::Language::Indonesian => format!("Feed '{}' berhasil dipindahkan ke kategori '{}'.", feed_title, new_cat),
+            };
             self.input_mode = InputMode::Normal;
             self.move_feed_category_input.clear();
         }
@@ -679,7 +723,10 @@ impl App {
             let _ = self.storage.delete_category(&cat);
             self.feeds.retain(|f| f.category != cat);
             self.expanded_categories.remove(&cat);
-            self.status_message = format!("Kategori '{}' dan seluruh feed di dalamnya berhasil dihapus.", cat);
+            self.status_message = match self.language {
+                crate::i18n::Language::English => format!("Category '{}' and all feeds inside were deleted.", cat),
+                crate::i18n::Language::Indonesian => format!("Kategori '{}' dan seluruh feed di dalamnya berhasil dihapus.", cat),
+            };
             let len = self.visible_channel_items().len();
             if self.selected_tree_idx >= len && len > 0 {
                 self.selected_tree_idx = len - 1;
@@ -696,7 +743,10 @@ impl App {
             let title = feed.title.clone();
             let _ = self.storage.delete_feed(&feed_id);
             self.feeds.retain(|f| f.id != feed_id);
-            self.status_message = format!("Feed '{}' berhasil dihapus.", title);
+            self.status_message = match self.language {
+                crate::i18n::Language::English => format!("Feed '{}' deleted.", title),
+                crate::i18n::Language::Indonesian => format!("Feed '{}' berhasil dihapus.", title),
+            };
             let len = self.visible_channel_items().len();
             if self.selected_tree_idx >= len && len > 0 {
                 self.selected_tree_idx = len - 1;
@@ -718,14 +768,20 @@ impl App {
             let feed = FeedSource::new(&self.new_feed_title, &self.new_feed_url, &category);
             let _ = self.storage.add_feed(&feed);
             self.expanded_categories.insert(category);
-            self.status_message = format!("Feed baru '{}' ditambahkan!", feed.title);
+            self.status_message = match self.language {
+                crate::i18n::Language::English => format!("New feed '{}' added!", feed.title),
+                crate::i18n::Language::Indonesian => format!("Feed baru '{}' ditambahkan!", feed.title),
+            };
             self.feeds.push(feed);
             self.new_feed_title.clear();
             self.new_feed_url.clear();
             self.new_feed_category = "Umum".to_string();
             self.input_mode = InputMode::Normal;
         } else {
-            self.status_message = "Judul dan URL feed tidak boleh kosong!".to_string();
+            self.status_message = match self.language {
+                crate::i18n::Language::English => "Feed title and URL cannot be empty!".to_string(),
+                crate::i18n::Language::Indonesian => "Judul dan URL feed tidak boleh kosong!".to_string(),
+            };
         }
     }
 
