@@ -194,46 +194,55 @@ pub fn t<'a>(lang: Language, key: &'a str) -> &'a str {
         (Language::Indonesian, "help_close") => "Tekan Esc atau [?] untuk menutup bantuan ini",
 
         // Add Feed Modal
-        (Language::English, "add_modal_title") => " Add New RSS Feed ",
-        (Language::Indonesian, "add_modal_title") => " Tambah RSS Feed Baru ",
+        (Language::English, "add_modal_title") => " Add RSS Feed ",
+        (Language::Indonesian, "add_modal_title") => " Tambah Feed ",
 
-        (Language::English, "add_modal_heading") => "➕ Add New RSS Feed Channel",
-        (Language::Indonesian, "add_modal_heading") => "➕ Tambah Channel RSS Feed Baru",
+        (Language::English, "add_modal_heading") => "Add New RSS Feed Channel",
+        (Language::Indonesian, "add_modal_heading") => "Tambah Channel RSS Feed Baru",
 
-        (Language::English, "add_field_title") => "Feed Name / Title: ",
-        (Language::Indonesian, "add_field_title") => "Nama Feed / Title: ",
+        (Language::English, "add_field_title") => "1. Channel Title  : ",
+        (Language::Indonesian, "add_field_title") => "1. Judul Channel  : ",
 
-        (Language::English, "add_field_url") => "RSS Feed URL   : ",
-        (Language::Indonesian, "add_field_url") => "URL Feed RSS   : ",
+        (Language::English, "add_field_url") => "2. RSS Feed URL   : ",
+        (Language::Indonesian, "add_field_url") => "2. URL Feed RSS   : ",
 
-        (Language::English, "add_field_cat") => "Category       : ",
-        (Language::Indonesian, "add_field_cat") => "Kategori       : ",
+        (Language::English, "add_field_cat") => "3. Category       : ",
+        (Language::Indonesian, "add_field_cat") => "3. Kategori       : ",
 
-        (Language::English, "add_hints") => "  [Enter] Next Field | [Esc] Cancel",
-        (Language::Indonesian, "add_hints") => "  [Enter] Lanjut Field | [Esc] Batal",
+        (Language::English, "add_cat_tip") => "Tip: Press [Tab/Up/Down] on Category to select existing categories.",
+        (Language::Indonesian, "add_cat_tip") => "Tip: Tekan [Tab/Up/Down] pada Kategori untuk memilih kategori yang sudah ada.",
+
+        (Language::English, "add_hints") => "Press [Tab] Switch Input | [Enter] Save | [Esc] Cancel",
+        (Language::Indonesian, "add_hints") => "Tekan [Tab] Pindah Input | [Enter] Simpan | [Esc] Batal",
 
         // Move Category Modal
-        (Language::English, "move_modal_title") => " Move Feed Category ",
-        (Language::Indonesian, "move_modal_title") => " Pindah Kategori Feed ",
+        (Language::English, "move_modal_title") => " Move Category ",
+        (Language::Indonesian, "move_modal_title") => " Pindah Kategori ",
 
-        (Language::English, "move_modal_prompt") => "Enter target category name for: ",
-        (Language::Indonesian, "move_modal_prompt") => "Masukkan nama kategori baru untuk: ",
+        (Language::English, "move_modal_heading") => "Move Feed Category",
+        (Language::Indonesian, "move_modal_heading") => "Pindahkan Kategori Feed",
 
-        (Language::English, "move_hints") => "  [Enter] Save Category | [Esc] Cancel",
-        (Language::Indonesian, "move_hints") => "  [Enter] Simpan Kategori | [Esc] Batal",
+        (Language::English, "move_hints") => "Press [Enter] Save Category | [Esc] Cancel",
+        (Language::Indonesian, "move_hints") => "Tekan [Enter] Simpan Kategori | [Esc] Batal",
 
         // Delete Category Modal
-        (Language::English, "del_cat_title") => " Delete Category Confirmation ",
-        (Language::Indonesian, "del_cat_title") => " Konfirmasi Hapus Kategori ",
+        (Language::English, "del_cat_title") => " Delete Category ",
+        (Language::Indonesian, "del_cat_title") => " Hapus Kategori ",
 
-        (Language::English, "del_cat_warning") => "Are you sure you want to delete category: ",
-        (Language::Indonesian, "del_cat_warning") => "Apakah Anda yakin ingin menghapus kategori: ",
+        (Language::English, "del_cat_heading") => "Category Deletion Confirmation",
+        (Language::Indonesian, "del_cat_heading") => "Konfirmasi Hapus Kategori",
 
-        (Language::English, "del_cat_sub") => "(All feeds in this category will be removed)",
-        (Language::Indonesian, "del_cat_sub") => "(Seluruh feed di kategori ini akan ikut terhapus)",
+        (Language::English, "del_cat_warning") => "Are you sure you want to delete Category",
+        (Language::Indonesian, "del_cat_warning") => "Apakah Anda yakin ingin menghapus Kategori",
 
-        (Language::English, "del_cat_hints") => "  [Y] Confirm Delete | [N / Esc] Cancel",
-        (Language::Indonesian, "del_cat_hints") => "  [Y] Ya, Hapus | [N / Esc] Batal",
+        (Language::English, "del_cat_sub") => "and ALL RSS Feed channels inside it?",
+        (Language::Indonesian, "del_cat_sub") => "beserta SELURUH channel RSS Feed di dalamnya?",
+
+        (Language::English, "del_cat_y") => " Delete, or ",
+        (Language::Indonesian, "del_cat_y") => " Hapus, atau ",
+
+        (Language::English, "del_cat_n") => " Cancel",
+        (Language::Indonesian, "del_cat_n") => " Batal",
 
         // Update Modal
         (Language::English, "update_title_new") => " Update Available ",
