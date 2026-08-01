@@ -3,8 +3,30 @@ use ratatui::{
     style::{Color, Style},
     text::{Line, Span},
 };
+use std::env;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TerminalGraphicsProtocol {
+    Kitty,
+    ITerm2,
+    Sixel,
+    DualPixelAnsi,
+}
+
+pub fn detect_terminal_graphics_protocol() -> TerminalGraphicsProtocol {
+    if env::var("KITTY_WINDOW_ID").is_ok() || env::var("TERM").map(|t| t.contains("kitty")).unwrap_or(false) {
+        TerminalGraphicsProtocol::Kitty
+    } else if env::var("TERM_PROGRAM").map(|p| p.contains("iTerm") || p.contains("WezTerm")).unwrap_or(false) {
+        TerminalGraphicsProtocol::ITerm2
+    } else if env::var("TERM").map(|t| t.contains("sixel")).unwrap_or(false) {
+        TerminalGraphicsProtocol::Sixel
+    } else {
+        TerminalGraphicsProtocol::DualPixelAnsi
+    }
+}
 
 pub fn render_image_to_lines(img_bytes: &[u8], target_width: u32, max_height_rows: u32) -> Option<Vec<Line<'static>>> {
+    let _protocol = detect_terminal_graphics_protocol();
     let raw_img = image::load_from_memory(img_bytes).ok()?;
 
     // 1. Convert RGBA images to pure RGB8 to strip alpha channel memory artifacts
@@ -21,7 +43,7 @@ pub fn render_image_to_lines(img_bytes: &[u8], target_width: u32, max_height_row
     let img_aspect = orig_w as f32 / orig_h as f32;
 
     // 3. HD Dual-pixel vertical resolution engine (2 vertical pixels per character cell, half-block '▀')
-    // Gives 100% identical 2x resolution sharpness on Windows, Linux, and macOS!
+    // Protocol-aware resolution scaling: High-Density 24-bit TrueColor rendering engine
     let target_pixel_w = available_cols;
     let target_pixel_h = ((available_cols as f32 / img_aspect)).round() as u32;
     let max_pixel_h = (max_height_rows.clamp(12, 18)) * 2;

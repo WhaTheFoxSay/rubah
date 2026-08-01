@@ -62,7 +62,7 @@ LATEST_TAG=$(curl -sL -A "$USER_AGENT" "https://api.github.com/repos/${REPO}/rel
 if [ -n "$LATEST_TAG" ]; then
     VERSION="${LATEST_TAG#v}"
 else
-    VERSION="1.4.0"
+    VERSION="1.6.0"
 fi
 
 echo ""

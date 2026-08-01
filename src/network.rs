@@ -409,6 +409,8 @@ fn extract_article_paragraphs(html: &str) -> String {
     let re_header = Regex::new(r"(?is)<header[^>]*?>.*?</header>").unwrap();
     let re_footer = Regex::new(r"(?is)<footer[^>]*?>.*?</footer>").unwrap();
     let re_aside = Regex::new(r"(?is)<aside[^>]*?>.*?</aside>").unwrap();
+    let re_form = Regex::new(r"(?is)<form[^>]*?>.*?</form>").unwrap();
+    let re_iframe = Regex::new(r"(?is)<iframe[^>]*?>.*?</iframe>").unwrap();
 
     let cleaned = re_script.replace_all(html, "");
     let cleaned = re_style.replace_all(&cleaned, "");
@@ -416,18 +418,35 @@ fn extract_article_paragraphs(html: &str) -> String {
     let cleaned = re_header.replace_all(&cleaned, "");
     let cleaned = re_footer.replace_all(&cleaned, "");
     let cleaned = re_aside.replace_all(&cleaned, "");
+    let cleaned = re_form.replace_all(&cleaned, "");
+    let cleaned = re_iframe.replace_all(&cleaned, "");
+
+    // Mozilla Readability Heuristic Container Extraction (<article> or main container)
+    let target_html = if let Some(re_article) = Regex::new(r"(?is)<article[^>]*?>(.*?)</article>").ok() {
+        if let Some(cap) = re_article.captures(&cleaned) {
+            cap[1].to_string()
+        } else {
+            cleaned.to_string()
+        }
+    } else {
+        cleaned.to_string()
+    };
 
     let re_p = Regex::new(r"(?is)<p[^>]*?>(.*?)</p>").unwrap();
     let re_tags = Regex::new(r"<[^>]*>").unwrap();
 
     let mut paragraphs = Vec::new();
-    for cap in re_p.captures_iter(&cleaned) {
+    for cap in re_p.captures_iter(&target_html) {
         let raw_p = &cap[1];
         let text_p = re_tags.replace_all(raw_p, "");
         let clean_p = text_p.trim();
         let clean_lower = clean_p.to_lowercase();
 
-        if clean_p.len() > 15
+        // Readability heuristic density score filter: word count > 5, text len > 25
+        let word_count = clean_p.split_whitespace().count();
+
+        if clean_p.len() >= 25
+            && word_count >= 5
             && !clean_lower.contains("tercopy")
             && !clean_lower.contains("copy url")
             && !clean_lower.contains("link tercopy")
