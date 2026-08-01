@@ -14,7 +14,17 @@ function Step {
     Write-Host " $Detail" -ForegroundColor DarkGray
 }
 
-$Version = "1.0.0"
+try {
+    $ReleaseInfo = Invoke-RestMethod -Uri "https://api.github.com/repos/WhaTheFoxSay/rubah/releases/latest" -UserAgent "RubahInstaller/1.0"
+    $LatestTag = $ReleaseInfo.tag_name
+    if ($LatestTag -and $LatestTag.StartsWith("v")) {
+        $Version = $LatestTag.Substring(1)
+    } else {
+        $Version = "1.0.0"
+    }
+} catch {
+    $Version = "1.0.0"
+}
 
 Write-Host ""
 Write-Host "  🦊 RUBAH " -ForegroundColor Yellow -NoNewline

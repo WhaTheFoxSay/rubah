@@ -15,12 +15,6 @@ ORANGE="${ESC}[38;2;235;115;0m"
 BOLD="${ESC}[1m"
 RESET="${ESC}[0m"
 
-VERSION="1.0.0"
-
-echo ""
-echo -e "  ${ORANGE}${BOLD}🦊 RUBAH${RESET} ${WHITE}${BOLD}[Ruang Baca Harian]${RESET} ${GRAY}v${VERSION}${RESET}"
-echo -e "  ${GRAY}High-Performance RSS Feed Reader TUI${RESET}\n"
-
 step() {
     local label="$1"
     local detail="$2"
@@ -58,17 +52,30 @@ if [ "$OS" = "macos" ]; then
     fi
 fi
 
-step "System environment" "${OS} (${ARCH})"
-
 BINARY_NAME="rubah-${OS}-${ARCH}"
 REPO="WhaTheFoxSay/rubah"
+
+USER_AGENT="Mozilla/5.0 (compatible; RubahInstaller/1.0)"
+
+# Fetch latest release version tag dynamically from GitHub API
+LATEST_TAG=$(curl -sL -A "$USER_AGENT" "https://api.github.com/repos/${REPO}/releases/latest" | grep '"tag_name":' | head -n 1 | cut -d '"' -f 4)
+if [ -n "$LATEST_TAG" ]; then
+    VERSION="${LATEST_TAG#v}"
+else
+    VERSION="1.0.0"
+fi
+
+echo ""
+echo -e "  ${ORANGE}${BOLD}🦊 RUBAH${RESET} ${WHITE}${BOLD}[Ruang Baca Harian]${RESET} ${GRAY}v${VERSION}${RESET}"
+echo -e "  ${GRAY}High-Performance RSS Feed Reader TUI${RESET}\n"
+
+step "System environment" "${OS} (${ARCH})"
+
 RELEASE_URL="https://github.com/${REPO}/releases/download/v${VERSION}/${BINARY_NAME}"
 LATEST_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
 
 TMP_FILE=$(mktemp /tmp/rubah_bin_XXXXXX 2>/dev/null || mktemp -t rubah_bin)
 trap 'rm -f "$TMP_FILE"' EXIT
-
-USER_AGENT="Mozilla/5.0 (compatible; RubahInstaller/1.0)"
 
 HTTP_CODE=$(curl -sL -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$RELEASE_URL" || echo "000")
 
