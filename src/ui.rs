@@ -785,7 +785,8 @@ fn draw_delete_category_modal(f: &mut Frame, app: &App, area: Rect) {
     f.render_widget(Clear, popup_area);
     let lang = app.language;
 
-    let cat_name = app.target_category_to_delete.as_deref().unwrap_or("Kategori");
+    let raw_cat_name = app.target_category_to_delete.as_deref().unwrap_or("General");
+    let cat_name = crate::i18n::translate_category(raw_cat_name, lang);
 
     let text = vec![
         Line::from(Span::styled(t(lang, "del_cat_heading"), Style::default().fg(THEME.warning).add_modifier(Modifier::BOLD))),
@@ -794,7 +795,7 @@ fn draw_delete_category_modal(f: &mut Frame, app: &App, area: Rect) {
         Line::from(t(lang, "del_cat_sub")),
         Line::from(""),
         Line::from(vec![
-            Span::styled("Tekan ", Style::default().fg(THEME.fg)),
+            Span::styled(t(lang, "uninstall_press_y"), Style::default().fg(THEME.fg)),
             Span::styled("[y] / [Enter]", Style::default().fg(THEME.warning).add_modifier(Modifier::BOLD)),
             Span::styled(t(lang, "del_cat_y"), Style::default().fg(THEME.fg)),
             Span::styled("[n] / [Esc]", Style::default().fg(THEME.success).add_modifier(Modifier::BOLD)),
