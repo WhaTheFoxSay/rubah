@@ -49,12 +49,29 @@ fi
 
 BINARY_NAME="rubah-${OS}-${ARCH}"
 REPO="WhaTheFoxSay/rubah"
-RELEASE_URL="https://github.com/${REPO}/releases/download/v0.8.1/${BINARY_NAME}"
-LATEST_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
+VERSION="0.9.0"
 
-echo -e "${GRAY}--> OS: ${OS} (${ARCH})${RESET}"
-echo -e "${YELLOW}--> Mengunduh binary 'baca'...${RESET}"
+draw_progress() {
+    local percent=$1
+    local step_name=$2
+    local width=24
+    local filled=$(( percent * width / 100 ))
+    local empty=$(( width - filled ))
+    local bar_filled=$(printf '%*s' "$filled" '' | tr ' ' '█')
+    local bar_empty=$(printf '%*s' "$empty" '' | tr ' ' '░')
+    printf "\r\033[K  ${CYAN}[${bar_filled}${bar_empty}]${RESET} ${BOLD}%3d%%${RESET} | ${YELLOW}%s${RESET}" "$percent" "$step_name"
+}
 
+show_step() {
+    local step_name=$1
+    echo -e "  ${GREEN}[✔]${RESET} ${WHITE}${step_name}${RESET}"
+}
+
+draw_progress 10 "Menyiapkan direktori sistem..."
+sleep 0.1
+show_step "Menyiapkan direktori sistem (~/.local/bin)..."
+
+draw_progress 30 "Mengunduh binary 'baca' v${VERSION}..."
 TMP_FILE=$(mktemp /tmp/rubah_bin_XXXXXX 2>/dev/null || mktemp -t rubah_bin)
 trap 'rm -f "$TMP_FILE"' EXIT
 
@@ -65,8 +82,7 @@ HTTP_CODE=$(curl -sL -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$RELEASE
 # Check if downloaded binary is valid (at least 3MB)
 FILE_SIZE=$(wc -c < "$TMP_FILE" 2>/dev/null || echo "0")
 if [ "$HTTP_CODE" -ne 200 ] || [ "$FILE_SIZE" -lt 3000000 ]; then
-    # Direct GitHub API stream fallback (bypasses GitHub release CDN BlobNotFound propagation delay)
-    API_URL="https://api.github.com/repos/${REPO}/releases/tags/v0.8.1"
+    API_URL="https://api.github.com/repos/${REPO}/releases/tags/v${VERSION}"
     ASSET_URL=$(curl -sL -A "$USER_AGENT" "$API_URL" | grep -B 2 -A 8 "\"name\": \"${BINARY_NAME}\"" | grep '"url":' | head -n 1 | cut -d '"' -f 4)
     if [ -n "$ASSET_URL" ]; then
         curl -sL -H "Accept: application/octet-stream" -A "$USER_AGENT" -o "$TMP_FILE" "$ASSET_URL" || true
@@ -80,15 +96,19 @@ if [ "$FILE_SIZE" -lt 3000000 ]; then
 fi
 
 if [ "$FILE_SIZE" -lt 3000000 ]; then
-    echo -e "${RED}Error: Gagal mengunduh binary 'baca' dari GitHub (File tidak lengkap atau rusak).${RESET}"
+    echo -e "\n${RED}Error: Gagal mengunduh binary 'baca' dari GitHub (File tidak lengkap atau rusak).${RESET}"
     exit 1
 fi
 
+draw_progress 70 "Memverifikasi & mengatur izin binary..."
 cp "$TMP_FILE" "$INSTALL_DIR/baca"
 chmod +x "$INSTALL_DIR/baca"
 ln -sf "$INSTALL_DIR/baca" "$INSTALL_DIR/rubah"
+sleep 0.1
+show_step "Mengunduh binary 'baca' v${VERSION} (${OS}/${ARCH})..."
+show_step "Mengatur izin executable & symlinks..."
 
-# Clear shell binary location cache (bash / zsh / sh)
+draw_progress 90 "Membersihkan cache shell lookup..."
 hash -r 2>/dev/null || true
 rehash 2>/dev/null || true
 
@@ -109,7 +129,12 @@ if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
     fi
 fi
 
-echo -e "${GREEN}--> Instalasi selesai!${RESET}"
+draw_progress 100 "Instalasi selesai!"
+sleep 0.1
+show_step "Membersihkan cache shell lookup (hash -r)..."
+echo -e ""
+
+echo -e "${GREEN}${BOLD}[✔] Rubah v${VERSION} berhasil terinstall di sistem Anda!${RESET}"
 
 if [ $PATH_ADDED -eq 1 ]; then
     echo -e "${CYAN}Silakan restart terminal atau jalankan:${RESET} ${YELLOW}source $SHELL_PROFILE${RESET}"

@@ -15,17 +15,36 @@ if (!(Test-Path $InstallDir)) {
 }
 
 $ExePath = Join-Path $InstallDir "baca.exe"
-$PrimaryUrl = "https://github.com/WhaTheFoxSay/rubah/releases/download/v0.8.1/rubah-windows-amd64.exe"
+$PrimaryUrl = "https://github.com/WhaTheFoxSay/rubah/releases/download/v0.9.0/rubah-windows-amd64.exe"
 $LatestUrl = "https://github.com/WhaTheFoxSay/rubah/releases/latest/download/rubah-windows-amd64.exe"
 
-Write-Host "--> Mengunduh binary 'baca.exe'..." -ForegroundColor Yellow
+function Draw-Progress {
+    param ([int]$Percent, [string]$StepName)
+    $Width = 24
+    $Filled = [math]::Floor($Percent * $Width / 100)
+    $Empty = $Width - $Filled
+    $Bar = ("█" * $Filled) + ("░" * $Empty)
+    Write-Host -NoNewline "`r  [$Bar] $Percent% | $StepName"
+}
 
+function Show-Step {
+    param ([string]$StepName)
+    Write-Host "  [✔] $StepName" -ForegroundColor Green
+}
+
+$Version = "0.9.0"
+
+Draw-Progress 10 "Menyiapkan direktori sistem..."
+Start-Sleep -Milliseconds 100
+Show-Step "Menyiapkan direktori sistem ($InstallDir)..."
+
+Draw-Progress 30 "Mengunduh binary 'baca.exe' v$Version..."
 $downloadSuccess = $false
 
 if (Get-Command "curl.exe" -ErrorAction SilentlyContinue) {
     try {
         & curl.exe -sL -o $ExePath $PrimaryUrl
-        if ((Test-Path $ExePath) -and ((Get-Item $ExePath).Length -gt 1000000)) {
+        if ((Test-Path $ExePath) -and ((Get-Item $ExePath).Length -gt 3000000)) {
             $downloadSuccess = $true
         }
     } catch {}
@@ -35,7 +54,7 @@ if (-not $downloadSuccess) {
     try {
         $ProgressPreference = 'SilentlyContinue'
         Invoke-WebRequest -Uri $PrimaryUrl -OutFile $ExePath -UseBasicParsing -MaximumRedirection 10
-        if ((Test-Path $ExePath) -and ((Get-Item $ExePath).Length -gt 1000000)) {
+        if ((Test-Path $ExePath) -and ((Get-Item $ExePath).Length -gt 3000000)) {
             $downloadSuccess = $true
         }
     } catch {}
@@ -43,7 +62,7 @@ if (-not $downloadSuccess) {
 
 if (-not $downloadSuccess) {
     try {
-        $ApiUrl = "https://api.github.com/repos/WhaTheFoxSay/rubah/releases/tags/v0.8.1"
+        $ApiUrl = "https://api.github.com/repos/WhaTheFoxSay/rubah/releases/tags/v$Version"
         $ReleaseInfo = Invoke-RestMethod -Uri $ApiUrl -UserAgent "RubahInstaller/1.0"
         $Asset = $ReleaseInfo.assets | Where-Object { $_.name -eq "rubah-windows-amd64.exe" }
         if ($Asset -and $Asset.url) {
@@ -67,9 +86,13 @@ if (-not $downloadSuccess) {
 }
 
 if (-not $downloadSuccess) {
+    Write-Host ""
     Write-Host "Error: Gagal mengunduh 'baca.exe'. Silakan periksa koneksi internet Anda." -ForegroundColor Red
     exit 1
 }
+
+Draw-Progress 70 "Memverifikasi binary & environment..."
+Show-Step "Mengunduh binary 'baca.exe' v$Version..."
 
 $UserPath = [Environment]::GetEnvironmentVariable("PATH", "User")
 if ($UserPath -notlike "*$InstallDir*") {
@@ -77,8 +100,12 @@ if ($UserPath -notlike "*$InstallDir*") {
     $env:PATH = "$env:PATH;$InstallDir"
 }
 
-Write-Host "--> Instalasi selesai!" -ForegroundColor Green
+Draw-Progress 100 "Instalasi selesai!"
+Start-Sleep -Milliseconds 100
+Show-Step "Mengatur PATH Environment User..."
 Write-Host ""
-Write-Host "Jalankan aplikasi di PowerShell atau CMD dengan mengetik:" -ForegroundColor Yellow
-Write-Host "  baca" -ForegroundColor White
+
+Write-Host "[✔] Rubah v$Version berhasil terinstall di sistem Anda!" -ForegroundColor Green
+Write-Host "Jalankan aplikasi di PowerShell atau CMD dengan mengetik:" -ForegroundColor White
+Write-Host "  baca" -ForegroundColor Yellow
 Write-Host ""

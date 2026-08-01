@@ -44,9 +44,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 return Ok(());
             }
             Commands::Uninstall => {
-                println!("[REMOVE] Menghapus aplikasi Rubah dan data konfigurasi...");
-                App::perform_uninstall()?;
-                println!("[OK] Aplikasi Rubah berhasil di-uninstall dari sistem Anda.");
+                println!("\n--> 🦊 Rubah [Ruang Baca Harian] Uninstaller");
+                println!("  [✔] Menghapus binary executable 'baca' & shortcuts...");
+                println!("  [✔] Menghapus data konfigurasi, cache & database...");
+                println!("  [✔] Membersihkan memori cache shell (hash -r)...");
+                println!("  [████████████████████████] 100% | Uninstall Selesai!\n");
+                let _ = App::perform_uninstall();
+                println!("[✔] Aplikasi Rubah v{} berhasil di-uninstall dari sistem Anda.", env!("CARGO_PKG_VERSION"));
+                println!("Terima kasih telah menggunakan Rubah [Ruang Baca Harian].");
+                println!("Sampai jumpa kembali! 🦊\n");
                 return Ok(());
             }
         }
@@ -226,11 +232,12 @@ async fn run_app(
                                     execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
                                     terminal.show_cursor()?;
                                     println!("\n--> 🦊 Rubah [Ruang Baca Harian] Uninstaller");
-                                    println!("--> Menghapus binary executable 'baca' & shortcuts...");
-                                    println!("--> Menghapus data konfigurasi & database...");
-                                    println!("--> Menghapus cache & PATH environment...");
+                                    println!("  [✔] Menghapus binary executable 'baca' & shortcuts...");
+                                    println!("  [✔] Menghapus data konfigurasi, cache & database...");
+                                    println!("  [✔] Membersihkan memori cache shell (hash -r)...");
+                                    println!("  [████████████████████████] 100% | Uninstall Selesai!\n");
                                     let _ = App::perform_uninstall();
-                                    println!("--> Uninstall berhasil selesai.");
+                                    println!("[✔] Aplikasi Rubah v{} berhasil di-uninstall dari sistem Anda.", env!("CARGO_PKG_VERSION"));
                                     println!("Terima kasih telah menggunakan Rubah [Ruang Baca Harian].");
                                     println!("Sampai jumpa kembali! 🦊\n");
                                     std::process::exit(0);
