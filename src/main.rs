@@ -45,12 +45,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 return Ok(());
             }
             Commands::Uninstall => {
-                let storage = Storage::new();
-                let lang = storage
-                    .get_setting("language")
-                    .map(|c| i18n::Language::from_code(&c))
-                    .unwrap_or_default();
-                print_uninstall_output(lang);
+                print_uninstall_output();
                 return Ok(());
             }
         }
@@ -252,7 +247,7 @@ async fn run_app(
                                     disable_raw_mode()?;
                                     execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
                                     terminal.show_cursor()?;
-                                    print_uninstall_output(app.language);
+                                    print_uninstall_output();
                                     std::process::exit(0);
                                 }
                                 KeyCode::Char('n') | KeyCode::Char('N') | KeyCode::Esc => {
@@ -274,12 +269,11 @@ async fn run_app(
                             if app.update_completed || app.update_failed.is_some() {
                                 if key.code == KeyCode::Esc || key.code == KeyCode::Enter || key.code == KeyCode::Char('q') {
                                     if app.update_completed {
-                                        disable_raw_mode()?;
-                                        execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
-                                        terminal.show_cursor()?;
+                                        let _ = disable_raw_mode();
+                                        let _ = execute!(io::stdout(), LeaveAlternateScreen);
                                         println!("\n  \x1b[38;2;235;115;0m\x1b[1m🦊 RUBAH\x1b[0m \x1b[1;37m[Ruang Baca Harian] Auto-Updater\x1b[0m");
-                                        println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37mAplikasi Rubah berhasil ter-update ke versi rilis terbaru!\x1b[0m");
-                                        println!("  \x1b[1;37mSilakan jalankan kembali perintah \x1b[38;2;235;115;0mbaca\x1b[1;37m untuk menikmati versi terbaru.\x1b[0m\n");
+                                        println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37mRubah application updated to the latest release version successfully!\x1b[0m");
+                                        println!("  \x1b[1;37mPlease run the \x1b[38;2;235;115;0mbaca\x1b[1;37m command again to enjoy the latest version.\x1b[0m\n");
                                         std::process::exit(0);
                                     } else {
                                         app.is_updating_in_app = false;
@@ -402,7 +396,8 @@ async fn run_app(
     }
 }
 
-fn print_uninstall_output(lang: i18n::Language) {
+fn print_uninstall_output() {
+    let lang = i18n::Language::English;
     use i18n::t;
     let sub_title = t(lang, "sub_title");
     println!("\n  \x1b[38;2;235;115;0m\x1b[1m🦊 RUBAH\x1b[0m \x1b[1;37m[{}] Uninstaller\x1b[0m", sub_title);
