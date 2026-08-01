@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# 🦊 Rubah [Ruang Baca Harian] - Installer
+# 🦊 Rubah - Installer (English Default & Indonesian Support)
 # ==============================================================================
 
 set -e
@@ -14,6 +14,12 @@ GRAY="${ESC}[0;90m"
 ORANGE="${ESC}[38;2;235;115;0m"
 BOLD="${ESC}[1m"
 RESET="${ESC}[0m"
+
+# Language detection (Default: English 'en', Indonesian 'id' if specified)
+LANG_CHOICE="en"
+if [ "$1" = "id" ] || [[ "${LANG,,}" == id* ]] || [[ "${LANGUAGE,,}" == id* ]] || [[ "${LC_ALL,,}" == id* ]]; then
+    LANG_CHOICE="id"
+fi
 
 step() {
     local label="$1"
@@ -62,14 +68,38 @@ LATEST_TAG=$(curl -sL -A "$USER_AGENT" "https://api.github.com/repos/${REPO}/rel
 if [ -n "$LATEST_TAG" ]; then
     VERSION="${LATEST_TAG#v}"
 else
-    VERSION="1.0.0"
+    VERSION="1.3.0"
+fi
+
+if [ "$LANG_CHOICE" = "id" ]; then
+    SUBTITLE="Ruang Baca Harian"
+    LABEL_SYS="Lingkungan sistem"
+    LABEL_DL="Unduh executable"
+    LABEL_INST="Pasang biner & symlink"
+    LABEL_HASH="Reset lookup shell"
+    DETAIL_HASH="Memori hash dibersihkan"
+    MSG_SUCCESS="Rubah v${VERSION} berhasil terinstall!"
+    MSG_RESTART="Silakan restart terminal atau jalankan:"
+    MSG_RUN="Jalankan aplikasi dengan mengetik:"
+    ERR_DL="Error: Gagal mengunduh binary 'baca' dari GitHub."
+else
+    SUBTITLE="Daily Reading Space"
+    LABEL_SYS="System environment"
+    LABEL_DL="Download executable"
+    LABEL_INST="Install binary & symlink"
+    LABEL_HASH="Shell lookup reset"
+    DETAIL_HASH="Hash memory cleared"
+    MSG_SUCCESS="Rubah v${VERSION} successfully installed!"
+    MSG_RESTART="Please restart terminal or run:"
+    MSG_RUN="Run the application by typing:"
+    ERR_DL="Error: Failed to download 'baca' binary from GitHub."
 fi
 
 echo ""
-echo -e "  ${ORANGE}${BOLD}🦊 RUBAH${RESET} ${WHITE}${BOLD}[Ruang Baca Harian]${RESET} ${GRAY}v${VERSION}${RESET}"
+echo -e "  ${ORANGE}${BOLD}🦊 RUBAH${RESET} ${WHITE}${BOLD}[${SUBTITLE}]${RESET} ${GRAY}v${VERSION}${RESET}"
 echo -e "  ${GRAY}High-Performance RSS Feed Reader TUI${RESET}\n"
 
-step "System environment" "${OS} (${ARCH})"
+step "$LABEL_SYS" "${OS} (${ARCH})"
 
 RELEASE_URL="https://github.com/${REPO}/releases/download/v${VERSION}/${BINARY_NAME}"
 LATEST_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
@@ -96,18 +126,18 @@ if [ "$FILE_SIZE" -lt 3000000 ]; then
 fi
 
 if [ "$FILE_SIZE" -lt 3000000 ]; then
-    echo -e "\n  ${ESC}[0;31mError: Gagal mengunduh binary 'baca' dari GitHub.${RESET}\n"
+    echo -e "\n  ${ESC}[0;31m${ERR_DL}${RESET}\n"
     exit 1
 fi
 
 SIZE_MB=$(awk "BEGIN {printf \"%.1f MB\", $FILE_SIZE/1048576}")
-step "Download executable" "v${VERSION} (${SIZE_MB})"
+step "$LABEL_DL" "v${VERSION} (${SIZE_MB})"
 
 cp "$TMP_FILE" "$INSTALL_DIR/baca"
 chmod +x "$INSTALL_DIR/baca"
 ln -sf "$INSTALL_DIR/baca" "$INSTALL_DIR/rubah"
 
-step "Install binary & symlink" "~/.local/bin/baca"
+step "$LABEL_INST" "~/.local/bin/baca"
 
 hash -r 2>/dev/null || true
 rehash 2>/dev/null || true
@@ -129,13 +159,13 @@ if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then
     fi
 fi
 
-step "Shell lookup reset" "Hash memory cleared"
+step "$LABEL_HASH" "$DETAIL_HASH"
 
 echo ""
-echo -e "  ${GREEN}${BOLD}✔ Rubah v${VERSION} berhasil terinstall!${RESET}"
+echo -e "  ${GREEN}${BOLD}✔ ${MSG_SUCCESS}${RESET}"
 
 if [ $PATH_ADDED -eq 1 ]; then
-    echo -e "  ${CYAN}Silakan restart terminal atau jalankan:${RESET} ${YELLOW}source $SHELL_PROFILE${RESET}"
+    echo -e "  ${CYAN}${MSG_RESTART}${RESET} ${YELLOW}source $SHELL_PROFILE${RESET}"
 fi
 
-echo -e "  ${WHITE}Jalankan aplikasi dengan mengetik:${RESET} ${ORANGE}${BOLD}baca${RESET}\n"
+echo -e "  ${WHITE}${MSG_RUN}${RESET} ${ORANGE}${BOLD}baca${RESET}\n"

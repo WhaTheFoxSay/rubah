@@ -291,6 +291,46 @@ pub fn t<'a>(lang: Language, key: &'a str) -> &'a str {
         (Language::English, "reader_select_prompt") => "Select an article from the list to start reading",
         (Language::Indonesian, "reader_select_prompt") => "Pilih artikel di daftar sebelah kiri untuk mulai membaca",
 
+        // Uninstall Modal & CLI Messages
+        (Language::English, "uninstall_title") => " Uninstall Confirmation ",
+        (Language::Indonesian, "uninstall_title") => " Konfirmasi Uninstall ",
+
+        (Language::English, "uninstall_heading") => "Rubah Application Uninstall Confirmation",
+        (Language::Indonesian, "uninstall_heading") => "Konfirmasi Uninstall Rubah",
+
+        (Language::English, "uninstall_body_1") => "Are you sure you want to uninstall Rubah",
+        (Language::Indonesian, "uninstall_body_1") => "Apakah Anda yakin ingin menghapus Rubah",
+
+        (Language::English, "uninstall_body_2") => "and remove all configuration & data from your system?",
+        (Language::Indonesian, "uninstall_body_2") => "dan seluruh data konfigurasinya dari sistem?",
+
+        (Language::English, "uninstall_press_y") => "Press ",
+        (Language::Indonesian, "uninstall_press_y") => "Tekan ",
+
+        (Language::English, "uninstall_y_label") => " for Yes, or ",
+        (Language::Indonesian, "uninstall_y_label") => " untuk Ya, atau ",
+
+        (Language::English, "uninstall_n_label") => " for Cancel",
+        (Language::Indonesian, "uninstall_n_label") => " untuk Batal",
+
+        (Language::English, "uninstall_bin_deleted") => "Binary & symlink         ~/.local/bin/baca deleted",
+        (Language::Indonesian, "uninstall_bin_deleted") => "Binary & symlink         ~/.local/bin/baca terhapus",
+
+        (Language::English, "uninstall_config_deleted") => "Config & database        ~/.config/rubah deleted",
+        (Language::Indonesian, "uninstall_config_deleted") => "Config & database        ~/.config/rubah terhapus",
+
+        (Language::English, "uninstall_cache_deleted") => "Cache & temp files       ~/.cache/rubah deleted",
+        (Language::Indonesian, "uninstall_cache_deleted") => "Cache & temp files       ~/.cache/rubah terhapus",
+
+        (Language::English, "uninstall_done_msg") => "✔ Rubah application successfully uninstalled from your system.",
+        (Language::Indonesian, "uninstall_done_msg") => "✔ Aplikasi Rubah berhasil di-uninstall dari sistem Anda.",
+
+        (Language::English, "uninstall_thanks_msg") => "Thank you for using Rubah [Daily Reading Space].",
+        (Language::Indonesian, "uninstall_thanks_msg") => "Terima kasih telah menggunakan Rubah [Ruang Baca Harian].",
+
+        (Language::English, "uninstall_goodbye_msg") => "See you again! 🦊",
+        (Language::Indonesian, "uninstall_goodbye_msg") => "Sampai jumpa kembali! 🦊",
+
         _ => key,
     }
 }

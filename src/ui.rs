@@ -58,7 +58,7 @@ pub fn draw(f: &mut Frame, app: &mut App) {
     }
 
     if app.show_uninstall_confirm {
-        draw_uninstall_modal(f, f.area());
+        draw_uninstall_modal(f, app, f.area());
     }
 
     if app.is_updating_in_app {
@@ -660,27 +660,28 @@ fn draw_update_progress_modal(f: &mut Frame, app: &App, area: Rect) {
     f.render_widget(p.block(block), popup_area);
 }
 
-fn draw_uninstall_modal(f: &mut Frame, area: Rect) {
-    let popup_area = centered_rect(50, 30, area);
+fn draw_uninstall_modal(f: &mut Frame, app: &App, area: Rect) {
+    let popup_area = centered_rect(52, 30, area);
     f.render_widget(Clear, popup_area);
+    let lang = app.language;
 
     let text = vec![
-        Line::from(Span::styled("Konfirmasi Uninstall Rubah", Style::default().fg(THEME.warning).add_modifier(Modifier::BOLD))),
+        Line::from(Span::styled(t(lang, "uninstall_heading"), Style::default().fg(THEME.warning).add_modifier(Modifier::BOLD))),
         Line::from("------------------------------------------"),
-        Line::from("Apakah Anda yakin ingin menghapus Rubah"),
-        Line::from("dan seluruh data konfigurasinya dari sistem?"),
+        Line::from(t(lang, "uninstall_body_1")),
+        Line::from(t(lang, "uninstall_body_2")),
         Line::from(""),
         Line::from(vec![
-            Span::styled("Tekan ", Style::default().fg(THEME.fg)),
+            Span::styled(t(lang, "uninstall_press_y"), Style::default().fg(THEME.fg)),
             Span::styled("[y]", Style::default().fg(THEME.warning).add_modifier(Modifier::BOLD)),
-            Span::styled(" untuk Ya, atau ", Style::default().fg(THEME.fg)),
+            Span::styled(t(lang, "uninstall_y_label"), Style::default().fg(THEME.fg)),
             Span::styled("[n]", Style::default().fg(THEME.success).add_modifier(Modifier::BOLD)),
-            Span::styled(" untuk Batal", Style::default().fg(THEME.fg)),
+            Span::styled(t(lang, "uninstall_n_label"), Style::default().fg(THEME.fg)),
         ]),
     ];
 
     let block = Block::default()
-        .title(" Uninstall ")
+        .title(t(lang, "uninstall_title"))
         .borders(Borders::ALL)
         .border_type(BorderType::Rounded)
         .border_style(Style::default().fg(THEME.warning));

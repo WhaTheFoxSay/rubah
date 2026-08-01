@@ -45,16 +45,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 return Ok(());
             }
             Commands::Uninstall => {
-                println!("\n  \x1b[38;2;235;115;0m\x1b[1m🦊 RUBAH\x1b[0m \x1b[1;37m[Ruang Baca Harian] Uninstaller\x1b[0m");
-                println!("  \x1b[0;90mHigh-Performance RSS Feed Reader TUI\x1b[0m\n");
-                println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37mBinary & symlink         \x1b[0;90m~/.local/bin/baca terhapus\x1b[0m");
-                println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37mConfig & database        \x1b[0;90m~/.config/rubah terhapus\x1b[0m");
-                println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37mCache & temp files       \x1b[0;90m~/.cache/rubah terhapus\x1b[0m");
-                println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37mShell lookup reset       \x1b[0;90mHash memory cleared\x1b[0m\n");
-                let _ = App::perform_uninstall();
-                println!("  \x1b[0;32m\x1b[1m✔ Aplikasi Rubah berhasil di-uninstall dari sistem Anda.\x1b[0m");
-                println!("  \x1b[1;37mTerima kasih telah menggunakan Rubah [Ruang Baca Harian].\x1b[0m");
-                println!("  \x1b[38;2;235;115;0mSampai jumpa kembali! 🦊\x1b[0m\n");
+                let storage = Storage::new();
+                let lang = storage
+                    .get_setting("language")
+                    .map(|c| i18n::Language::from_code(&c))
+                    .unwrap_or_default();
+                print_uninstall_output(lang);
                 return Ok(());
             }
         }
@@ -256,16 +252,7 @@ async fn run_app(
                                     disable_raw_mode()?;
                                     execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
                                     terminal.show_cursor()?;
-                                    println!("\n  \x1b[38;2;235;115;0m\x1b[1m🦊 RUBAH\x1b[0m \x1b[1;37m[Ruang Baca Harian] Uninstaller\x1b[0m");
-                                    println!("  \x1b[0;90mHigh-Performance RSS Feed Reader TUI\x1b[0m\n");
-                                    println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37mBinary & symlink         \x1b[0;90m~/.local/bin/baca terhapus\x1b[0m");
-                                    println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37mConfig & database        \x1b[0;90m~/.config/rubah terhapus\x1b[0m");
-                                    println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37mCache & temp files       \x1b[0;90m~/.cache/rubah terhapus\x1b[0m");
-                                    println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37mShell lookup reset       \x1b[0;90mHash memory cleared\x1b[0m\n");
-                                    let _ = App::perform_uninstall();
-                                    println!("  \x1b[0;32m\x1b[1m✔ Aplikasi Rubah berhasil di-uninstall dari sistem Anda.\x1b[0m");
-                                    println!("  \x1b[1;37mTerima kasih telah menggunakan Rubah [Ruang Baca Harian].\x1b[0m");
-                                    println!("  \x1b[38;2;235;115;0mSampai jumpa kembali! 🦊\x1b[0m\n");
+                                    print_uninstall_output(app.language);
                                     std::process::exit(0);
                                 }
                                 KeyCode::Char('n') | KeyCode::Char('N') | KeyCode::Esc => {
@@ -413,4 +400,19 @@ async fn run_app(
             }
         }
     }
+}
+
+fn print_uninstall_output(lang: i18n::Language) {
+    use i18n::t;
+    let sub_title = t(lang, "sub_title");
+    println!("\n  \x1b[38;2;235;115;0m\x1b[1m🦊 RUBAH\x1b[0m \x1b[1;37m[{}] Uninstaller\x1b[0m", sub_title);
+    println!("  \x1b[0;90mHigh-Performance RSS Feed Reader TUI\x1b[0m\n");
+    println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37m{}\x1b[0m", t(lang, "uninstall_bin_deleted"));
+    println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37m{}\x1b[0m", t(lang, "uninstall_config_deleted"));
+    println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37m{}\x1b[0m", t(lang, "uninstall_cache_deleted"));
+    println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37mShell lookup reset       \x1b[0;90mHash memory cleared\x1b[0m\n");
+    let _ = App::perform_uninstall();
+    println!("  \x1b[0;32m\x1b[1m{}\x1b[0m", t(lang, "uninstall_done_msg"));
+    println!("  \x1b[1;37m{}\x1b[0m", t(lang, "uninstall_thanks_msg"));
+    println!("  \x1b[38;2;235;115;0m{}\x1b[0m\n", t(lang, "uninstall_goodbye_msg"));
 }
