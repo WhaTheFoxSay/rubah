@@ -75,11 +75,50 @@ impl Article {
 
 pub fn default_feeds() -> Vec<FeedSource> {
     vec![
-        FeedSource::new("CNN Indonesia - Nasional", "https://www.cnnindonesia.com/nasional/rss", "Berita Utama"),
-        FeedSource::new("Antara News - Terkini", "https://www.antaranews.com/rss/terkini.xml", "Berita Utama"),
-        FeedSource::new("Tempo - Nasional", "https://rss.tempo.co/nasional", "Berita Utama"),
+        // Nasional
+        FeedSource::new("CNN Indonesia - Nasional", "https://www.cnnindonesia.com/nasional/rss", "Nasional"),
+        FeedSource::new("Antara News - Terkini", "https://www.antaranews.com/rss/terkini.xml", "Nasional"),
+        FeedSource::new("Tempo - Nasional", "https://rss.tempo.co/nasional", "Nasional"),
+        FeedSource::new("Jawa Pos", "https://jawapos.com/rss.xml", "Nasional"),
+        FeedSource::new("Suara Surabaya", "https://www.suarasurabaya.net/feed/", "Nasional"),
+        FeedSource::new("Kabar Trenggalek", "https://kabartrenggalek.com/rss.xml", "Nasional"),
+        FeedSource::new("Kabar Blitar", "https://kabarblitar.com/rss.xml", "Nasional"),
+        FeedSource::new("Radar Jatim", "https://radarjatim.id/feed/", "Nasional"),
+        FeedSource::new("Surya Pos", "https://surya-pos.com/feed/", "Nasional"),
+        FeedSource::new("EKSPOSKALTIM", "https://eksposkaltim.com/rss.xml", "Nasional"),
+        FeedSource::new("Headline Indonesia", "https://www.headline.co.id/feed/", "Nasional"),
+        FeedSource::new("Liputan6.com", "https://feed.liputan6.com/rss/news", "Nasional"),
+        FeedSource::new("Kompas.com", "https://kompas.id/feed/", "Nasional"),
+        FeedSource::new("Viva.co.id", "https://www.viva.co.id/get/all", "Nasional"),
+
+        // Hiburan
+        FeedSource::new("KapanLagi.com | Musik", "https://www.kapanlagi.com/newsfeed/kategori-musik/", "Hiburan"),
+        FeedSource::new("KapanLagi.com | Film", "https://www.kapanlagi.com/newsfeed/kategori-film/", "Hiburan"),
+        FeedSource::new("Cumicumi.com", "https://stock.cumicumi.com/feeds/latest", "Hiburan"),
+
+        // Olahraga
+        FeedSource::new("Bola.com | Indonesia", "https://feed.bola.com/rss/indonesia", "Olahraga"),
+        FeedSource::new("Bola.com | Dunia", "https://feed.bola.com/rss/dunia", "Olahraga"),
+        FeedSource::new("Bola.com | Inggris", "https://feed.bola.com/rss/inggris", "Olahraga"),
+        FeedSource::new("Bola.com | Spanyol", "https://feed.bola.com/rss/spanyol", "Olahraga"),
+        FeedSource::new("Bola.com | MotoGP", "https://feed.bola.com/rss/moto-gp", "Olahraga"),
+
+        // Teknologi
         FeedSource::new("Hacker News", "https://news.ycombinator.com/rss", "Teknologi"),
         FeedSource::new("TechCrunch", "https://techcrunch.com/feed/", "Teknologi"),
+        FeedSource::new("Linux.org", "https://www.linux.org/articles/index.rss", "Teknologi"),
+        FeedSource::new("DistroWatch.com", "https://distrowatch.com/news/dw.xml", "Teknologi"),
+        FeedSource::new("LWN.net", "https://lwn.net/headlines/newrss", "Teknologi"),
+        FeedSource::new("9to5 Linux", "https://9to5linux.com/feed/atom", "Teknologi"),
+        FeedSource::new("Network World", "https://www.networkworld.com/feed/", "Teknologi"),
+        FeedSource::new("Linux Commands", "https://www.tecmint.com/category/linux-commands/feed/", "Teknologi"),
+        FeedSource::new("How To Forge", "https://www.howtoforge.com/feed.rss", "Teknologi"),
+        FeedSource::new("Linux Journal", "https://www.linuxjournal.com/node/feed", "Teknologi"),
+        FeedSource::new("Network Admin Stuff", "https://ciscoiseasy.blogspot.com/feeds/posts/default", "Teknologi"),
+        FeedSource::new("Reddit.com | GNU Linux", "https://www.reddit.com/r/linux/.rss", "Teknologi"),
+        FeedSource::new("Planet GNU", "https://planet.gnu.org/atom.xml", "Teknologi"),
+
+        // Internasional
         FeedSource::new("BBC News - World", "http://feeds.bbci.co.uk/news/world/rss.xml", "Internasional"),
     ]
 }

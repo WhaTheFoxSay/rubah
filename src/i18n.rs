@@ -868,32 +868,56 @@ pub fn t<'a>(lang: Language, key: &'a str) -> &'a str {
 
 pub fn translate_category<'a>(cat: &'a str, lang: Language) -> &'a str {
     match (lang, cat) {
+        // English
+        (Language::English, "Nasional") | (Language::English, "国内ニュース") | (Language::English, "Nationaal") | (Language::English, "Nacional") | (Language::English, "الأخبار الوطنية") => "National",
         (Language::English, "Berita Utama") | (Language::English, "トップニュース") | (Language::English, "Hoofdnieuws") | (Language::English, "Noticias Principales") | (Language::English, "الأخبار الرئيسية") => "Top News",
+        (Language::English, "Hiburan") | (Language::English, "Entertaiments") | (Language::English, "Entertainment") | (Language::English, "エンタメ") | (Language::English, "Entretenimiento") | (Language::English, "ترفيه") => "Entertainment",
+        (Language::English, "Olahraga") | (Language::English, "Sports") | (Language::English, "Sport") | (Language::English, "スポーツ") | (Language::English, "Deportes") | (Language::English, "رياضة") => "Sports",
         (Language::English, "Teknologi") | (Language::English, "テクノロジー") | (Language::English, "Technologie") | (Language::English, "Tecnología") | (Language::English, "التكنولوجيا") => "Technology",
         (Language::English, "Internasional") | (Language::English, "国際") | (Language::English, "Internationaal") | (Language::English, "Internacional") | (Language::English, "الدولية") => "International",
         (Language::English, "Umum") | (Language::English, "一般") | (Language::English, "Algemeen") | (Language::English, "عام") => "General",
 
+        // Indonesian
+        (Language::Indonesian, "National") | (Language::Indonesian, "国内ニュース") | (Language::Indonesian, "Nationaal") | (Language::Indonesian, "Nacional") | (Language::Indonesian, "الأخبار الوطنية") => "Nasional",
         (Language::Indonesian, "Top News") | (Language::Indonesian, "トップニュース") | (Language::Indonesian, "Hoofdnieuws") | (Language::Indonesian, "Noticias Principales") | (Language::Indonesian, "الأخبار الرئيسية") => "Berita Utama",
+        (Language::Indonesian, "Entertainment") | (Language::Indonesian, "Entertaiments") | (Language::Indonesian, "エンタメ") | (Language::Indonesian, "Entretenimiento") | (Language::Indonesian, "ترفيه") => "Hiburan",
+        (Language::Indonesian, "Sports") | (Language::Indonesian, "Sport") | (Language::Indonesian, "スポーツ") | (Language::Indonesian, "Deportes") | (Language::Indonesian, "رياضة") => "Olahraga",
         (Language::Indonesian, "Technology") | (Language::Indonesian, "テクノロジー") | (Language::Indonesian, "Technologie") | (Language::Indonesian, "Tecnología") | (Language::Indonesian, "التكنولوجيا") => "Teknologi",
         (Language::Indonesian, "International") | (Language::Indonesian, "国際") | (Language::Indonesian, "Internationaal") | (Language::Indonesian, "Internacional") | (Language::Indonesian, "الدولية") => "Internasional",
         (Language::Indonesian, "General") | (Language::Indonesian, "一般") | (Language::Indonesian, "Algemeen") | (Language::Indonesian, "عام") => "Umum",
 
+        // Japanese
+        (Language::Japanese, "Nasional") | (Language::Japanese, "National") => "国内ニュース",
         (Language::Japanese, "Berita Utama") | (Language::Japanese, "Top News") => "トップニュース",
+        (Language::Japanese, "Hiburan") | (Language::Japanese, "Entertainment") | (Language::Japanese, "Entertaiments") => "エンタメ",
+        (Language::Japanese, "Olahraga") | (Language::Japanese, "Sports") => "スポーツ",
         (Language::Japanese, "Teknologi") | (Language::Japanese, "Technology") => "テクノロジー",
         (Language::Japanese, "Internasional") | (Language::Japanese, "International") => "国際",
         (Language::Japanese, "Umum") | (Language::Japanese, "General") => "一般",
 
+        // Dutch
+        (Language::Dutch, "Nasional") | (Language::Dutch, "National") => "Nationaal",
         (Language::Dutch, "Berita Utama") | (Language::Dutch, "Top News") => "Hoofdnieuws",
+        (Language::Dutch, "Hiburan") | (Language::Dutch, "Entertainment") | (Language::Dutch, "Entertaiments") => "Entertainment",
+        (Language::Dutch, "Olahraga") | (Language::Dutch, "Sports") => "Sport",
         (Language::Dutch, "Teknologi") | (Language::Dutch, "Technology") => "Technologie",
         (Language::Dutch, "Internasional") | (Language::Dutch, "International") => "Internationaal",
         (Language::Dutch, "Umum") | (Language::Dutch, "General") => "Algemeen",
 
+        // Spanish
+        (Language::Spanish, "Nasional") | (Language::Spanish, "National") => "Nacional",
         (Language::Spanish, "Berita Utama") | (Language::Spanish, "Top News") => "Noticias Principales",
+        (Language::Spanish, "Hiburan") | (Language::Spanish, "Entertainment") | (Language::Spanish, "Entertaiments") => "Entretenimiento",
+        (Language::Spanish, "Olahraga") | (Language::Spanish, "Sports") => "Deportes",
         (Language::Spanish, "Teknologi") | (Language::Spanish, "Technology") => "Tecnología",
         (Language::Spanish, "Internasional") | (Language::Spanish, "International") => "Internacional",
         (Language::Spanish, "Umum") | (Language::Spanish, "General") => "General",
 
+        // Arabic
+        (Language::Arabic, "Nasional") | (Language::Arabic, "National") => "الأخبار الوطنية",
         (Language::Arabic, "Berita Utama") | (Language::Arabic, "Top News") => "الأخبار الرئيسية",
+        (Language::Arabic, "Hiburan") | (Language::Arabic, "Entertainment") | (Language::Arabic, "Entertaiments") => "ترفيه",
+        (Language::Arabic, "Olahraga") | (Language::Arabic, "Sports") => "رياضة",
         (Language::Arabic, "Teknologi") | (Language::Arabic, "Technology") => "التكنولوجيا",
         (Language::Arabic, "Internasional") | (Language::Arabic, "International") => "الدولية",
         (Language::Arabic, "Umum") | (Language::Arabic, "General") => "عام",

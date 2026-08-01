@@ -18,13 +18,7 @@ impl Storage {
 
         let storage = Self { conn };
         let _ = storage.init_tables();
-
-        // Pre-populate default feeds if empty
-        if storage.get_feeds().map(|f| f.is_empty()).unwrap_or(true) {
-            for feed in default_feeds() {
-                let _ = storage.add_feed(&feed);
-            }
-        }
+        storage.sync_default_feeds();
 
         storage
     }
@@ -145,6 +139,15 @@ impl Storage {
             params![feed.id, feed.title, feed.url, feed.category],
         )?;
         Ok(())
+    }
+
+    pub fn sync_default_feeds(&self) {
+        for feed in default_feeds() {
+            let _ = self.conn.execute(
+                "INSERT OR IGNORE INTO feeds (id, title, url, category) VALUES (?1, ?2, ?3, ?4)",
+                params![feed.id, feed.title, feed.url, feed.category],
+            );
+        }
     }
 
     pub fn delete_feed(&self, feed_id: &str) -> Result<()> {
