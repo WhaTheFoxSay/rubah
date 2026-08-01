@@ -189,8 +189,24 @@ async fn run_app(
                         _ => {}
                     },
                     InputMode::Search => match key.code {
-                        KeyCode::Enter | KeyCode::Esc => {
+                        KeyCode::Enter => {
                             app.input_mode = InputMode::Normal;
+                            app.active_pane = app::ActivePane::Articles;
+                            app.mark_current_read();
+                            app.fetch_full_content_for_selected().await;
+                        }
+                        KeyCode::Esc => {
+                            app.clear_search();
+                        }
+                        KeyCode::Down => {
+                            app.next_item();
+                        }
+                        KeyCode::Up => {
+                            app.prev_item();
+                        }
+                        KeyCode::Tab => {
+                            app.input_mode = InputMode::Normal;
+                            app.active_pane = app::ActivePane::Articles;
                         }
                         KeyCode::Char(c) => {
                             app.search_query.push(c);
@@ -305,11 +321,14 @@ async fn run_app(
                             }
                             KeyCode::Char('/') => {
                                 app.input_mode = InputMode::Search;
+                                app.status_message = "Ketik kata kunci... | [Enter] Buka | [Down/Up] Pilih | [Esc] Reset".to_string();
                             }
                             KeyCode::Esc => {
                                 if app.is_fullscreen_reader {
                                     app.is_fullscreen_reader = false;
                                     app.status_message = "Keluar dari Fullscreen Reader Mode".to_string();
+                                } else if !app.search_query.is_empty() {
+                                    app.clear_search();
                                 } else if app.active_pane == app::ActivePane::Reader {
                                     app.active_pane = app::ActivePane::Articles;
                                 } else {

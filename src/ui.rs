@@ -303,7 +303,11 @@ fn draw_articles_pane(f: &mut Frame, app: &mut App, area: Rect) {
         })
         .collect();
 
-    let title = format!(" Berita ({}) ", articles.len());
+    let title = if !app.search_query.trim().is_empty() {
+        format!(" Berita ({}) [Cari: '{}'] (Esc: Reset) ", articles.len(), app.search_query.trim())
+    } else {
+        format!(" Berita ({}) ", articles.len())
+    };
     let list = List::new(items)
         .block(
             Block::default()
@@ -420,14 +424,24 @@ fn draw_search_bar(f: &mut Frame, app: &App, area: Rect) {
         let spans = vec![
             Span::styled(" Cari: ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
             Span::styled(&app.search_query, Style::default().fg(THEME.fg)),
-            Span::styled(" |", Style::default().fg(THEME.accent)),
+            Span::styled(" █", Style::default().fg(THEME.accent)),
+            Span::styled("  (Enter: Buka | Down/Up: Pilih | Esc: Batal)", Style::default().fg(THEME.muted)),
         ];
         let p = Paragraph::new(Line::from(spans)).block(
             Block::default()
+                .title(" Mode Pencarian Berita ")
                 .borders(Borders::ALL)
                 .border_type(BorderType::Rounded)
                 .border_style(Style::default().fg(THEME.border_active)),
         );
+        f.render_widget(p, area);
+    } else if !app.search_query.is_empty() {
+        let spans = vec![
+            Span::styled(" Filter Cari Aktif: ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
+            Span::styled(format!("'{}' ", app.search_query), Style::default().fg(THEME.fg)),
+            Span::styled(" (Tekan [Esc] untuk bersihkan filter pencarian)", Style::default().fg(THEME.muted)),
+        ];
+        let p = Paragraph::new(Line::from(spans));
         f.render_widget(p, area);
     } else {
         let spans = vec![

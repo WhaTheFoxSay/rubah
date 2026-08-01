@@ -331,6 +331,13 @@ impl App {
         }
     }
 
+    pub fn clear_search(&mut self) {
+        self.search_query.clear();
+        self.input_mode = InputMode::Normal;
+        self.selected_article_idx = 0;
+        self.status_message = "Pencarian dibersihkan.".to_string();
+    }
+
     pub fn current_articles(&self) -> Vec<Article> {
         if self.active_tab == ActiveTab::Bookmarks {
             let mut bookmarks = self.storage.get_bookmarks();
@@ -339,6 +346,23 @@ impl App {
                 art.is_read = self.read_articles.contains(&art.id);
             }
             return self.filter_articles(bookmarks);
+        }
+
+        // Global search across all feeds when search query is present
+        if !self.search_query.trim().is_empty() {
+            let mut all_global = Vec::new();
+            let bookmarked_ids: HashSet<String> = self.storage.get_bookmarks().iter().map(|b| b.id.clone()).collect();
+            for feed in &self.feeds {
+                if let Some(articles) = self.articles_by_feed.get(&feed.id) {
+                    for art in articles {
+                        let mut processed = art.clone();
+                        processed.is_read = self.read_articles.contains(&art.id);
+                        processed.is_bookmarked = bookmarked_ids.contains(&art.id);
+                        all_global.push(processed);
+                    }
+                }
+            }
+            return self.filter_articles(all_global);
         }
 
         let current_item = match self.current_selected_channel_item() {
@@ -371,17 +395,19 @@ impl App {
     }
 
     fn filter_articles(&self, articles: Vec<Article>) -> Vec<Article> {
-        if self.search_query.is_empty() {
+        let query = self.search_query.trim().to_lowercase();
+        if query.is_empty() {
             return articles;
         }
 
-        let query = self.search_query.to_lowercase();
         articles
             .into_iter()
             .filter(|a| {
                 a.title.to_lowercase().contains(&query)
                     || a.summary.to_lowercase().contains(&query)
                     || a.author.to_lowercase().contains(&query)
+                    || a.content.to_lowercase().contains(&query)
+                    || a.feed_title.to_lowercase().contains(&query)
             })
             .collect()
     }
