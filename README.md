@@ -50,6 +50,8 @@ baca
   - **Left**: Daftar channel RSS Feed berdasarkan kategori.
   - **Middle**: Daftar berita dengan status dibaca (`●`/`○`), tanggal, dan bookmark (`★`).
   - **Right**: Pembaca konten berita langsung di dalam terminal dengan scroll keyboard.
+- **Multi-Language Support (6 Bahasa)**: Dukungan 6 bahasa internasional (**Inggris, Indonesia, Jepang, Belanda, Spanyol, Arab**) yang dapat diganti secara interaktif via tombol `l`.
+- **In-App Auto Update**: Kemampuan memeriksa dan mengunduh patch update versi rilis terbaru secara langsung dari dalam aplikasi via tombol `u`.
 - **Ringan & Portabel**: Menggunakan binary statis (MUSL untuk Linux) yang kompatibel dengan berbagai distro Linux (RHEL, CentOS, Ubuntu, Debian, Alpine, dll.) tanpa ketergantungan library luar.
 - **Penyimpanan Lokal SQLite**: Menyimpan RSS feed, riwayat baca, dan artikel favorit di database lokal (`~/.config/rubah/rubah.db` di Linux/macOS atau `%LOCALAPPDATA%\Rubah\rubah.db` di Windows).
 - **HD Image Rendering**: Mendukung rendering foto berita dalam terminal TUI secara otomatis (*toggle* `i`).
@@ -66,13 +68,18 @@ baca
 | `Tab` / `Shift+Tab` | Pindah fokus antar panel (**Channel** ➔ **Berita** ➔ **Reader**) |
 | `j` / `k` atau `↓` / `↑` | Navigasi item ke bawah / atas |
 | `Enter` / `Space` | Buka dan baca berita penuh di dalam terminal |
+| `f` | Toggle **Fullscreen Reader Mode** (tampilan penuh) |
+| `l` | Toggle **Bahasa Antarmuka** (English, Indonesia, 日本語, Nederlands, Español, العربية) |
+| `u` | Periksa & proses **In-App Update** ke versi terbaru |
+| `m` | Pindahkan channel feed ke kategori lain |
+| `Shift + C` | Hapus kategori beserta seluruh feed di dalamnya |
+| `Shift + D` | Hapus channel RSS Feed terpilih |
 | `i` | Toggle Tampilkan / Sembunyikan foto berita dalam terminal |
 | `Esc` | Kembali dari reader ke daftar berita / reset pencarian |
 | `o` | Membuka link berita di web browser external |
 | `b` | Simpan / hapus artikel dari **Bookmarks** (`★`) |
 | `r` | Refresh / muat ulang seluruh RSS Feed |
 | `a` | Buka dialog **Tambah RSS Feed Baru** |
-| `Shift + D` | Hapus channel RSS Feed terpilih |
 | `/` | Buka mode pencarian realtime |
 | `1` / `2` | Switch Tab: **All Feeds** (1) vs **Bookmarks** (2) |
 | `Shift + U` | Buka menu modal **Uninstall** |
