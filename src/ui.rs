@@ -178,7 +178,8 @@ fn draw_feeds_pane(f: &mut Frame, app: &mut App, area: Rect) {
             match item {
                 ChannelTreeItem::CategoryHeader { name, is_expanded, count } => {
                     let symbol = if *is_expanded { "[-] " } else { "[+] " };
-                    let header_text = format!("{} ({})", name, count);
+                    let display_name = crate::i18n::translate_category(name, app.language);
+                    let header_text = format!("{} ({})", display_name, count);
 
                     let content = vec![
                         Span::styled(symbol, Style::default().fg(if is_selected { Color::Rgb(15, 15, 20) } else { THEME.accent }).add_modifier(Modifier::BOLD)),
@@ -554,15 +555,15 @@ fn draw_update_modal(f: &mut Frame, app: &App, area: Rect) {
                 Line::from(Span::styled(&info.release_notes, Style::default().fg(THEME.muted))),
                 Line::from("--------------------------------------------------"),
                 Line::from(vec![
-                    Span::styled("Proses update ke v".to_string() + &info.latest_version + " langsung dari dalam aplikasi?", Style::default().fg(THEME.fg)),
+                    Span::styled(format!("{}{}{}", t(lang, "update_prompt_question"), info.latest_version, t(lang, "update_prompt_suffix")), Style::default().fg(THEME.fg)),
                 ]),
                 Line::from(""),
                 Line::from(vec![
-                    Span::styled("Tekan ", Style::default().fg(THEME.fg)),
+                    Span::styled(t(lang, "uninstall_press_y"), Style::default().fg(THEME.fg)),
                     Span::styled("[y]", Style::default().fg(THEME.success).add_modifier(Modifier::BOLD)),
-                    Span::styled(" Ya, Update Sekarang | ", Style::default().fg(THEME.fg)),
+                    Span::styled(t(lang, "update_yes_button"), Style::default().fg(THEME.fg)),
                     Span::styled("[n / Esc]", Style::default().fg(THEME.warning).add_modifier(Modifier::BOLD)),
-                    Span::styled(" Batal", Style::default().fg(THEME.fg)),
+                    Span::styled(t(lang, "update_cancel_button"), Style::default().fg(THEME.fg)),
                 ]),
             ];
             (t(lang, "update_title_new"), THEME.accent, lines)
@@ -581,10 +582,10 @@ fn draw_update_modal(f: &mut Frame, app: &App, area: Rect) {
         }
     } else {
         let lines = vec![
-            Line::from(Span::styled(" 🦊 Memeriksa Pembaruan... ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))),
-            Line::from("Menghubungi server GitHub API..."),
+            Line::from(Span::styled(t(lang, "update_checking_title"), Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))),
+            Line::from(t(lang, "update_connecting_api")),
         ];
-        (" Periksa Update ", THEME.border_active, lines)
+        (t(lang, "update_checking_modal_title"), THEME.border_active, lines)
     };
 
     let p = Paragraph::new(lines).wrap(Wrap { trim: true });
@@ -600,6 +601,7 @@ fn draw_update_modal(f: &mut Frame, app: &App, area: Rect) {
 fn draw_update_progress_modal(f: &mut Frame, app: &App, area: Rect) {
     let popup_area = centered_rect(65, 45, area);
     f.render_widget(Clear, popup_area);
+    let lang = app.language;
 
     let spinner_frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
     let spinner = spinner_frames[app.marquee_tick % spinner_frames.len()];
@@ -607,21 +609,21 @@ fn draw_update_progress_modal(f: &mut Frame, app: &App, area: Rect) {
     let mut lines = Vec::new();
 
     if app.update_completed {
-        lines.push(Line::from(Span::styled("✔ Pembaruan Berhasil Terpasang!", Style::default().fg(THEME.success).add_modifier(Modifier::BOLD))));
+        lines.push(Line::from(Span::styled(t(lang, "update_progress_success"), Style::default().fg(THEME.success).add_modifier(Modifier::BOLD))));
         lines.push(Line::from("--------------------------------------------------"));
-        lines.push(Line::from(Span::styled("Biner Rubah versi rilis terbaru telah berhasil diunduh dan dipasang.", Style::default().fg(THEME.fg))));
+        lines.push(Line::from(Span::styled(t(lang, "update_progress_success_detail"), Style::default().fg(THEME.fg))));
         lines.push(Line::from(""));
-        lines.push(Line::from(Span::styled("Tekan [Enter] atau [Esc] untuk merestart aplikasi.", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))));
+        lines.push(Line::from(Span::styled(t(lang, "update_progress_restart_hint"), Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))));
     } else if let Some(ref err) = app.update_failed {
-        lines.push(Line::from(Span::styled("⚠️ Gagal Melakukan Pembaruan", Style::default().fg(THEME.warning).add_modifier(Modifier::BOLD))));
+        lines.push(Line::from(Span::styled(t(lang, "update_progress_failed"), Style::default().fg(THEME.warning).add_modifier(Modifier::BOLD))));
         lines.push(Line::from("--------------------------------------------------"));
         lines.push(Line::from(Span::styled(err, Style::default().fg(THEME.fg))));
         lines.push(Line::from(""));
-        lines.push(Line::from(Span::styled("Tekan [Enter] atau [Esc] untuk menutup.", Style::default().fg(THEME.muted))));
+        lines.push(Line::from(Span::styled(t(lang, "update_progress_close_hint"), Style::default().fg(THEME.muted))));
     } else {
         lines.push(Line::from(vec![
             Span::styled(format!("{} ", spinner), Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
-            Span::styled("Memproses Pembaruan Otomatis Dari Dalam Aplikasi...", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
+            Span::styled(t(lang, "update_progress_processing"), Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
         ]));
         lines.push(Line::from("--------------------------------------------------"));
         lines.push(Line::from(Span::styled(&app.update_stage_status, Style::default().fg(THEME.fg))));
@@ -640,12 +642,12 @@ fn draw_update_progress_modal(f: &mut Frame, app: &App, area: Rect) {
             let mb_downloaded = app.update_downloaded_bytes as f64 / 1_048_576.0;
             let mb_total = app.update_total_bytes as f64 / 1_048_576.0;
             lines.push(Line::from(Span::styled(
-                format!("  Ukuran File Patch: {:.2} MB / {:.2} MB", mb_downloaded, mb_total),
+                format!("{}{:.2} MB / {:.2} MB", t(lang, "update_patch_size"), mb_downloaded, mb_total),
                 Style::default().fg(THEME.muted),
             )));
         }
         lines.push(Line::from("--------------------------------------------------"));
-        lines.push(Line::from(Span::styled("Harap tunggu, biner baru sedang diunduh dan dipasang secara otomatis...", Style::default().fg(THEME.muted).add_modifier(Modifier::ITALIC))));
+        lines.push(Line::from(Span::styled(t(lang, "update_wait_hint"), Style::default().fg(THEME.muted).add_modifier(Modifier::ITALIC))));
     }
 
     let block = Block::default()

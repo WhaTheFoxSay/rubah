@@ -254,29 +254,71 @@ pub fn t<'a>(lang: Language, key: &'a str) -> &'a str {
         (Language::English, "update_msg_new") => "🦊 Rubah Application Update Available!",
         (Language::Indonesian, "update_msg_new") => "🦊 Pembaruan Aplikasi Rubah Tersedia!",
 
-        (Language::English, "update_msg_latest") => "🦊 Rubah [Daily Reading Space]",
+        (Language::English, "update_msg_latest") => "🦊 Rubah [Ruang Baca Harian]",
         (Language::Indonesian, "update_msg_latest") => "🦊 Rubah [Ruang Baca Harian]",
 
-        (Language::English, "update_curr_ver") => "Installed Version: ",
-        (Language::Indonesian, "update_curr_ver") => "Versi Terpasang : ",
+        (Language::English, "update_curr_ver") => "Current Version : ",
+        (Language::Indonesian, "update_curr_ver") => "Versi Saat Ini  : ",
 
-        (Language::English, "update_latest_ver") => "Latest Version   : ",
+        (Language::English, "update_latest_ver") => "Latest Version  : ",
         (Language::Indonesian, "update_latest_ver") => "Versi Terbaru   : ",
 
-        (Language::English, "update_notes_label") => "Release Notes:",
-        (Language::Indonesian, "update_notes_label") => "Catatan Pembaruan Rilis:",
+        (Language::English, "update_notes_label") => "RELEASE NOTES / CHANGELOG:",
+        (Language::Indonesian, "update_notes_label") => "CATATAN RILIS / CHANGELOG:",
 
-        (Language::English, "update_run_installer") => "To update to the latest version, run installer:",
-        (Language::Indonesian, "update_run_installer") => "Untuk meng-update ke versi terbaru, jalankan installer:",
+        (Language::English, "update_status_up_to_date") => "Up to date",
+        (Language::Indonesian, "update_status_up_to_date") => "Terupdate",
 
-        (Language::English, "update_status_up_to_date") => "Already using the latest version.",
-        (Language::Indonesian, "update_status_up_to_date") => "Sudah menggunakan versi terbaru.",
+        (Language::English, "update_msg_up_to_date") => "Rubah is currently at the latest version. No update needed.",
+        (Language::Indonesian, "update_msg_up_to_date") => "Rubah sudah di versi terbaru. Tidak memerlukan pembaruan.",
 
-        (Language::English, "update_msg_up_to_date") => "Your application is fully updated and secure.",
-        (Language::Indonesian, "update_msg_up_to_date") => "Aplikasi Anda sudah di versi paling terupdate dan aman.",
-
-        (Language::English, "update_close_hint") => "Press Esc or [Enter] to close this modal",
+        (Language::English, "update_close_hint") => "Press Esc or [Enter] to close modal",
         (Language::Indonesian, "update_close_hint") => "Tekan Esc atau [Enter] untuk menutup modal ini",
+
+        (Language::English, "update_prompt_question") => "Update to v",
+        (Language::Indonesian, "update_prompt_question") => "Proses update ke v",
+
+        (Language::English, "update_prompt_suffix") => " directly inside the application?",
+        (Language::Indonesian, "update_prompt_suffix") => " langsung dari dalam aplikasi?",
+
+        (Language::English, "update_yes_button") => " Yes, Update Now | ",
+        (Language::Indonesian, "update_yes_button") => " Ya, Update Sekarang | ",
+
+        (Language::English, "update_cancel_button") => " Cancel",
+        (Language::Indonesian, "update_cancel_button") => " Batal",
+
+        (Language::English, "update_checking_title") => " 🦊 Checking for Updates... ",
+        (Language::Indonesian, "update_checking_title") => " 🦊 Memeriksa Pembaruan... ",
+
+        (Language::English, "update_connecting_api") => "Connecting to GitHub API server...",
+        (Language::Indonesian, "update_connecting_api") => "Menghubungi server GitHub API...",
+
+        (Language::English, "update_checking_modal_title") => " Check Update ",
+        (Language::Indonesian, "update_checking_modal_title") => " Periksa Update ",
+
+        (Language::English, "update_progress_success") => "✔ Update Successfully Installed!",
+        (Language::Indonesian, "update_progress_success") => "✔ Pembaruan Berhasil Terpasang!",
+
+        (Language::English, "update_progress_success_detail") => "Latest Rubah release binary has been downloaded and installed.",
+        (Language::Indonesian, "update_progress_success_detail") => "Biner Rubah versi rilis terbaru telah berhasil diunduh dan dipasang.",
+
+        (Language::English, "update_progress_restart_hint") => "Press [Enter] or [Esc] to restart application.",
+        (Language::Indonesian, "update_progress_restart_hint") => "Tekan [Enter] atau [Esc] untuk merestart aplikasi.",
+
+        (Language::English, "update_progress_failed") => "⚠️ Update Failed",
+        (Language::Indonesian, "update_progress_failed") => "⚠️ Gagal Melakukan Pembaruan",
+
+        (Language::English, "update_progress_close_hint") => "Press [Enter] or [Esc] to close.",
+        (Language::Indonesian, "update_progress_close_hint") => "Tekan [Enter] atau [Esc] untuk menutup.",
+
+        (Language::English, "update_progress_processing") => "Processing In-App Auto Update...",
+        (Language::Indonesian, "update_progress_processing") => "Memproses Pembaruan Otomatis Dari Dalam Aplikasi...",
+
+        (Language::English, "update_patch_size") => "  Patch Size: ",
+        (Language::Indonesian, "update_patch_size") => "  Ukuran File Patch: ",
+
+        (Language::English, "update_wait_hint") => "Please wait, downloading and installing new binary automatically...",
+        (Language::Indonesian, "update_wait_hint") => "Harap tunggu, biner baru sedang diunduh dan dipasang secara otomatis...",
 
         // Reader details
         (Language::English, "reader_author") => "Author: ",
@@ -353,5 +395,19 @@ pub fn t<'a>(lang: Language, key: &'a str) -> &'a str {
         (Language::Indonesian, "uninstall_goodbye_msg") => "Sampai jumpa kembali! 🦊",
 
         _ => key,
+    }
+}
+
+pub fn translate_category<'a>(cat: &'a str, lang: Language) -> &'a str {
+    match (lang, cat) {
+        (Language::English, "Berita Utama") => "Top News",
+        (Language::English, "Teknologi") => "Technology",
+        (Language::English, "Internasional") => "International",
+        (Language::English, "Umum") => "General",
+        (Language::Indonesian, "Top News") => "Berita Utama",
+        (Language::Indonesian, "Technology") => "Teknologi",
+        (Language::Indonesian, "International") => "Internasional",
+        (Language::Indonesian, "General") => "Umum",
+        _ => cat,
     }
 }
