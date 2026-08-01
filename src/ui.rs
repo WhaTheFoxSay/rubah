@@ -128,6 +128,11 @@ fn draw_header(f: &mut Frame, app: &App, area: Rect) {
 }
 
 fn draw_body(f: &mut Frame, app: &mut App, area: Rect) {
+    if app.is_fullscreen_reader {
+        draw_reader_pane(f, app, area);
+        return;
+    }
+
     let body_chunks = Layout::default()
         .direction(Direction::Horizontal)
         .constraints([
@@ -442,6 +447,8 @@ fn draw_footer(f: &mut Frame, _app: &App, area: Rect) {
         Span::styled("Pilih  ", Style::default().fg(THEME.fg)),
         Span::styled("[Enter] ", Style::default().fg(THEME.accent)),
         Span::styled("Buka  ", Style::default().fg(THEME.fg)),
+        Span::styled("[f] ", Style::default().fg(THEME.accent)),
+        Span::styled("Fullscreen  ", Style::default().fg(THEME.fg)),
         Span::styled("[m] ", Style::default().fg(THEME.accent)),
         Span::styled("Pindah Kat  ", Style::default().fg(THEME.fg)),
         Span::styled("[Shift+C] ", Style::default().fg(THEME.accent)),
@@ -469,6 +476,7 @@ fn draw_help_modal(f: &mut Frame, area: Rect) {
         Line::from(vec![Span::styled("Tab / Shift+Tab  ", Style::default().fg(THEME.accent)), Span::raw(": Pindah antar panel")]),
         Line::from(vec![Span::styled("j / k / Up / Down", Style::default().fg(THEME.accent)), Span::raw(": Navigasi item")]),
         Line::from(vec![Span::styled("Enter / Space    ", Style::default().fg(THEME.accent)), Span::raw(": Toggle Kategori / Buka Artikel")]),
+        Line::from(vec![Span::styled("f / F            ", Style::default().fg(THEME.accent)), Span::raw(": Toggle Fullscreen Reader Mode")]),
         Line::from(vec![Span::styled("m                ", Style::default().fg(THEME.accent)), Span::raw(": Pindahkan Feed ke Kategori lain")]),
         Line::from(vec![Span::styled("Shift + C        ", Style::default().fg(THEME.accent)), Span::raw(": Hapus Kategori beserta seluruh feed")]),
         Line::from(vec![Span::styled("Shift + D        ", Style::default().fg(THEME.accent)), Span::raw(": Hapus Feed terpilih")]),

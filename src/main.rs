@@ -262,7 +262,7 @@ async fn run_app(
                                 app.refresh_all_feeds().await;
                             }
                             KeyCode::Char('f') | KeyCode::Char('F') => {
-                                app.fetch_full_content_for_selected().await;
+                                app.toggle_fullscreen_reader().await;
                             }
                             KeyCode::Char('i') | KeyCode::Char('I') => {
                                 app.toggle_image_display();
@@ -307,7 +307,10 @@ async fn run_app(
                                 app.input_mode = InputMode::Search;
                             }
                             KeyCode::Esc => {
-                                if app.active_pane == app::ActivePane::Reader {
+                                if app.is_fullscreen_reader {
+                                    app.is_fullscreen_reader = false;
+                                    app.status_message = "Keluar dari Fullscreen Reader Mode".to_string();
+                                } else if app.active_pane == app::ActivePane::Reader {
                                     app.active_pane = app::ActivePane::Articles;
                                 } else {
                                     app.search_query.clear();

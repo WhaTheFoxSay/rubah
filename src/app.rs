@@ -80,6 +80,9 @@ pub struct App {
     // Move Feed Form & Delete Category
     pub move_feed_category_input: String,
     pub target_category_to_delete: Option<String>,
+
+    // Fullscreen Reader Mode
+    pub is_fullscreen_reader: bool,
 }
 
 impl App {
@@ -119,7 +122,7 @@ impl App {
             marquee_tick: 0,
             reader_scroll: 0,
             is_loading: false,
-            status_message: "Tekan [?] Bantuan | [j/k] Pilih | [Enter] Buka/Baca | [m] Pindah Kategori | [/] Cari".to_string(),
+            status_message: "Tekan [?] Bantuan | [j/k] Pilih | [Enter] Buka/Baca | [f] Fullscreen Reader | [/] Cari".to_string(),
             show_help: false,
             show_uninstall_confirm: false,
             show_image: true,
@@ -132,6 +135,7 @@ impl App {
             new_feed_category: "Umum".to_string(),
             move_feed_category_input: String::new(),
             target_category_to_delete: None,
+            is_fullscreen_reader: false,
         }
     }
 
@@ -233,6 +237,18 @@ impl App {
             self.status_message = "Gambar [ON]".to_string();
         } else {
             self.status_message = "Gambar [OFF]".to_string();
+        }
+    }
+
+    pub async fn toggle_fullscreen_reader(&mut self) {
+        self.is_fullscreen_reader = !self.is_fullscreen_reader;
+        if self.is_fullscreen_reader {
+            self.active_pane = ActivePane::Reader;
+            self.mark_current_read();
+            self.fetch_full_content_for_selected().await;
+            self.status_message = "Fullscreen Reader Mode [ON] (Tekan [f] atau [Esc] untuk keluar)".to_string();
+        } else {
+            self.status_message = "Keluar dari Fullscreen Reader Mode".to_string();
         }
     }
 
