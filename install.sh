@@ -61,12 +61,26 @@ trap 'rm -f "$TMP_FILE"' EXIT
 USER_AGENT="Mozilla/5.0 (compatible; RubahInstaller/1.0)"
 
 HTTP_CODE=$(curl -sL -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$RELEASE_URL" || echo "000")
-if [ "$HTTP_CODE" -ne 200 ]; then
-    HTTP_CODE=$(curl -sL -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$LATEST_URL" || echo "000")
+
+# Check if downloaded binary is valid (at least 3MB)
+FILE_SIZE=$(wc -c < "$TMP_FILE" 2>/dev/null || echo "0")
+if [ "$HTTP_CODE" -ne 200 ] || [ "$FILE_SIZE" -lt 3000000 ]; then
+    # Direct GitHub API stream fallback (bypasses GitHub release CDN BlobNotFound propagation delay)
+    API_URL="https://api.github.com/repos/${REPO}/releases/tags/v0.8.0"
+    ASSET_URL=$(curl -sL -A "$USER_AGENT" "$API_URL" | grep -B 2 -A 8 "\"name\": \"${BINARY_NAME}\"" | grep '"url":' | head -n 1 | cut -d '"' -f 4)
+    if [ -n "$ASSET_URL" ]; then
+        curl -sL -H "Accept: application/octet-stream" -A "$USER_AGENT" -o "$TMP_FILE" "$ASSET_URL" || true
+        FILE_SIZE=$(wc -c < "$TMP_FILE" 2>/dev/null || echo "0")
+    fi
 fi
 
-if [ "$HTTP_CODE" -ne 200 ] || [ ! -s "$TMP_FILE" ]; then
-    echo -e "${RED}Error: Gagal mengunduh binary 'baca' dari GitHub.${RESET}"
+if [ "$FILE_SIZE" -lt 3000000 ]; then
+    HTTP_CODE=$(curl -sL -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$LATEST_URL" || echo "000")
+    FILE_SIZE=$(wc -c < "$TMP_FILE" 2>/dev/null || echo "0")
+fi
+
+if [ "$FILE_SIZE" -lt 3000000 ]; then
+    echo -e "${RED}Error: Gagal mengunduh binary 'baca' dari GitHub (File tidak lengkap atau rusak).${RESET}"
     exit 1
 fi
 
