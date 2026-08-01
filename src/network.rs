@@ -189,6 +189,139 @@ impl Fetcher {
             release_notes,
         })
     }
+
+    pub async fn download_and_install_update(
+        &self,
+        latest_version: &str,
+        tx: tokio::sync::mpsc::UnboundedSender<UpdateProgress>,
+    ) -> Result<(), String> {
+        let asset_name = get_target_asset_name();
+        let download_url = format!(
+            "https://github.com/WhaTheFoxSay/rubah/releases/download/v{}/{}",
+            latest_version.trim_start_matches('v'),
+            asset_name
+        );
+
+        let response = self
+            .client
+            .get(&download_url)
+            .header("User-Agent", "RubahAutoUpdater/1.0")
+            .send()
+            .await
+            .map_err(|e| format!("Gagal mengunduh biner rilis: {}", e))?;
+
+        if !response.status().is_success() {
+            return Err(format!(
+                "Server mengembalikan status HTTP {}",
+                response.status()
+            ));
+        }
+
+        let total_size = response.content_length().unwrap_or(0);
+        let mut response = response;
+        let mut downloaded_bytes = Vec::new();
+
+        while let Ok(Some(chunk)) = response.chunk().await {
+            downloaded_bytes.extend_from_slice(&chunk);
+            let downloaded = downloaded_bytes.len() as u64;
+            let percentage = if total_size > 0 {
+                (downloaded as f32 / total_size as f32) * 100.0
+            } else {
+                0.0
+            };
+
+            let _ = tx.send(UpdateProgress::Downloading {
+                downloaded,
+                total: total_size,
+                percentage,
+            });
+        }
+
+        let _ = tx.send(UpdateProgress::Installing);
+
+        // Determine target executable path
+        let target_path = if let Ok(exe) = std::env::current_exe() {
+            exe
+        } else if let Some(home) = dirs::home_dir() {
+            #[cfg(target_os = "windows")]
+            {
+                home.join(".local").join("bin").join("baca.exe")
+            }
+            #[cfg(not(target_os = "windows"))]
+            {
+                home.join(".local").join("bin").join("baca")
+            }
+        } else {
+            return Err("Gagal menemukan lokasi executable aplikasi".to_string());
+        };
+
+        let temp_path = target_path.with_extension("tmp_download");
+
+        // Write downloaded bytes to temp file
+        std::fs::write(&temp_path, &downloaded_bytes)
+            .map_err(|e| format!("Gagal menulis file temporer biner: {}", e))?;
+
+        // Set executable permissions on Unix
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            if let Ok(metadata) = std::fs::metadata(&temp_path) {
+                let mut perms = metadata.permissions();
+                perms.set_mode(0o755);
+                let _ = std::fs::set_permissions(&temp_path, perms);
+            }
+        }
+
+        // Perform self-replacement / atomic swap
+        #[cfg(not(target_os = "windows"))]
+        {
+            std::fs::rename(&temp_path, &target_path)
+                .map_err(|e| format!("Gagal mengganti biner aplikasi: {}", e))?;
+        }
+
+        #[cfg(target_os = "windows")]
+        {
+            let old_path = target_path.with_extension("old.exe");
+            let _ = std::fs::remove_file(&old_path);
+            let _ = std::fs::rename(&target_path, &old_path);
+            std::fs::rename(&temp_path, &target_path)
+                .map_err(|e| format!("Gagal mengganti biner executable Windows: {}", e))?;
+        }
+
+        let _ = tx.send(UpdateProgress::Completed(latest_version.to_string()));
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone)]
+pub enum UpdateProgress {
+    Downloading { downloaded: u64, total: u64, percentage: f32 },
+    Installing,
+    Completed(String),
+    Failed(String),
+}
+
+pub fn get_target_asset_name() -> &'static str {
+    #[cfg(target_os = "windows")]
+    {
+        "rubah-windows-amd64.exe"
+    }
+    #[cfg(target_os = "macos")]
+    {
+        if cfg!(target_arch = "aarch64") {
+            "rubah-macos-arm64"
+        } else {
+            "rubah-macos-amd64"
+        }
+    }
+    #[cfg(target_os = "linux")]
+    {
+        "rubah-linux-amd64"
+    }
+    #[cfg(not(any(target_os = "windows", target_os = "macos", target_os = "linux")))]
+    {
+        "rubah-linux-amd64"
+    }
 }
 
 #[derive(Debug, Clone)]

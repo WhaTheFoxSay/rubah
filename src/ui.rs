@@ -61,7 +61,9 @@ pub fn draw(f: &mut Frame, app: &mut App) {
         draw_uninstall_modal(f, f.area());
     }
 
-    if app.show_update_modal {
+    if app.is_updating_in_app {
+        draw_update_progress_modal(f, app, f.area());
+    } else if app.show_update_modal {
         draw_update_modal(f, app, f.area());
     }
 
@@ -538,38 +540,46 @@ fn draw_help_modal(f: &mut Frame, area: Rect) {
 }
 
 fn draw_update_modal(f: &mut Frame, app: &App, area: Rect) {
-    let popup_area = centered_rect(60, 50, area);
+    let popup_area = centered_rect(60, 52, area);
     f.render_widget(Clear, popup_area);
+    let lang = app.language;
 
     let (title, border_color, lines) = if let Some(ref info) = app.update_info {
         if info.has_update {
             let lines = vec![
-                Line::from(Span::styled("🦊 Pembaruan Aplikasi Rubah Tersedia!", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))),
+                Line::from(Span::styled(t(lang, "update_msg_new"), Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))),
                 Line::from("--------------------------------------------------"),
-                Line::from(vec![Span::styled("Versi Terpasang : ", Style::default().fg(THEME.muted)), Span::styled(format!("v{}", info.current_version), Style::default().fg(THEME.fg))]),
-                Line::from(vec![Span::styled("Versi Terbaru   : ", Style::default().fg(THEME.muted)), Span::styled(format!("v{}", info.latest_version), Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD))]),
+                Line::from(vec![Span::styled(t(lang, "update_curr_ver"), Style::default().fg(THEME.muted)), Span::styled(format!("v{}", info.current_version), Style::default().fg(THEME.fg))]),
+                Line::from(vec![Span::styled(t(lang, "update_latest_ver"), Style::default().fg(THEME.muted)), Span::styled(format!("v{}", info.latest_version), Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD))]),
                 Line::from("--------------------------------------------------"),
-                Line::from(Span::styled("Catatan Pembaruan Rilis:", Style::default().fg(THEME.fg).add_modifier(Modifier::BOLD))),
+                Line::from(Span::styled(t(lang, "update_notes_label"), Style::default().fg(THEME.fg).add_modifier(Modifier::BOLD))),
                 Line::from(Span::styled(&info.release_notes, Style::default().fg(THEME.muted))),
                 Line::from("--------------------------------------------------"),
-                Line::from(Span::styled("Untuk meng-update ke versi v".to_string() + &info.latest_version + ", jalankan installer:", Style::default().fg(THEME.fg))),
-                Line::from(Span::styled("  curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/install.sh | bash", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))),
-                Line::from("--------------------------------------------------"),
-                Line::from(Span::styled("Tekan Esc atau [Enter] untuk menutup modal ini", Style::default().fg(THEME.muted).add_modifier(Modifier::ITALIC))),
+                Line::from(vec![
+                    Span::styled("Proses update ke v".to_string() + &info.latest_version + " langsung dari dalam aplikasi?", Style::default().fg(THEME.fg)),
+                ]),
+                Line::from(""),
+                Line::from(vec![
+                    Span::styled("Tekan ", Style::default().fg(THEME.fg)),
+                    Span::styled("[y]", Style::default().fg(THEME.success).add_modifier(Modifier::BOLD)),
+                    Span::styled(" Ya, Update Sekarang | ", Style::default().fg(THEME.fg)),
+                    Span::styled("[n / Esc]", Style::default().fg(THEME.warning).add_modifier(Modifier::BOLD)),
+                    Span::styled(" Batal", Style::default().fg(THEME.fg)),
+                ]),
             ];
-            (" Pembaruan Tersedia ", THEME.accent, lines)
+            (t(lang, "update_title_new"), THEME.accent, lines)
         } else {
             let lines = vec![
-                Line::from(Span::styled("🦊 Rubah [Ruang Baca Harian]", Style::default().fg(THEME.success).add_modifier(Modifier::BOLD))),
+                Line::from(Span::styled(t(lang, "update_msg_latest"), Style::default().fg(THEME.success).add_modifier(Modifier::BOLD))),
                 Line::from("--------------------------------------------------"),
-                Line::from(vec![Span::styled("Status Versi    : ", Style::default().fg(THEME.muted)), Span::styled("Sudah Menggunakan Versi Terbaru", Style::default().fg(THEME.success).add_modifier(Modifier::BOLD))]),
-                Line::from(vec![Span::styled("Versi Terpasang : ", Style::default().fg(THEME.muted)), Span::styled(format!("v{}", info.current_version), Style::default().fg(THEME.fg))]),
+                Line::from(vec![Span::styled(t(lang, "update_curr_ver"), Style::default().fg(THEME.muted)), Span::styled(format!("v{}", info.current_version), Style::default().fg(THEME.fg))]),
+                Line::from(vec![Span::styled(t(lang, "update_latest_ver"), Style::default().fg(THEME.muted)), Span::styled(t(lang, "update_status_up_to_date"), Style::default().fg(THEME.success).add_modifier(Modifier::BOLD))]),
                 Line::from("--------------------------------------------------"),
-                Line::from(Span::styled("Aplikasi Anda sudah di versi paling terupdate dan aman.", Style::default().fg(THEME.fg))),
+                Line::from(Span::styled(t(lang, "update_msg_up_to_date"), Style::default().fg(THEME.fg))),
                 Line::from("--------------------------------------------------"),
-                Line::from(Span::styled("Tekan Esc atau [Enter] untuk menutup modal ini", Style::default().fg(THEME.muted).add_modifier(Modifier::ITALIC))),
+                Line::from(Span::styled(t(lang, "update_close_hint"), Style::default().fg(THEME.muted).add_modifier(Modifier::ITALIC))),
             ];
-            (" Versi Terupdate ", THEME.success, lines)
+            (t(lang, "update_title_latest"), THEME.success, lines)
         }
     } else {
         let lines = vec![
@@ -586,6 +596,67 @@ fn draw_update_modal(f: &mut Frame, app: &App, area: Rect) {
         .border_type(BorderType::Rounded)
         .border_style(Style::default().fg(border_color));
 
+    f.render_widget(p.block(block), popup_area);
+}
+
+fn draw_update_progress_modal(f: &mut Frame, app: &App, area: Rect) {
+    let popup_area = centered_rect(65, 45, area);
+    f.render_widget(Clear, popup_area);
+
+    let spinner_frames = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+    let spinner = spinner_frames[app.marquee_tick % spinner_frames.len()];
+
+    let mut lines = Vec::new();
+
+    if app.update_completed {
+        lines.push(Line::from(Span::styled("✔ Pembaruan Berhasil Terpasang!", Style::default().fg(THEME.success).add_modifier(Modifier::BOLD))));
+        lines.push(Line::from("--------------------------------------------------"));
+        lines.push(Line::from(Span::styled("Biner Rubah versi rilis terbaru telah berhasil diunduh dan dipasang.", Style::default().fg(THEME.fg))));
+        lines.push(Line::from(""));
+        lines.push(Line::from(Span::styled("Tekan [Enter] atau [Esc] untuk merestart aplikasi.", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))));
+    } else if let Some(ref err) = app.update_failed {
+        lines.push(Line::from(Span::styled("⚠️ Gagal Melakukan Pembaruan", Style::default().fg(THEME.warning).add_modifier(Modifier::BOLD))));
+        lines.push(Line::from("--------------------------------------------------"));
+        lines.push(Line::from(Span::styled(err, Style::default().fg(THEME.fg))));
+        lines.push(Line::from(""));
+        lines.push(Line::from(Span::styled("Tekan [Enter] atau [Esc] untuk menutup.", Style::default().fg(THEME.muted))));
+    } else {
+        lines.push(Line::from(vec![
+            Span::styled(format!("{} ", spinner), Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
+            Span::styled("Memproses Pembaruan Otomatis Dari Dalam Aplikasi...", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
+        ]));
+        lines.push(Line::from("--------------------------------------------------"));
+        lines.push(Line::from(Span::styled(&app.update_stage_status, Style::default().fg(THEME.fg))));
+        lines.push(Line::from(""));
+
+        // Progress Bar Geometry
+        let bar_width = 30;
+        let filled = ((app.update_percentage / 100.0) * bar_width as f32).round() as usize;
+        let filled = filled.min(bar_width);
+        let empty = bar_width - filled;
+
+        let bar_str = format!("[{}{}] {:.1}%", "█".repeat(filled), "░".repeat(empty), app.update_percentage);
+        lines.push(Line::from(Span::styled(bar_str, Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))));
+
+        if app.update_total_bytes > 0 {
+            let mb_downloaded = app.update_downloaded_bytes as f64 / 1_048_576.0;
+            let mb_total = app.update_total_bytes as f64 / 1_048_576.0;
+            lines.push(Line::from(Span::styled(
+                format!("  Ukuran File Patch: {:.2} MB / {:.2} MB", mb_downloaded, mb_total),
+                Style::default().fg(THEME.muted),
+            )));
+        }
+        lines.push(Line::from("--------------------------------------------------"));
+        lines.push(Line::from(Span::styled("Harap tunggu, biner baru sedang diunduh dan dipasang secara otomatis...", Style::default().fg(THEME.muted).add_modifier(Modifier::ITALIC))));
+    }
+
+    let block = Block::default()
+        .title(" 🦊 In-App Auto Updater ")
+        .borders(Borders::ALL)
+        .border_type(BorderType::Rounded)
+        .border_style(Style::default().fg(if app.update_completed { THEME.success } else { THEME.accent }));
+
+    let p = Paragraph::new(lines).wrap(Wrap { trim: true });
     f.render_widget(p.block(block), popup_area);
 }
 

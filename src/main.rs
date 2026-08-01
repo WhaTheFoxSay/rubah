@@ -100,9 +100,32 @@ async fn run_app(
 ) -> io::Result<()> {
     let mut last_latency_check = std::time::Instant::now();
     let mut last_marquee_time = std::time::Instant::now();
+    let (update_tx, mut update_rx) = tokio::sync::mpsc::unbounded_channel();
     app.update_latency().await;
 
     loop {
+        while let Ok(progress) = update_rx.try_recv() {
+            match progress {
+                crate::network::UpdateProgress::Downloading { downloaded, total, percentage } => {
+                    app.update_downloaded_bytes = downloaded;
+                    app.update_total_bytes = total;
+                    app.update_percentage = percentage;
+                    app.update_stage_status = format!("Mengunduh patch biner versi rilis (v{})...", app.update_info.as_ref().map(|i| i.latest_version.as_str()).unwrap_or(""));
+                }
+                crate::network::UpdateProgress::Installing => {
+                    app.update_percentage = 100.0;
+                    app.update_stage_status = "Memvalidasi biner & memperbarui file executable di sistem...".to_string();
+                }
+                crate::network::UpdateProgress::Completed(ver) => {
+                    app.update_completed = true;
+                    app.update_stage_status = format!("Biner Rubah v{} berhasil terinstall di sistem!", ver);
+                }
+                crate::network::UpdateProgress::Failed(err) => {
+                    app.update_failed = Some(err);
+                }
+            }
+        }
+
         if last_marquee_time.elapsed() >= Duration::from_millis(150) {
             app.marquee_tick = app.marquee_tick.wrapping_add(1);
             last_marquee_time = std::time::Instant::now();
@@ -260,9 +283,39 @@ async fn run_app(
                             continue;
                         }
 
+                        if app.is_updating_in_app {
+                            if app.update_completed || app.update_failed.is_some() {
+                                if key.code == KeyCode::Esc || key.code == KeyCode::Enter || key.code == KeyCode::Char('q') {
+                                    if app.update_completed {
+                                        disable_raw_mode()?;
+                                        execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
+                                        terminal.show_cursor()?;
+                                        println!("\n  \x1b[38;2;235;115;0m\x1b[1m🦊 RUBAH\x1b[0m \x1b[1;37m[Ruang Baca Harian] Auto-Updater\x1b[0m");
+                                        println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37mAplikasi Rubah berhasil ter-update ke versi rilis terbaru!\x1b[0m");
+                                        println!("  \x1b[1;37mSilakan jalankan kembali perintah \x1b[38;2;235;115;0mbaca\x1b[1;37m untuk menikmati versi terbaru.\x1b[0m\n");
+                                        std::process::exit(0);
+                                    } else {
+                                        app.is_updating_in_app = false;
+                                    }
+                                }
+                            }
+                            continue;
+                        }
+
                         if app.show_update_modal {
-                            if key.code == KeyCode::Esc || key.code == KeyCode::Enter || key.code == KeyCode::Char('q') || key.code == KeyCode::Char('u') {
-                                app.show_update_modal = false;
+                            match key.code {
+                                KeyCode::Char('y') | KeyCode::Char('Y') => {
+                                    if app.update_info.as_ref().map(|i| i.has_update).unwrap_or(false) {
+                                        app.show_update_modal = false;
+                                        app.start_in_app_update(update_tx.clone());
+                                    } else {
+                                        app.show_update_modal = false;
+                                    }
+                                }
+                                KeyCode::Esc | KeyCode::Enter | KeyCode::Char('n') | KeyCode::Char('N') | KeyCode::Char('q') => {
+                                    app.show_update_modal = false;
+                                }
+                                _ => {}
                             }
                             continue;
                         }

@@ -91,6 +91,15 @@ pub struct App {
 
     // Internationalization (i18n)
     pub language: crate::i18n::Language,
+
+    // In-App Self-Update Progress State
+    pub is_updating_in_app: bool,
+    pub update_percentage: f32,
+    pub update_downloaded_bytes: u64,
+    pub update_total_bytes: u64,
+    pub update_stage_status: String,
+    pub update_completed: bool,
+    pub update_failed: Option<String>,
 }
 
 impl App {
@@ -156,6 +165,31 @@ impl App {
             update_info: None,
             show_update_modal: false,
             language,
+            is_updating_in_app: false,
+            update_percentage: 0.0,
+            update_downloaded_bytes: 0,
+            update_total_bytes: 0,
+            update_stage_status: String::new(),
+            update_completed: false,
+            update_failed: None,
+        }
+    }
+
+    pub fn start_in_app_update(&mut self, tx: tokio::sync::mpsc::UnboundedSender<crate::network::UpdateProgress>) {
+        if let Some(ref info) = self.update_info {
+            let latest_version = info.latest_version.clone();
+            self.is_updating_in_app = true;
+            self.update_percentage = 0.0;
+            self.update_stage_status = "Connecting to GitHub Release Assets...".to_string();
+            self.update_completed = false;
+            self.update_failed = None;
+
+            let fetcher = self.fetcher.clone();
+            tokio::spawn(async move {
+                if let Err(e) = fetcher.download_and_install_update(&latest_version, tx.clone()).await {
+                    let _ = tx.send(crate::network::UpdateProgress::Failed(e));
+                }
+            });
         }
     }
 
