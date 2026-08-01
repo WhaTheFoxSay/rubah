@@ -134,7 +134,19 @@ async fn run_app(
                     };
                 }
                 crate::network::UpdateProgress::Failed(err) => {
-                    app.update_failed = Some(err);
+                    let friendly_err = if err == "RELEASE_BUILDING" {
+                        match app.language {
+                            i18n::Language::Indonesian => "Biner rilis sedang dikompilasi di GitHub Actions (~1-2 min). Silakan coba lagi beberapa saat lagi!".to_string(),
+                            i18n::Language::Japanese => "リリースバイナリはGitHub Actionsでビルド中です（約1〜2分）。しばらくしてから再試行してください！".to_string(),
+                            i18n::Language::Dutch => "Release binary wordt momenteel gebouwd op GitHub Actions (~1-2 min). Probeer het zo opnieuw!".to_string(),
+                            i18n::Language::Spanish => "El binario de la versión se está compilando en GitHub Actions (~1-2 min). ¡Inténtelo de nuevo en un momento!".to_string(),
+                            i18n::Language::Arabic => "جاري بناء التحديث على GitHub Actions (حوالي 1-2 دقيقة). يرجى المحاولة مرة أخرى بعد قليل!".to_string(),
+                            _ => "Release binary is still building on GitHub Actions (~1-2 mins). Please try again in a moment!".to_string(),
+                        }
+                    } else {
+                        err
+                    };
+                    app.update_failed = Some(friendly_err);
                 }
             }
         }

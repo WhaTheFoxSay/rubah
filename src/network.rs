@@ -210,6 +210,10 @@ impl Fetcher {
             .await
             .map_err(|e| format!("Gagal mengunduh biner rilis: {}", e))?;
 
+        if response.status() == reqwest::StatusCode::NOT_FOUND {
+            return Err("RELEASE_BUILDING".to_string());
+        }
+
         if !response.status().is_success() {
             return Err(format!(
                 "Server mengembalikan status HTTP {}",
