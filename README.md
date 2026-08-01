@@ -1,111 +1,142 @@
-# 🦊 Rubah (Ruang Baca Harian)
+# 🦊 Rubah (Ruang Baca Harian) v1.5.0
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Language: Rust](https://img.shields.io/badge/Language-Rust-orange.svg)](https://www.rust-lang.org/)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows%20%7C%20BSD%20%7C%20Haiku-brightgreen.svg)]()
+[![Release](https://img.shields.io/badge/Release-v1.5.0-brightgreen.svg)](https://github.com/WhaTheFoxSay/rubah/releases/tag/v1.5.0)
 
-> **Rubah is a standards-compliant, local-first RSS/Atom reader for the terminal. It retrieves feeds directly from publishers without using intermediary servers or cloud services.**
+> **Rubah [Ruang Baca Harian] is a high-performance, local-first, zero-cloud RSS/Atom Feed Reader TUI (Terminal User Interface) built with Rust, Ratatui, and Tokio.**
 
-**Rubah** (Ruang Baca Harian) adalah aplikasi pembaca RSS Feed berbasis *Terminal User Interface* (TUI) yang ringan, cepat, dan bekerja secara *cross-platform* di **Linux**, **macOS**, **Windows**, **BSD**, dan **Haiku OS**. Dibuat menggunakan **Rust** dengan framework **Ratatui** dan **Tokio**.
+**Rubah** (Ruang Baca Harian) adalah aplikasi pembaca RSS & Atom Feed berbasis Terminal User Interface (TUI) modern yang ringan, ultra-cepat, dan bekerja secara *cross-platform* di **Linux**, **macOS**, **Windows**, **BSD**, dan **Haiku OS**. Aplikasi ini mengambil feed berita langsung dari penerbit tanpa lalu lintas server cloud perantara, menjaga privasi 100% lokal di perangkat Anda.
 
 ---
 
-## 💻 Instalasi
+## 💻 Instalasi Otomatis (1 Baris Perintah)
 
 ### 🐧 Linux / 🍎 macOS:
-Jalankan perintah berikut di terminal Anda:
+Buka terminal Anda, lalu *copy-paste* dan jalankan perintah berikut:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/install.sh | bash
 ```
 
-### 🪟 Windows (PowerShell / CMD):
-
-**Metode 1: Perintah 1 Baris PowerShell (Otomatis)**
-Buka aplikasi **PowerShell**, lalu *copy-paste* dan jalankan perintah berikut:
+### 🪟 Windows (PowerShell):
+Buka **PowerShell**, lalu jalankan perintah berikut:
 ```powershell
 irm https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/install.ps1 | iex
 ```
 
-**Metode 2: Unduh Direct Executable (.exe)**
-1. Unduh binary resmi: **[rubah-windows-amd64.exe](https://github.com/WhaTheFoxSay/rubah/releases/latest/download/rubah-windows-amd64.exe)**
-2. Rename file tersebut menjadi `baca.exe`.
-3. Jalankan file di CMD atau PowerShell dengan mengetik `.\baca.exe`.
+*Atau unduh executable langsung:* **[rubah-windows-amd64.exe](https://github.com/WhaTheFoxSay/rubah/releases/latest/download/rubah-windows-amd64.exe)**
 
 ---
 
-### 🚀 Cara Menjalankan
+## 🚀 Cara Menjalankan Aplikasi
 
-Setelah instalasi selesai, jalankan aplikasi di terminal / CMD / PowerShell dengan mengetik:
+Setelah instalasi selesai, jalankan aplikasi langsung dari terminal dengan mengetik:
 ```bash
 baca
 ```
-
 *(Atau menggunakan perintah `rubah`)*
 
 ---
 
-## 📋 Fitur Utama
+## 🌟 Fitur Lengkap Aplikasi
 
-- **TUI 3-Panel Dashboard**:
-  - **Left**: Daftar channel RSS Feed berdasarkan kategori.
-  - **Middle**: Daftar berita dengan status dibaca (`●`/`○`), tanggal, dan bookmark (`★`).
-  - **Right**: Pembaca konten berita langsung di dalam terminal dengan scroll keyboard.
-- **Multi-Language Support (6 Bahasa)**: Dukungan 6 bahasa internasional (**Inggris, Indonesia, Jepang, Belanda, Spanyol, Arab**) yang dapat diganti secara interaktif via tombol `l`.
-- **In-App Auto Update**: Kemampuan memeriksa dan mengunduh patch update versi rilis terbaru secara langsung dari dalam aplikasi via tombol `u`.
-- **Ringan & Portabel**: Menggunakan binary statis (MUSL untuk Linux) yang kompatibel dengan berbagai distro Linux (RHEL, CentOS, Ubuntu, Debian, Alpine, dll.) tanpa ketergantungan library luar.
-- **Penyimpanan Lokal SQLite**: Menyimpan RSS feed, riwayat baca, dan artikel favorit di database lokal (`~/.config/rubah/rubah.db` di Linux/macOS atau `%LOCALAPPDATA%\Rubah\rubah.db` di Windows).
-- **HD Image Rendering**: Mendukung rendering foto berita dalam terminal TUI secara otomatis (*toggle* `i`).
-- **Running Text Judul**: Judul berita terpilih yang panjang bergulir (*marquee*) secara otomatis dengan jeda 2 detik.
-- **Pencarian Realtime**: Filter judul dan konten berita secara langsung (`/`).
-- **Pre-configured Feeds**: Dilengkapi feed berita default populer (CNN Indonesia, Antara, Tempo, Hacker News, TechCrunch, BBC News).
+### 🖼️ 1. Modern 3-Panel Dashboard Layout (Ratatui TUI)
+- **Panel Kiri (Channels & Categories)**: Struktur hirarki pohon kategori dan channel RSS Feed dilengkapi indikator expandable (`[+]`/`[-]`) dan jumlah channel (`(N)`).
+- **Panel Tengah (News Articles)**: Daftar artikel berita dengan penanda status dibaca (`●` Unread / `○` Read), bookmark favorit (`★`), tanggal penerbitan, dan nama author.
+- **Panel Kanan (Article Reader)**: Tampilan penuh pembaca artikel berita dilengkapi header metadata (Judul, Sumber, Tanggal, Link Web) dan isi konten lengkap.
+
+### 🌐 2. Multi-Language Support (Dukungan 6 Bahasa Internasional)
+Dukungan penerjemahan antarmuka secara dinamis untuk 6 bahasa internasional (dapat diganti kapan saja via shortcut `l`):
+1. 🇬🇧 **English (`EN`)** — *Default*
+2. 🇮🇩 **Bahasa Indonesia (`ID`)**
+3. 🇯🇵 **Jepang (`JA`)** — 日本語
+4. 🇳🇱 **Belanda (`NL`)** — Nederlands
+5. 🇪🇸 **Spanyol (`ES`)** — Español
+6. 🇸🇦 **Arab (`AR`)** — العربية
+*Format nama hari dan bulan pada jam header disesuaikan secara otomotais dengan bahasa yang aktif.*
+
+### 🔄 3. In-App Auto Update Engine
+- Memeriksa pembaruan rilis terbaru dari server GitHub secara langsung (`u`).
+- Dialog modal pembaruan dilengkapi animasi spinner (`⠋⠙⠹...`), persentase progress bar, kalkulasi ukuran file patch (MB/MB), dan instalasi biner rilis otomatis dari dalam aplikasi.
+
+### 🖼️ 4. 24-bit TrueColor HD Terminal Image Renderer
+- Mengambil foto/gambar utama artikel berita dan merendernya dalam grafik 24-bit sharpened RGB Ansi Art langsung di dalam panel pembaca terminal (*toggle* `i`).
+
+### 📖 5. Fullscreen Reader Mode
+- Memperluas tampilan panel pembaca artikel ke layar penuh (*fullscreen*) tanpa gangguan panel navigasi (*toggle* `f`).
+
+### 🔍 6. Pencarian Realtime & Filter Kata Kunci
+- Filter berita secara instan berdasarkan judul atau kata kunci konten secara *live* di seluruh channel (`/`).
+- Reset pencarian cepat dengan tombol `Esc`.
+
+### ⚡ 7. Indikator Latensi Jaringan Real-Time
+- Mengukur latensi jaringan ke Cloudflare DNS 1.1.1.1 secara langsung dalam milidetik (`[<120ms]` hijau, `[<300ms]` oranye, `[>300ms]` kuning).
+
+### ⭐️ 8. Sistem Bookmark & Tab Kategori
+- Menyimpan artikel berita favorit (`★`) dengan tombol `b`.
+- Navigasi cepat antar Tab: **All Feeds** (`1`) vs **Bookmarks** (`2`).
+
+### 📁 9. Manajemen Kategori & Feed Interaktif
+- **Tambah Feed Baru (`a`)**: Modal interaktif dengan auto-completion nama kategori.
+- **Pindah Kategori Feed (`m`)**: Memindahkan channel RSS Feed ke kategori lain atau kategori baru.
+- **Hapus Kategori (`Shift+C`)**: Konfirmasi penghapusan kategori beserta seluruh feed di dalamnya.
+- **Hapus Feed (`Shift+D`)**: Menghapus channel feed terpilih.
+
+### 🏛️ 10. Arsitektur Local-First & Penyimpanan SQLite
+- Data feed, artikel, bookmark, dan pengaturan tersimpan aman di database lokal SQLite (`rubah.db`) tanpa ketergantungan server cloud.
+- Lokasi DB: `~/.config/rubah/rubah.db` (Linux/macOS) atau `%LOCALAPPDATA%\Rubah\rubah.db` (Windows).
 
 ---
 
-## ⌨️ Shortcut Keyboard
+## ⌨️ Daftar Shortcut Keyboard Lengkap
 
-| Shortcut | Fungsi |
+| Shortcut | Fungsi Utama |
 | :--- | :--- |
 | `Tab` / `Shift+Tab` | Pindah fokus antar panel (**Channel** ➔ **Berita** ➔ **Reader**) |
-| `j` / `k` atau `↓` / `↑` | Navigasi item ke bawah / atas |
-| `Enter` / `Space` | Buka dan baca berita penuh di dalam terminal |
-| `f` | Toggle **Fullscreen Reader Mode** (tampilan penuh) |
-| `l` | Toggle **Bahasa Antarmuka** (English, Indonesia, 日本語, Nederlands, Español, العربية) |
-| `u` | Periksa & proses **In-App Update** ke versi terbaru |
-| `m` | Pindahkan channel feed ke kategori lain |
-| `Shift + C` | Hapus kategori beserta seluruh feed di dalamnya |
-| `Shift + D` | Hapus channel RSS Feed terpilih |
+| `j` / `k` atau `↓` / `↑` | Navigasi baris item ke bawah / atas |
+| `Enter` / `Space` | Ekspansi Kategori / Buka & baca artikel penuh |
+| `f` / `F` | Toggle **Fullscreen Reader Mode** (tampilan artikel layar penuh) |
+| `l` / `L` | Toggle **Bahasa Antarmuka** (EN / ID / JA / NL / ES / AR) |
+| `u` / `U` | Periksa & jalankan **In-App Auto Update** ke versi rilis terbaru |
 | `i` | Toggle Tampilkan / Sembunyikan foto berita dalam terminal |
-| `Esc` | Kembali dari reader ke daftar berita / reset pencarian |
-| `o` | Membuka link berita di web browser external |
-| `b` | Simpan / hapus artikel dari **Bookmarks** (`★`) |
-| `r` | Refresh / muat ulang seluruh RSS Feed |
-| `a` | Buka dialog **Tambah RSS Feed Baru** |
-| `/` | Buka mode pencarian realtime |
+| `b` | Simpan artikel ke / Hapus dari **Bookmarks** (`★`) |
+| `o` | Membuka link artikel berita di Web Browser eksternal |
+| `m` | Pindahkan channel RSS Feed ke kategori lain |
+| `Shift + C` | Hapus Kategori terpilih beserta seluruh channel feed di dalamnya |
+| `Shift + D` | Hapus channel RSS Feed terpilih |
+| `a` | Buka modal **Tambah Channel RSS Feed Baru** |
+| `r` | Refresh / muat ulang seluruh RSS Feed secara bersamaan |
+| `/` | Buka mode pencarian berita realtime |
+| `Esc` | Kembali dari reader ke daftar berita / bersihkan filter pencarian |
 | `1` / `2` | Switch Tab: **All Feeds** (1) vs **Bookmarks** (2) |
-| `Shift + U` | Buka menu modal **Uninstall** |
-| `?` | Tampilkan modal bantuan shortcut |
+| `Shift + U` | Buka modal konfirmasi **Uninstall** dari dalam aplikasi |
+| `?` | Tampilkan modal bantuan shortcut keyboard lengkap |
 | `q` | Keluar dari aplikasi |
 
 ---
 
-## 🛠️ Perintah CLI
+## 🛠️ Perintah CLI (Command Line Interface)
 
-Selain antarmuka TUI, Anda juga dapat mengelola RSS Feed dari command line:
+Selain antarmuka TUI interaktif, Rubah menyediakan perintah CLI untuk otomasi dan pengelolaan tanpa grafis TUI:
 
 ```bash
-# Menampilkan daftar channel tersimpan
+# 1. Menampilkan daftar seluruh channel RSS Feed tersimpan
 baca list
 
-# Menambahkan channel RSS Feed baru
+# 2. Menambahkan channel RSS Feed baru langsung dari terminal
 baca add --url "https://rss.kompas.com/" --title "Kompas News" --category "Berita Utama"
 
-# Uninstall aplikasi dari CLI
+# 3. Menghapus/uninstall aplikasi Rubah dari sistem
 baca uninstall
+
+# 4. Menampilkan versi aplikasi saat ini
+baca --version
 ```
 
 ---
 
-## 🗑️ Uninstall
+## 🗑️ Prosedur Uninstall Clean
 
 ### 🐧 Linux / 🍎 macOS:
 ```bash
@@ -117,20 +148,20 @@ curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/uninstall.s
 irm https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/uninstall.ps1 | iex
 ```
 
----
-
-## 📄 Lisensi
-
-Proyek ini dirilis di bawah lisensi **GNU General Public License v3.0 (GPL-3.0)**. Lihat file [LICENSE](LICENSE) mengenai ketentuan lisensi perangkat lunak.
+*Skrip uninstaller akan menghapus executable, symlink (`~/.local/bin/baca`), database SQLite (`~/.config/rubah`), serta cache sementara secara bersih.*
 
 ---
 
-## 📜 Kebijakan Penggunaan, Hak Cipta, & Privasi (Terms & Privacy)
+## 📄 Lisensi Perangkat Lunak
 
-Aplikasi **Rubah** dirancang sebagai perangkat lunak *client-side Terminal User Interface (TUI)* untuk membaca RSS/Atom Feed:
-- 🌐 **Standar Terbuka**: Memproses standar RSS 2.0 / Atom Feed yang dipublikasikan secara terbuka oleh masing-masing penerbit.
-- 🏛️ **Arsitektur Local-First**: Seluruh proses pengambilan data dilakukan secara langsung dari perangkat pengguna ke penerbit tanpa melalui server perantara (*no cloud/proxy server*).
-- ✍️ **Hak Cipta & Penerbit**: Rubah tidak memperoleh hak kepemilikan atas konten. Seluruh hak cipta tetap milik penerbit. Feed bawaan hanya sebagai contoh yang dapat disesuaikan pengguna.
-- 🛡️ **Zero Telemetry**: Rubah does not collect or transmit user data. All configuration and local cache remain on the user's device.
+Proyek ini dirilis di bawah lisensi **GNU General Public License v3.0 (GPL-3.0)**. Lihat dokumen [LICENSE](LICENSE) untuk informasi lebih lanjut.
 
-Lihat dokumen **[LEGAL.md](LEGAL.md)** untuk rincian kebijakan penggunaan, hak cipta, hak penerbit, dan prosedur permintaan penghapusan feed (*Feed Removal Request*).
+---
+
+## 📜 Kebijakan Penggunaan & Privasi (Terms & Privacy)
+
+- 🌐 **Standar Terbuka**: Rubah memproses standar terbuka RSS 2.0 & Atom Feed yang dipublikasikan oleh masing-masing penerbit.
+- 🛡️ **Zero Telemetry & Tracking**: Rubah tidak mengumpulkan, menyimpan, atau mengirimkan data pengguna ke server mana pun. Seluruh konfigurasi dan cache berada di perangkat lokal pengguna.
+- ✍️ **Hak Cipta Content**: Seluruh hak cipta materi berita tetap milik penerbit feed masing-masing.
+
+Lihat dokumen **[LEGAL.md](LEGAL.md)** untuk rincian kebijakan penggunaan dan hak cipta.
