@@ -38,19 +38,19 @@ pub fn render_image_to_lines(img_bytes: &[u8], target_width: u32, max_height_row
         return None;
     }
 
-    // 2. Ultra High-Definition dynamic column scaling (80-130 columns) for 4x-8x higher density
-    let available_cols = target_width.clamp(80, 130);
+    // 2. Available width strictly matched to Reader Pane container (44-52 columns) to prevent line wrapping / black stripes
+    let available_cols = target_width.clamp(44, 52);
     let img_aspect = orig_w as f32 / orig_h as f32;
 
     // 3. HD Dual-pixel vertical resolution engine (2 vertical pixels per character cell, half-block '▀')
     let target_pixel_w = available_cols;
     let target_pixel_h = ((available_cols as f32 / img_aspect)).round() as u32;
-    let max_pixel_h = (max_height_rows.clamp(28, 60)) * 2;
-    let final_pixel_h = target_pixel_h.clamp(32, max_pixel_h);
+    let max_pixel_h = (max_height_rows.clamp(14, 22)) * 2;
+    let final_pixel_h = target_pixel_h.clamp(16, max_pixel_h);
     let final_pixel_h = if final_pixel_h % 2 != 0 { final_pixel_h + 1 } else { final_pixel_h };
 
     // 4. Contrast enhancement + Unsharpen filter + Lanczos3 resampling for ultra-sharp HD detail
-    let sharpened = img.unsharpen(2.0, 1);
+    let sharpened = img.unsharpen(1.5, 1);
     let resized = sharpened.resize_exact(target_pixel_w, final_pixel_h, FilterType::Lanczos3);
     let (width, height) = resized.dimensions();
 
