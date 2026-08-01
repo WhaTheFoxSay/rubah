@@ -12,7 +12,7 @@
 
 ## 💻 Instalasi
 
-### 🐧 Linux / 🍎 macOS:
+### 🐧 Linux / 🍎 macOS / 🔌 BSD / 🌀 Haiku OS:
 Jalankan perintah berikut di terminal Anda:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/install.sh | bash
@@ -98,7 +98,7 @@ baca uninstall
 
 ## 🗑️ Uninstall
 
-### 🐧 Linux / 🍎 macOS:
+### 🐧 Linux / 🍎 macOS / 🔌 BSD / 🌀 Haiku OS:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/uninstall.sh | bash
 ```
