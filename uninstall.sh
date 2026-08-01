@@ -21,9 +21,12 @@ draw_progress() {
     local width=24
     local filled=$(( percent * width / 100 ))
     local empty=$(( width - filled ))
-    local bar_filled=$(printf '%*s' "$filled" '' | tr ' ' '█')
-    local bar_empty=$(printf '%*s' "$empty" '' | tr ' ' '░')
-    printf "\r\033[K  ${CYAN}[${bar_filled}${bar_empty}]${RESET} ${BOLD}%3d%%${RESET} | ${YELLOW}%s${RESET}" "$percent" "$step_name"
+    local bar_filled=""
+    local bar_empty=""
+    local i
+    for ((i=0; i<filled; i++)); do bar_filled="${bar_filled}█"; done
+    for ((i=0; i<empty; i++)); do bar_empty="${bar_empty}░"; done
+    printf "\r\033[K  ${CYAN}[%s%s]${RESET} ${BOLD}%3d%%${RESET} | ${YELLOW}%s${RESET}" "$bar_filled" "$bar_empty" "$percent" "$step_name"
 }
 
 show_step() {
