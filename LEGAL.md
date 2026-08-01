@@ -1,87 +1,87 @@
-# 📜 Kebijakan Penggunaan, Hak Cipta, & Privasi (Terms of Use, Copyright & Privacy)
+# Terms of Use, Copyright Policy, & Privacy Policy
 
-Dokumen ini menjelaskan prinsip operasional, penanganan data, arsitektur teknis, dan atribusi hak cipta dari aplikasi **Rubah (Ruang Baca Harian)**.
-
----
-
-## 1. Prinsip Operasional & Deskripsi Aplikasi
-
-Aplikasi **Rubah** adalah perangkat lunak *client-side Terminal User Interface (TUI)* untuk membaca RSS/Atom Feed yang dikembangkan menggunakan teknologi terbuka (*Open Source*). 
-
-Rubah dirancang untuk memanfaatkan RSS/Atom Feed yang dipublikasikan secara terbuka oleh masing-masing penerbit sesuai standar sindikasi web.
-
-- **Dukungan Standar Feed**: Rubah mendukung standar RSS 2.0 dan Atom Feed sebagaimana dipublikasikan oleh masing-masing penyedia konten.
+This document outlines the operational principles, data handling practices, technical architecture, and copyright attribution for **Rubah (Ruang Baca Harian)**.
 
 ---
 
-## 2. Arsitektur Terbuka & Pembacaan Lokal (*Local-First Architecture*)
+## 1. Operational Principles & Application Overview
 
-Arsitektur aplikasi Rubah beroperasi secara **100% lokal (*Local-First*)** tanpa melalui server perantara:
+**Rubah** is an open-source, client-side Terminal User Interface (TUI) RSS/Atom Feed Reader application.
+
+Rubah is designed to interact with publicly accessible RSS 2.0 and Atom feeds published by content providers in accordance with open web syndication standards.
+
+- **Standard Feed Support**: Rubah supports RSS 2.0 and Atom Feed standards as published by content creators.
+
+---
+
+## 2. Open Architecture & Local-First Processing
+
+Rubah operates on a **100% Local-First** architecture without intermediary servers:
 
 ```
-[ Publisher RSS / Atom ] ──── (Koneksi Langsung) ────> [ Rubah TUI Client ] ────> [ SQLite Lokal ]
+[ RSS / Atom Publisher ] ──── (Direct Connection) ────> [ Rubah TUI Client ] ────> [ Local SQLite DB ]
 ```
 
-- **Tanpa Server Perantara**: Rubah tidak mengoperasikan layanan yang mengumpulkan, mengindeks, atau menyediakan ulang artikel dari berbagai penerbit melalui server milik Rubah.
-- **Client-Side Processing**: Seluruh proses pengambilan (*fetching*), penafsiran (*parsing*), dan tampilan dilakukan langsung pada perangkat lokal komputer pengguna.
-- **Penyimpanan Eksklusif Lokal**: Konfigurasi kanal, daftar penanda (*bookmarks*), dan riwayat bacaan disimpan di perangkat lokal pengguna (`~/.config/rubah/rubah.db`).
+- **No Intermediary Server**: Rubah does not operate cloud services that aggregate, re-index, or re-distribute articles from publishers through Rubah-owned servers.
+- **Client-Side Processing**: All fetching, parsing, and rendering operations take place directly on the user's local machine.
+- **Exclusive Local Storage**: Channel configurations, bookmarks, and reading history are stored locally on the user's device (`~/.config/rubah/rubah.db`).
 
 ---
 
-## 3. Tujuan Penggunaan & Cara Kerja Aplikasi
+## 3. Scope of Use & Technical Operation
 
-Rubah dikembangkan sebagai aplikasi pembaca RSS/Atom untuk penggunaan pribadi maupun umum dengan prinsip teknis berikut:
+Rubah is developed as an RSS/Atom reader for personal and general use based on the following technical principles:
 
-- **Integritas Konten**: Rubah menampilkan metadata dan konten yang tersedia di dalam RSS/Atom Feed sebagaimana dipublikasikan oleh penyedia feed. Rubah tidak secara sengaja mengubah atribusi, nama penulis, tanggal publikasi, atau tautan ke sumber asli.
-- **Integritas Hak Cipta**: Rubah tidak menghapus watermark, atribusi, maupun informasi hak cipta yang disediakan dalam RSS Feed apabila tersedia.
-- **Navigasi ke Sumber Asli**: Pengguna menyediakan pintasan navigasi (`[o]`) untuk membuka artikel asli langsung di peramban web (*web browser*) resmi penyedia konten.
-- **Kesepadanan Fungsi**: Secara umum Rubah memiliki fungsi yang serupa dengan berbagai aplikasi pembaca RSS/Atom seperti *Newsboat, Liferea, Feedly, Inoreader, NetNewsWire*, maupun pembaca RSS lainnya.
-
----
-
-## 4. Kepemilikan Konten & Hak Cipta
-
-- **Tanpa Hak Kepemilikan**: Rubah tidak memperoleh hak kepemilikan ataupun lisensi atas konten yang ditampilkan. Seluruh hak tetap berada pada penerbit atau pemegang hak cipta masing-masing.
-- **Daftar Feed Bawaan**: Feed bawaan yang disertakan saat pertama kali diinstal hanya disediakan sebagai contoh dan kemudahan bagi pengguna baru. Pengguna bebas menambah, menghapus, atau mengganti feed sesuai kebutuhan. Daftar feed bawaan dapat berubah sewaktu-waktu mengikuti perubahan kebijakan penerbit maupun perkembangan proyek Rubah.
+- **Content Integrity**: Rubah displays metadata and content provided in the RSS/Atom Feed as published by the content provider. Rubah does not intentionally alter attribution, author names, publication dates, or original source links.
+- **Copyright Integrity**: Rubah does not remove watermarks, attributions, or copyright notices included in the RSS feed.
+- **Direct Source Navigation**: Users are provided with a shortcut (`[o]`) to open the original article directly in their official web browser.
+- **Functional Equivalence**: Rubah functions similarly to standard RSS/Atom readers such as *Newsboat, Liferea, Feedly, Inoreader, NetNewsWire*, and other feed aggregators.
 
 ---
 
-## 5. Tanggung Jawab Pengguna (*User Responsibility*)
+## 4. Content Ownership & Copyright
 
-Pengguna bertanggung jawab atas daftar RSS/Atom Feed yang mereka tambahkan sendiri ke dalam Rubah. Rubah tidak memverifikasi kepemilikan, lisensi, maupun kebijakan penggunaan dari setiap feed yang ditambahkan secara manual oleh pengguna.
-
----
-
-## 6. Hak Penerbit (*Publisher Rights*)
-
-Seluruh hak cipta artikel, gambar, dan materi lain tetap menjadi milik penerbit atau pemegang hak cipta masing-masing.
-
-Rubah menghormati hak penerbit. Apabila suatu penerbit meminta agar RSS Feed miliknya tidak lagi disertakan dalam daftar feed bawaan Rubah, permintaan tersebut akan ditinjau dan dihormati sesuai kebijakan proyek.
+- **No Ownership Claim**: Rubah claims no ownership rights or licenses over the content displayed. All rights remain exclusively with the respective publishers or copyright holders.
+- **Default Feed List**: Default feeds included upon installation are provided solely as examples and for user convenience. Users are free to add, modify, or remove feeds. Default feed selections may change over time in response to publisher policies or project updates.
 
 ---
 
-## 7. Permintaan Penghapusan Feed (*Feed Removal Request*)
+## 5. User Responsibility
 
-Apabila Anda merupakan pemilik atau perwakilan resmi suatu penerbit dan ingin agar RSS Feed Anda tidak lagi disertakan dalam daftar feed bawaan Rubah, silakan buat Issue di GitHub atau hubungi maintainer proyek.
-
-Permintaan yang sah akan ditinjau dan diproses dengan itikad baik.
+Users are responsible for the RSS/Atom feeds they manually add to Rubah. Rubah does not verify the ownership, licensing, or usage policies of feeds added independently by users.
 
 ---
 
-## 8. Kebijakan Privasi (*Zero Telemetry*)
+## 6. Publisher Rights
 
-**Zero Telemetry**: Rubah tidak mengumpulkan, menyimpan, atau mentransmisikan identitas pengguna, alamat IP, maupun riwayat aktivitas pembacaan ke server mana pun. Seluruh konfigurasi dan data tersimpan eksklusif di perangkat lokal pengguna.
+All copyrights to articles, images, and other materials belong exclusively to their respective publishers or copyright owners.
 
----
-
-## 9. Penolakan Tanggung Jawab (*Disclaimer*)
-
-Aplikasi ini disediakan secara *as-is* (apa adanya). Pengembang aplikasi Rubah tidak bertanggung jawab atas kebenaran, keakuratan, maupun perubahan isi konten yang dipublikasikan oleh penyedia umpan RSS/Atom pihak ketiga.
-
-Ketersediaan RSS/Atom Feed sepenuhnya bergantung pada masing-masing penyedia feed dan dapat berubah atau dihentikan sewaktu-waktu tanpa pemberitahuan.
+Rubah respects publisher rights. If a publisher requests that their RSS Feed be removed from Rubah's default feed list, such requests will be reviewed and honored in good faith.
 
 ---
 
-## 📄 Lisensi Kode Sumber
+## 7. Feed Removal Request
 
-Kode sumber aplikasi dirilis di bawah lisensi **GNU General Public License v3.0 (GPL-3.0)**.
+If you are a publisher or authorized representative and wish to have your RSS Feed removed from Rubah's default feed list, please open an Issue on GitHub or contact the project maintainers.
+
+Valid requests will be reviewed and processed promptly.
+
+---
+
+## 8. Privacy Policy (Zero Telemetry)
+
+**Zero Telemetry**: Rubah does not collect, store, or transmit user identities, IP addresses, or reading activities to any remote servers. All configurations and data reside exclusively on the user's local device.
+
+---
+
+## 9. Disclaimer
+
+This software is provided "as is", without warranty of any kind. The developers of Rubah are not responsible for the accuracy, completeness, or availability of content published by third-party RSS/Atom feed providers.
+
+Availability of feeds depends entirely on respective content providers and may change or terminate at any time without prior notice.
+
+---
+
+## Source Code License
+
+The source code of this application is released under the **GNU General Public License v3.0 (GPL-3.0)**.
