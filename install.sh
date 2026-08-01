@@ -49,7 +49,7 @@ fi
 
 BINARY_NAME="rubah-${OS}-${ARCH}"
 REPO="WhaTheFoxSay/rubah"
-RELEASE_URL="https://github.com/${REPO}/releases/download/v0.6.1/${BINARY_NAME}"
+RELEASE_URL="https://github.com/${REPO}/releases/download/v0.6.2/${BINARY_NAME}"
 LATEST_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
 
 echo -e "${GRAY}--> OS: ${OS} (${ARCH})${RESET}"
@@ -73,6 +73,10 @@ fi
 cp "$TMP_FILE" "$INSTALL_DIR/baca"
 chmod +x "$INSTALL_DIR/baca"
 ln -sf "$INSTALL_DIR/baca" "$INSTALL_DIR/rubah"
+
+# Clear shell binary location cache (bash / zsh / sh)
+hash -r 2>/dev/null || true
+rehash 2>/dev/null || true
 
 PATH_ADDED=0
 if [[ ":$PATH:" != *":$INSTALL_DIR:"* ]]; then

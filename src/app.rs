@@ -613,6 +613,14 @@ impl App {
             let _ = std::fs::remove_dir_all(data_dir.join("Programs").join("Rubah"));
         }
 
+        #[cfg(unix)]
+        {
+            let _ = std::process::Command::new("sh")
+                .arg("-c")
+                .arg("hash -r 2>/dev/null || rehash 2>/dev/null || true")
+                .status();
+        }
+
         // On Windows, running .exe cannot be deleted synchronously while active.
         // We spawn a 1-second delayed background CMD process to clean up baca.exe and its folder upon exit.
         #[cfg(target_os = "windows")]

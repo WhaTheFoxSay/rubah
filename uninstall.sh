@@ -24,6 +24,10 @@ rm -rf "$HOME/.config/rubah"
 echo -e "${YELLOW}--> Menghapus cache & file sementara...${RESET}"
 rm -rf "$HOME/.cache/rubah" 2>/dev/null || true
 
+# Clear shell binary location cache (bash / zsh / sh)
+hash -r 2>/dev/null || true
+rehash 2>/dev/null || true
+
 echo -e "${GREEN}--> Uninstall berhasil selesai.${RESET}"
 echo -e "${WHITE}Terima kasih telah menggunakan Rubah [Ruang Baca Harian].${RESET}"
 echo -e "${CYAN}Sampai jumpa kembali! 🦊${RESET}\n"
