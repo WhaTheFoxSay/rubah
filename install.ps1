@@ -20,10 +20,10 @@ try {
     if ($LatestTag -and $LatestTag.StartsWith("v")) {
         $Version = $LatestTag.Substring(1)
     } else {
-        $Version = "1.7.0"
+        $Version = "1.7.1"
     }
 } catch {
-    $Version = "1.7.0"
+    $Version = "1.7.1"
 }
 
 Write-Host ""

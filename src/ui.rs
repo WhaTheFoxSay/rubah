@@ -963,7 +963,7 @@ fn format_localized_datetime(now: chrono::DateTime<chrono::Local>, lang: Languag
 }
 
 fn draw_startup_loading_modal(f: &mut Frame, app: &App, area: Rect) {
-    let popup_area = centered_rect(68, 38, area);
+    let popup_area = centered_rect(68, 30, area);
     f.render_widget(Clear, popup_area);
 
     let track_width = 34;
@@ -987,8 +987,6 @@ fn draw_startup_loading_modal(f: &mut Frame, app: &App, area: Rect) {
         Line::from(Span::styled("Initializing RSS channels & caching articles. Please wait...", Style::default().fg(THEME.fg))),
         Line::from(""),
         Line::from(Span::styled(load_bar_str, Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))),
-        Line::from(""),
-        Line::from(Span::styled("Windows 2000 / NT 5.0 High-Performance Loading Engine", Style::default().fg(THEME.muted).add_modifier(Modifier::ITALIC))),
     ];
 
     let title_str = format!(" 🦊 Rubah [Ruang Baca Harian] v{} - Startup ", env!("CARGO_PKG_VERSION"));
