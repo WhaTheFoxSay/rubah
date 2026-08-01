@@ -1,6 +1,4 @@
-# 🦊 Rubah - Windows Installer (English Default & Indonesian Support)
-
-param ([string]$Lang = "en")
+# 🦊 Rubah [Ruang Baca Harian] - Windows Installer
 
 $ErrorActionPreference = "Stop"
 
@@ -22,31 +20,15 @@ try {
     if ($LatestTag -and $LatestTag.StartsWith("v")) {
         $Version = $LatestTag.Substring(1)
     } else {
-        $Version = "1.3.0"
+        $Version = "1.4.0"
     }
 } catch {
-    $Version = "1.3.0"
-}
-
-if ($Lang.ToLower() -eq "id" -or $env:LANG -like "id*") {
-    $SubTitle = "Ruang Baca Harian"
-    $LabelSys = "Lingkungan sistem"
-    $LabelDl = "Unduh executable"
-    $LabelInst = "Pasang biner & PATH"
-    $MsgSuccess = "Rubah v$Version berhasil terinstall!"
-    $MsgRun = "Jalankan aplikasi di PowerShell atau CMD dengan mengetik:"
-} else {
-    $SubTitle = "Daily Reading Space"
-    $LabelSys = "System environment"
-    $LabelDl = "Download executable"
-    $LabelInst = "Install binary & PATH"
-    $MsgSuccess = "Rubah v$Version successfully installed!"
-    $MsgRun = "Run the application in PowerShell or CMD by typing:"
+    $Version = "1.4.0"
 }
 
 Write-Host ""
 Write-Host "  🦊 RUBAH " -ForegroundColor Yellow -NoNewline
-Write-Host "[$SubTitle] " -ForegroundColor White -NoNewline
+Write-Host "[Ruang Baca Harian] " -ForegroundColor White -NoNewline
 Write-Host "v$Version" -ForegroundColor DarkGray
 Write-Host "  High-Performance RSS Feed Reader TUI" -ForegroundColor DarkGray
 Write-Host ""
@@ -60,7 +42,7 @@ $ExePath = Join-Path $InstallDir "baca.exe"
 $PrimaryUrl = "https://github.com/WhaTheFoxSay/rubah/releases/download/v$Version/rubah-windows-amd64.exe"
 $LatestUrl = "https://github.com/WhaTheFoxSay/rubah/releases/latest/download/rubah-windows-amd64.exe"
 
-Step $LabelSys "windows (amd64)"
+Step "System environment" "windows (amd64)"
 
 $downloadSuccess = $false
 
@@ -115,7 +97,7 @@ if (-not $downloadSuccess) {
 }
 
 $SizeMB = [math]::Round((Get-Item $ExePath).Length / 1MB, 1)
-Step $LabelDl "v$Version (${SizeMB} MB)"
+Step "Download executable" "v$Version (${SizeMB} MB)"
 
 $UserPath = [Environment]::GetEnvironmentVariable("PATH", "User")
 if ($UserPath -notlike "*$InstallDir*") {
@@ -123,10 +105,10 @@ if ($UserPath -notlike "*$InstallDir*") {
     $env:PATH = "$env:PATH;$InstallDir"
 }
 
-Step $LabelInst "$ExePath"
+Step "Install binary & PATH" "$ExePath"
 
 Write-Host ""
-Write-Host "  ✔ $MsgSuccess" -ForegroundColor Green
-Write-Host "  $MsgRun" -ForegroundColor White
+Write-Host "  ✔ Rubah v$Version successfully installed!" -ForegroundColor Green
+Write-Host "  Run the application in PowerShell or CMD by typing:" -ForegroundColor White
 Write-Host "    baca" -ForegroundColor Yellow
 Write-Host ""

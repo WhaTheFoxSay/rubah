@@ -46,7 +46,7 @@ impl Language {
 pub fn t<'a>(lang: Language, key: &'a str) -> &'a str {
     match (lang, key) {
         // App Title & Header
-        (Language::English, "sub_title") => "Daily Reading Space",
+        (Language::English, "sub_title") => "Ruang Baca Harian",
         (Language::Indonesian, "sub_title") => "Ruang Baca Harian",
 
         // Pane Headers
@@ -133,7 +133,7 @@ pub fn t<'a>(lang: Language, key: &'a str) -> &'a str {
         (Language::English, "help_title") => " Help ",
         (Language::Indonesian, "help_title") => " Bantuan ",
 
-        (Language::English, "help_heading") => "🦊 Rubah [Daily Reading Space] - Keyboard Shortcuts",
+        (Language::English, "help_heading") => "🦊 Rubah [Ruang Baca Harian] - Keyboard Shortcuts",
         (Language::Indonesian, "help_heading") => "🦊 Rubah [Ruang Baca Harian] - Bantuan Shortcut Keyboard",
 
         (Language::English, "help_tab") => ": Switch pane focus",
@@ -325,7 +325,7 @@ pub fn t<'a>(lang: Language, key: &'a str) -> &'a str {
         (Language::English, "uninstall_done_msg") => "✔ Rubah application successfully uninstalled from your system.",
         (Language::Indonesian, "uninstall_done_msg") => "✔ Aplikasi Rubah berhasil di-uninstall dari sistem Anda.",
 
-        (Language::English, "uninstall_thanks_msg") => "Thank you for using Rubah [Daily Reading Space].",
+        (Language::English, "uninstall_thanks_msg") => "Thank you for using Rubah [Ruang Baca Harian].",
         (Language::Indonesian, "uninstall_thanks_msg") => "Terima kasih telah menggunakan Rubah [Ruang Baca Harian].",
 
         (Language::English, "uninstall_goodbye_msg") => "See you again! 🦊",
