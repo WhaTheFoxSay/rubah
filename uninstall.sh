@@ -16,8 +16,9 @@ BOLD="${ESC}[1m"
 RESET="${ESC}[0m"
 
 # Language detection (Default: English 'en', Indonesian 'id' if specified)
+LANG_ENV=$(echo "${LANG:-}${LANGUAGE:-}${LC_ALL:-}" | tr '[:upper:]' '[:lower:]')
 LANG_CHOICE="en"
-if [ "$1" = "id" ] || [[ "${LANG,,}" == id* ]] || [[ "${LANGUAGE,,}" == id* ]] || [[ "${LC_ALL,,}" == id* ]]; then
+if [ "$1" = "id" ] || [[ "$LANG_ENV" == id* ]]; then
     LANG_CHOICE="id"
 fi
 
