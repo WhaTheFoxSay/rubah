@@ -209,25 +209,53 @@ impl App {
 
     pub async fn check_for_update_async(&mut self) {
         self.is_checking_update = true;
-        self.status_message = "🔄 Memeriksa pembaruan rilis terbaru dari GitHub...".to_string();
+        self.status_message = match self.language {
+            crate::i18n::Language::Indonesian => "🔄 Memeriksa pembaruan rilis terbaru dari GitHub...".to_string(),
+            crate::i18n::Language::Japanese => "🔄 GitHubから最新リリースをチェック中...".to_string(),
+            crate::i18n::Language::Dutch => "🔄 Controleren op nieuwste release van GitHub...".to_string(),
+            crate::i18n::Language::Spanish => "🔄 Comprobando la última versión de GitHub...".to_string(),
+            crate::i18n::Language::Arabic => "🔄 جاري التحقق من أحدث إصدار من GitHub...".to_string(),
+            _ => "🔄 Checking for latest release update from GitHub...".to_string(),
+        };
 
         let fetcher = self.fetcher.clone();
         match fetcher.check_for_update().await {
             Ok(info) => {
                 self.is_checking_update = false;
                 if info.has_update {
-                    self.status_message = format!("✨ Pembaruan tersedia: v{}! (Versi saat ini: v{}).", info.latest_version, info.current_version);
+                    self.status_message = match self.language {
+                        crate::i18n::Language::Indonesian => format!("✨ Pembaruan tersedia: v{}! (Versi saat ini: v{}).", info.latest_version, info.current_version),
+                        crate::i18n::Language::Japanese => format!("✨ 更新が利用可能: v{}! (現在のバージョン: v{}).", info.latest_version, info.current_version),
+                        crate::i18n::Language::Dutch => format!("✨ Update beschikbaar: v{}! (Huidige versie: v{}).", info.latest_version, info.current_version),
+                        crate::i18n::Language::Spanish => format!("✨ Actualización disponible: v{}! (Versión actual: v{}).", info.latest_version, info.current_version),
+                        crate::i18n::Language::Arabic => format!("✨ التحديث متاح: v{}! (الإصدار الحالي: v{}).", info.latest_version, info.current_version),
+                        _ => format!("✨ Update available: v{}! (Current version: v{}).", info.latest_version, info.current_version),
+                    };
                     self.update_info = Some(info);
                     self.show_update_modal = true;
                 } else {
-                    self.status_message = format!("[OK] Rubah sudah di versi terbaru (v{}). Tidak ada pembaruan.", info.current_version);
+                    self.status_message = match self.language {
+                        crate::i18n::Language::Indonesian => format!("[OK] Rubah sudah di versi terbaru (v{}). Tidak ada pembaruan.", info.current_version),
+                        crate::i18n::Language::Japanese => format!("[OK] Rubahは最新バージョン (v{}) です。更新は必要ありません。", info.current_version),
+                        crate::i18n::Language::Dutch => format!("[OK] Rubah is op de nieuwste versie (v{}). Geen updates.", info.current_version),
+                        crate::i18n::Language::Spanish => format!("[OK] Rubah está en la versión más reciente (v{}). No hay actualizaciones.", info.current_version),
+                        crate::i18n::Language::Arabic => format!("[OK] Rubah في أحدث إصدار (v{}). لا توجد تحديثات.", info.current_version),
+                        _ => format!("[OK] Rubah is already on the latest version (v{}). No update needed.", info.current_version),
+                    };
                     self.update_info = Some(info);
                     self.show_update_modal = true;
                 }
             }
             Err(err) => {
                 self.is_checking_update = false;
-                self.status_message = format!("⚠️ Gagal periksa update: {}", err);
+                self.status_message = match self.language {
+                    crate::i18n::Language::Indonesian => format!("⚠️ Gagal periksa update: {}", err),
+                    crate::i18n::Language::Japanese => format!("⚠️ 更新の確認に失敗しました: {}", err),
+                    crate::i18n::Language::Dutch => format!("⚠️ Controleren op update mislukt: {}", err),
+                    crate::i18n::Language::Spanish => format!("⚠️ Error al comprobar actualización: {}", err),
+                    crate::i18n::Language::Arabic => format!("⚠️ فشل التحقق من التحديث: {}", err),
+                    _ => format!("⚠️ Failed to check for update: {}", err),
+                };
             }
         }
     }

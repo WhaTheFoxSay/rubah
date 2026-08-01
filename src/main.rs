@@ -101,15 +101,37 @@ async fn run_app(
                     app.update_downloaded_bytes = downloaded;
                     app.update_total_bytes = total;
                     app.update_percentage = percentage;
-                    app.update_stage_status = format!("Mengunduh patch biner versi rilis (v{})...", app.update_info.as_ref().map(|i| i.latest_version.as_str()).unwrap_or(""));
+                    let ver = app.update_info.as_ref().map(|i| i.latest_version.as_str()).unwrap_or("");
+                    app.update_stage_status = match app.language {
+                        i18n::Language::Indonesian => format!("Mengunduh patch biner versi rilis (v{})...", ver),
+                        i18n::Language::Japanese => format!("リリースバイナリパッチをダウンロード中 (v{})...", ver),
+                        i18n::Language::Dutch => format!("Release binary patch downloaden (v{})...", ver),
+                        i18n::Language::Spanish => format!("Descargando parche binario de la versión (v{})...", ver),
+                        i18n::Language::Arabic => format!("جاري تنزيل التحديث (v{})...", ver),
+                        _ => format!("Downloading release binary patch (v{})...", ver),
+                    };
                 }
                 crate::network::UpdateProgress::Installing => {
                     app.update_percentage = 100.0;
-                    app.update_stage_status = "Memvalidasi biner & memperbarui file executable di sistem...".to_string();
+                    app.update_stage_status = match app.language {
+                        i18n::Language::Indonesian => "Memvalidasi biner & memperbarui file executable di sistem...".to_string(),
+                        i18n::Language::Japanese => "バイナリを検証し、システム上の実行ファイルを更新中...".to_string(),
+                        i18n::Language::Dutch => "Binary valideren en uitvoerbare bestanden bijwerken...".to_string(),
+                        i18n::Language::Spanish => "Validando binario y actualizando ejecutable en el sistema...".to_string(),
+                        i18n::Language::Arabic => "جاري التحقق من الملف وتحديثه في النظام...".to_string(),
+                        _ => "Validating binary & updating executable files on system...".to_string(),
+                    };
                 }
                 crate::network::UpdateProgress::Completed(ver) => {
                     app.update_completed = true;
-                    app.update_stage_status = format!("Biner Rubah v{} berhasil terinstall di sistem!", ver);
+                    app.update_stage_status = match app.language {
+                        i18n::Language::Indonesian => format!("Biner Rubah v{} berhasil terinstall di sistem!", ver),
+                        i18n::Language::Japanese => format!("Rubah v{} バイナリがシステムに正常にインストールされました！", ver),
+                        i18n::Language::Dutch => format!("Rubah v{} binary succesvol geïnstalleerd op systeem!", ver),
+                        i18n::Language::Spanish => format!("¡El binario de Rubah v{} se instaló con éxito en el sistema!", ver),
+                        i18n::Language::Arabic => format!("تم تثبيت Rubah v{} بنجاح في النظام!", ver),
+                        _ => format!("Rubah v{} binary successfully installed on system!", ver),
+                    };
                 }
                 crate::network::UpdateProgress::Failed(err) => {
                     app.update_failed = Some(err);
@@ -373,12 +395,26 @@ async fn run_app(
                             }
                             KeyCode::Char('/') => {
                                 app.input_mode = InputMode::Search;
-                                app.status_message = "Ketik kata kunci... | [Enter] Buka | [Down/Up] Pilih | [Esc] Reset".to_string();
+                                app.status_message = match app.language {
+                                    i18n::Language::Indonesian => "Ketik kata kunci... | [Enter] Buka | [Down/Up] Pilih | [Esc] Reset".to_string(),
+                                    i18n::Language::Japanese => "キーワードを入力... | [Enter] 開く | [Down/Up] 選択 | [Esc] リセット".to_string(),
+                                    i18n::Language::Dutch => "Typ trefwoord... | [Enter] Openen | [Down/Up] Selecteer | [Esc] Reset".to_string(),
+                                    i18n::Language::Spanish => "Escriba palabra clave... | [Enter] Abrir | [Down/Up] Seleccionar | [Esc] Restablecer".to_string(),
+                                    i18n::Language::Arabic => "اكتب الكلمة المفتاحية... | [Enter] فتح | [Down/Up] تحديد | [Esc] إعادة ضبط".to_string(),
+                                    _ => "Type search keywords... | [Enter] Open | [Down/Up] Select | [Esc] Reset".to_string(),
+                                };
                             }
                             KeyCode::Esc => {
                                 if app.is_fullscreen_reader {
                                     app.is_fullscreen_reader = false;
-                                    app.status_message = "Keluar dari Fullscreen Reader Mode".to_string();
+                                    app.status_message = match app.language {
+                                        i18n::Language::Indonesian => "Keluar dari Fullscreen Reader Mode".to_string(),
+                                        i18n::Language::Japanese => "全画面リーダーモードを終了しました".to_string(),
+                                        i18n::Language::Dutch => "Volledig Scherm Lezersmodus verlaten".to_string(),
+                                        i18n::Language::Spanish => "Salió del Modo Lector de Pantalla Completa".to_string(),
+                                        i18n::Language::Arabic => "تم الخروج من وضع القراءة ملء الشاشة".to_string(),
+                                        _ => "Exited Fullscreen Reader Mode".to_string(),
+                                    };
                                 } else if !app.search_query.is_empty() {
                                     app.clear_search();
                                 } else if app.active_pane == app::ActivePane::Reader {

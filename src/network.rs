@@ -178,7 +178,7 @@ impl Fetcher {
         let release_notes = re_body
             .and_then(|re| re.captures(&json_text))
             .map(|cap| cap[1].replace("\\n", "\n").replace("\\r", ""))
-            .unwrap_or_else(|| "Catatan pembaruan rilis terbaru tersedia di GitHub.".to_string());
+            .unwrap_or_else(|| "Latest release notes and changelog are available on GitHub.".to_string());
 
         let has_update = is_newer_version(&current_version, &latest_version);
 
