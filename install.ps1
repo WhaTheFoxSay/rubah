@@ -6,8 +6,22 @@ try {
     [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13
 } catch {}
 
+function Step {
+    param ([string]$Label, [string]$Detail)
+    Write-Host "  " -NoNewline
+    Write-Host "✔ " -ForegroundColor Green -NoNewline
+    Write-Host ("{0,-25}" -f $Label) -NoNewline
+    Write-Host " $Detail" -ForegroundColor DarkGray
+}
+
+$Version = "1.0.0"
+
 Write-Host ""
-Write-Host "--> 🦊 Rubah [Ruang Baca Harian]" -ForegroundColor Cyan
+Write-Host "  🦊 RUBAH " -ForegroundColor Yellow -NoNewline
+Write-Host "[Ruang Baca Harian] " -ForegroundColor White -NoNewline
+Write-Host "v$Version" -ForegroundColor DarkGray
+Write-Host "  High-Performance RSS Feed Reader TUI" -ForegroundColor DarkGray
+Write-Host ""
 
 $InstallDir = "$env:LOCALAPPDATA\Programs\Rubah"
 if (!(Test-Path $InstallDir)) {
@@ -15,30 +29,11 @@ if (!(Test-Path $InstallDir)) {
 }
 
 $ExePath = Join-Path $InstallDir "baca.exe"
-$PrimaryUrl = "https://github.com/WhaTheFoxSay/rubah/releases/download/v0.9.1/rubah-windows-amd64.exe"
+$PrimaryUrl = "https://github.com/WhaTheFoxSay/rubah/releases/download/v$Version/rubah-windows-amd64.exe"
 $LatestUrl = "https://github.com/WhaTheFoxSay/rubah/releases/latest/download/rubah-windows-amd64.exe"
 
-function Draw-Progress {
-    param ([int]$Percent, [string]$StepName)
-    $Width = 24
-    $Filled = [math]::Floor($Percent * $Width / 100)
-    $Empty = $Width - $Filled
-    $Bar = ("█" * $Filled) + ("░" * $Empty)
-    Write-Host -NoNewline "`r  [$Bar] $Percent% | $StepName"
-}
+Step "System environment" "windows (amd64)"
 
-function Show-Step {
-    param ([string]$StepName)
-    Write-Host "  [✔] $StepName" -ForegroundColor Green
-}
-
-$Version = "0.9.1"
-
-Draw-Progress 10 "Menyiapkan direktori sistem..."
-Start-Sleep -Milliseconds 100
-Show-Step "Menyiapkan direktori sistem ($InstallDir)..."
-
-Draw-Progress 30 "Mengunduh binary 'baca.exe' v$Version..."
 $downloadSuccess = $false
 
 if (Get-Command "curl.exe" -ErrorAction SilentlyContinue) {
@@ -87,12 +82,12 @@ if (-not $downloadSuccess) {
 
 if (-not $downloadSuccess) {
     Write-Host ""
-    Write-Host "Error: Gagal mengunduh 'baca.exe'. Silakan periksa koneksi internet Anda." -ForegroundColor Red
+    Write-Host "  Error: Gagal mengunduh 'baca.exe'. Silakan periksa koneksi internet Anda." -ForegroundColor Red
     exit 1
 }
 
-Draw-Progress 70 "Memverifikasi binary & environment..."
-Show-Step "Mengunduh binary 'baca.exe' v$Version..."
+$SizeMB = [math]::Round((Get-Item $ExePath).Length / 1MB, 1)
+Step "Download executable" "v$Version (${SizeMB} MB)"
 
 $UserPath = [Environment]::GetEnvironmentVariable("PATH", "User")
 if ($UserPath -notlike "*$InstallDir*") {
@@ -100,12 +95,10 @@ if ($UserPath -notlike "*$InstallDir*") {
     $env:PATH = "$env:PATH;$InstallDir"
 }
 
-Draw-Progress 100 "Instalasi selesai!"
-Start-Sleep -Milliseconds 100
-Show-Step "Mengatur PATH Environment User..."
-Write-Host ""
+Step "Install binary & PATH" "$ExePath"
 
-Write-Host "[✔] Rubah v$Version berhasil terinstall di sistem Anda!" -ForegroundColor Green
-Write-Host "Jalankan aplikasi di PowerShell atau CMD dengan mengetik:" -ForegroundColor White
-Write-Host "  baca" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "  ✔ Rubah v$Version berhasil terinstall!" -ForegroundColor Green
+Write-Host "  Jalankan aplikasi di PowerShell atau CMD dengan mengetik:" -ForegroundColor White
+Write-Host "    baca" -ForegroundColor Yellow
 Write-Host ""

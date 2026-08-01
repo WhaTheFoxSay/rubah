@@ -44,15 +44,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 return Ok(());
             }
             Commands::Uninstall => {
-                println!("\n--> 🦊 Rubah [Ruang Baca Harian] Uninstaller");
-                println!("  [✔] Menghapus binary executable 'baca' & shortcuts...");
-                println!("  [✔] Menghapus data konfigurasi, cache & database...");
-                println!("  [✔] Membersihkan memori cache shell (hash -r)...");
-                println!("  [████████████████████████] 100% | Uninstall Selesai!\n");
+                println!("\n  \x1b[38;2;235;115;0m\x1b[1m🦊 RUBAH\x1b[0m \x1b[1;37m[Ruang Baca Harian] Uninstaller\x1b[0m");
+                println!("  \x1b[0;90mHigh-Performance RSS Feed Reader TUI\x1b[0m\n");
+                println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37mBinary & symlink         \x1b[0;90m~/.local/bin/baca terhapus\x1b[0m");
+                println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37mConfig & database        \x1b[0;90m~/.config/rubah terhapus\x1b[0m");
+                println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37mCache & temp files       \x1b[0;90m~/.cache/rubah terhapus\x1b[0m");
+                println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37mShell lookup reset       \x1b[0;90mHash memory cleared\x1b[0m\n");
                 let _ = App::perform_uninstall();
-                println!("[✔] Aplikasi Rubah v{} berhasil di-uninstall dari sistem Anda.", env!("CARGO_PKG_VERSION"));
-                println!("Terima kasih telah menggunakan Rubah [Ruang Baca Harian].");
-                println!("Sampai jumpa kembali! 🦊\n");
+                println!("  \x1b[0;32m\x1b[1m✔ Aplikasi Rubah berhasil di-uninstall dari sistem Anda.\x1b[0m");
+                println!("  \x1b[1;37mTerima kasih telah menggunakan Rubah [Ruang Baca Harian].\x1b[0m");
+                println!("  \x1b[38;2;235;115;0mSampai jumpa kembali! 🦊\x1b[0m\n");
                 return Ok(());
             }
         }
@@ -231,15 +232,16 @@ async fn run_app(
                                     disable_raw_mode()?;
                                     execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
                                     terminal.show_cursor()?;
-                                    println!("\n--> 🦊 Rubah [Ruang Baca Harian] Uninstaller");
-                                    println!("  [✔] Menghapus binary executable 'baca' & shortcuts...");
-                                    println!("  [✔] Menghapus data konfigurasi, cache & database...");
-                                    println!("  [✔] Membersihkan memori cache shell (hash -r)...");
-                                    println!("  [████████████████████████] 100% | Uninstall Selesai!\n");
+                                    println!("\n  \x1b[38;2;235;115;0m\x1b[1m🦊 RUBAH\x1b[0m \x1b[1;37m[Ruang Baca Harian] Uninstaller\x1b[0m");
+                                    println!("  \x1b[0;90mHigh-Performance RSS Feed Reader TUI\x1b[0m\n");
+                                    println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37mBinary & symlink         \x1b[0;90m~/.local/bin/baca terhapus\x1b[0m");
+                                    println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37mConfig & database        \x1b[0;90m~/.config/rubah terhapus\x1b[0m");
+                                    println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37mCache & temp files       \x1b[0;90m~/.cache/rubah terhapus\x1b[0m");
+                                    println!("  \x1b[0;32m✔\x1b[0m \x1b[0;37mShell lookup reset       \x1b[0;90mHash memory cleared\x1b[0m\n");
                                     let _ = App::perform_uninstall();
-                                    println!("[✔] Aplikasi Rubah v{} berhasil di-uninstall dari sistem Anda.", env!("CARGO_PKG_VERSION"));
-                                    println!("Terima kasih telah menggunakan Rubah [Ruang Baca Harian].");
-                                    println!("Sampai jumpa kembali! 🦊\n");
+                                    println!("  \x1b[0;32m\x1b[1m✔ Aplikasi Rubah berhasil di-uninstall dari sistem Anda.\x1b[0m");
+                                    println!("  \x1b[1;37mTerima kasih telah menggunakan Rubah [Ruang Baca Harian].\x1b[0m");
+                                    println!("  \x1b[38;2;235;115;0mSampai jumpa kembali! 🦊\x1b[0m\n");
                                     std::process::exit(0);
                                 }
                                 KeyCode::Char('n') | KeyCode::Char('N') | KeyCode::Esc => {
