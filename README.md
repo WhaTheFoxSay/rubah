@@ -1,12 +1,24 @@
-# 🦊 Rubah (Ruang Baca Harian)
+<div align="center">
+
+# 🦊 Rubah
+### Ruang Baca Harian
+
+A standards-compliant, local-first RSS/Atom feed reader for the terminal.
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Language: Rust](https://img.shields.io/badge/Language-Rust-orange.svg)](https://www.rust-lang.org/)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows%20%7C%20BSD%20%7C%20Haiku-brightgreen.svg)]()
 
-> **Rubah is a standards-compliant, local-first RSS/Atom reader for the terminal. It retrieves feeds directly from publishers without using intermediary servers or cloud services.**
+[Instalasi](#instalasi) • [Cara Menjalankan](#cara-menjalankan) • [Fitur Utama](#fitur-utama) • [Shortcut Keyboard](#shortcut-keyboard) • [Perintah CLI](#perintah-cli) • [Lisensi](#lisensi--privasi)
 
-**Rubah** (Ruang Baca Harian) adalah aplikasi pembaca RSS Feed berbasis *Terminal User Interface* (TUI) yang ringan, cepat, dan bekerja secara *cross-platform* di **Linux**, **macOS**, **Windows**, **BSD**, dan **Haiku OS**. Dibuat menggunakan **Rust** dengan framework **Ratatui** dan **Tokio**.
+</div>
+
+---
+
+**Rubah** (Ruang Baca Harian) adalah aplikasi pembaca RSS & Atom Feed berbasis *Terminal User Interface* (TUI) yang ringan, cepat, dan bekerja secara *cross-platform* di Linux, macOS, Windows, BSD, dan Haiku OS. Dibuat menggunakan Rust dengan framework Ratatui dan Tokio.
+
+> [!NOTE]
+> **Local-First Architecture**: Rubah mengambil feed berita secara langsung dari penerbit ke perangkat Anda tanpa server perantara atau pengumpulan telemetry.
 
 ---
 
@@ -20,7 +32,7 @@ curl -fsSL https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/install.sh 
 
 ### Windows (PowerShell / CMD):
 
-**Metode 1: Perintah 1 Baris PowerShell (Otomatis)**
+**Metode 1: Perintah 1 Baris PowerShell**
 ```powershell
 irm https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/install.ps1 | iex
 ```
@@ -34,7 +46,7 @@ irm https://raw.githubusercontent.com/WhaTheFoxSay/rubah/main/install.ps1 | iex
 
 ## Cara Menjalankan
 
-Setelah instalasi selesai, jalankan aplikasi di terminal / CMD / PowerShell dengan mengetik:
+Setelah instalasi selesai, jalankan aplikasi di terminal dengan mengetik:
 ```bash
 baca
 ```
@@ -57,25 +69,25 @@ baca
 
 | Shortcut | Fungsi |
 | :--- | :--- |
-| `Tab` / `Shift+Tab` | Pindah fokus antar panel (**Channel** ➔ **Berita** ➔ **Reader**) |
-| `j` / `k` atau `↓` / `↑` | Navigasi item ke bawah / atas |
-| `Enter` / `Space` | Buka dan baca berita penuh di dalam terminal |
-| `f` | Mode Layar Penuh (Reader) |
-| `l` | Ganti Bahasa Antarmuka (EN / ID / JA / NL / ES / AR) |
-| `i` | Toggle Tampilkan / Sembunyikan foto berita |
-| `b` | Simpan / hapus artikel dari **Bookmarks** (`★`) |
-| `o` | Membuka link berita di web browser external |
-| `m` | Pindahkan channel RSS ke kategori lain |
-| `Shift + C` | Hapus Kategori terpilih |
-| `Shift + D` | Hapus channel RSS Feed terpilih |
-| `a` | Buka dialog **Tambah RSS Feed Baru** |
-| `r` | Refresh / muat ulang seluruh RSS Feed |
-| `/` | Buka mode pencarian realtime |
-| `Esc` | Kembali dari reader ke daftar berita / reset pencarian |
-| `1` / `2` | Switch Tab: **All Feeds** (1) vs **Bookmarks** (2) |
-| `Shift + U` | Buka menu modal **Uninstall** |
-| `?` | Tampilkan modal bantuan shortcut |
-| `q` | Keluar dari aplikasi |
+| <kbd>Tab</kbd> / <kbd>Shift</kbd> + <kbd>Tab</kbd> | Pindah fokus antar panel (**Channel** ➔ **Berita** ➔ **Reader**) |
+| <kbd>j</kbd> / <kbd>k</kbd> atau <kbd>↓</kbd> / <kbd>↑</kbd> | Navigasi item ke bawah / atas |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Buka dan baca berita penuh di dalam terminal |
+| <kbd>f</kbd> | Mode Layar Penuh (Reader) |
+| <kbd>l</kbd> | Ganti Bahasa Antarmuka (EN / ID / JA / NL / ES / AR) |
+| <kbd>i</kbd> | Toggle Tampilkan / Sembunyikan foto berita |
+| <kbd>b</kbd> | Simpan / hapus artikel dari **Bookmarks** (`★`) |
+| <kbd>o</kbd> | Membuka link berita di web browser external |
+| <kbd>m</kbd> | Pindahkan channel RSS ke kategori lain |
+| <kbd>Shift</kbd> + <kbd>C</kbd> | Hapus Kategori terpilih |
+| <kbd>Shift</kbd> + <kbd>D</kbd> | Hapus channel RSS Feed terpilih |
+| <kbd>a</kbd> | Buka dialog **Tambah RSS Feed Baru** |
+| <kbd>r</kbd> | Refresh / muat ulang seluruh RSS Feed |
+| <kbd>/</kbd> | Buka mode pencarian realtime |
+| <kbd>Esc</kbd> | Kembali dari reader ke daftar berita / reset pencarian |
+| <kbd>1</kbd> / <kbd>2</kbd> | Switch Tab: **All Feeds** (1) vs **Bookmarks** (2) |
+| <kbd>Shift</kbd> + <kbd>U</kbd> | Buka menu modal **Uninstall** |
+| <kbd>?</kbd> | Tampilkan modal bantuan shortcut |
+| <kbd>q</kbd> | Keluar dari aplikasi |
 
 ---
 
