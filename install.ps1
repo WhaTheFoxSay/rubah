@@ -15,7 +15,7 @@ if (!(Test-Path $InstallDir)) {
 }
 
 $ExePath = Join-Path $InstallDir "baca.exe"
-$PrimaryUrl = "https://github.com/WhaTheFoxSay/rubah/releases/download/v0.9.0/rubah-windows-amd64.exe"
+$PrimaryUrl = "https://github.com/WhaTheFoxSay/rubah/releases/download/v0.9.1/rubah-windows-amd64.exe"
 $LatestUrl = "https://github.com/WhaTheFoxSay/rubah/releases/latest/download/rubah-windows-amd64.exe"
 
 function Draw-Progress {
@@ -32,7 +32,7 @@ function Show-Step {
     Write-Host "  [✔] $StepName" -ForegroundColor Green
 }
 
-$Version = "0.9.0"
+$Version = "0.9.1"
 
 Draw-Progress 10 "Menyiapkan direktori sistem..."
 Start-Sleep -Milliseconds 100
