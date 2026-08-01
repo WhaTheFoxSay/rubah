@@ -58,7 +58,7 @@ REPO="WhaTheFoxSay/rubah"
 USER_AGENT="Mozilla/5.0 (compatible; RubahInstaller/1.0)"
 
 # Fetch latest release version tag dynamically from GitHub API
-LATEST_TAG=$(curl -sL -A "$USER_AGENT" "https://api.github.com/repos/${REPO}/releases/latest" | grep '"tag_name":' | head -n 1 | cut -d '"' -f 4)
+LATEST_TAG=$(curl -sL -A "$USER_AGENT" "https://api.github.com/repos/${REPO}/releases/latest" | grep -o '"tag_name": *"[^"]*"' | head -n 1 | cut -d '"' -f 4)
 if [ -n "$LATEST_TAG" ]; then
     VERSION="${LATEST_TAG#v}"
 else
