@@ -36,22 +36,18 @@ pub const THEME: Theme = Theme {
 };
 
 pub fn draw(f: &mut Frame, app: &mut App) {
-    let search_height = if app.input_mode == InputMode::Search { 3 } else { 1 };
-
     let main_chunks = Layout::default()
         .direction(Direction::Vertical)
         .constraints([
             Constraint::Length(3), // Header Banner
             Constraint::Min(5),    // Main 3-Pane Body
-            Constraint::Length(search_height), // Search input (3 baris) / Status bar (1 baris)
-            Constraint::Length(1), // Footer Keybindings
+            Constraint::Length(3), // Compact & Elegant Rounded Footer Box
         ])
         .split(f.area());
 
     draw_header(f, app, main_chunks[0]);
     draw_body(f, app, main_chunks[1]);
-    draw_search_bar(f, app, main_chunks[2]);
-    draw_footer(f, app, main_chunks[3]);
+    draw_footer_box(f, app, main_chunks[2]);
 
     if app.show_help {
         draw_help_modal(f, app, f.area());
@@ -445,8 +441,9 @@ fn draw_reader_pane(f: &mut Frame, app: &mut App, area: Rect) {
     f.render_widget(paragraph_widget, area);
 }
 
-fn draw_search_bar(f: &mut Frame, app: &App, area: Rect) {
+fn draw_footer_box(f: &mut Frame, app: &App, area: Rect) {
     let lang = app.language;
+
     if app.input_mode == InputMode::Search {
         let (query_text, query_style) = if app.search_query.is_empty() {
             (t(lang, "search_placeholder"), Style::default().fg(THEME.muted))
@@ -455,59 +452,84 @@ fn draw_search_bar(f: &mut Frame, app: &App, area: Rect) {
         };
 
         let spans = vec![
-            Span::styled(format!(" {} ", t(lang, "search_keyword")), Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
+            Span::styled(" 🔍 ", Style::default().fg(THEME.accent)),
             Span::styled(query_text, query_style),
-            Span::styled(" █", Style::default().fg(THEME.accent)),
-            Span::styled(t(lang, "search_hints"), Style::default().fg(THEME.muted)),
+            Span::styled(" █  ", Style::default().fg(THEME.accent)),
+            Span::styled(t(lang, "search_hints"), Style::default().fg(THEME.muted).add_modifier(Modifier::ITALIC)),
         ];
-        let p = Paragraph::new(Line::from(spans)).block(
-            Block::default()
-                .title(t(lang, "search_title"))
-                .borders(Borders::ALL)
-                .border_type(BorderType::Rounded)
-                .border_style(Style::default().fg(THEME.border_active)),
-        );
+
+        let block = Block::default()
+            .title(Span::styled(format!(" {} ", t(lang, "search_title")), Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)))
+            .borders(Borders::ALL)
+            .border_type(BorderType::Rounded)
+            .border_style(Style::default().fg(THEME.border_active));
+
+        let p = Paragraph::new(Line::from(spans)).block(block);
         f.render_widget(p, area);
     } else if !app.search_query.is_empty() {
         let spans = vec![
-            Span::styled(format!(" {} ", t(lang, "search_filter_active")), Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
-            Span::styled(format!("'{}' ", app.search_query), Style::default().fg(THEME.fg)),
-            Span::styled(t(lang, "search_filter_hint"), Style::default().fg(THEME.muted)),
+            Span::styled(" 🔍 ", Style::default().fg(THEME.accent)),
+            Span::styled(format!("{} ", t(lang, "search_filter_active")), Style::default().fg(THEME.muted)),
+            Span::styled(format!("'{}'  ", app.search_query), Style::default().fg(Color::Yellow).add_modifier(Modifier::BOLD)),
+            Span::styled(t(lang, "search_filter_hint"), Style::default().fg(THEME.muted).add_modifier(Modifier::ITALIC)),
         ];
-        let p = Paragraph::new(Line::from(spans));
+
+        let block = Block::default()
+            .title(Span::styled(format!(" {} ", t(lang, "search_title")), Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)))
+            .borders(Borders::ALL)
+            .border_type(BorderType::Rounded)
+            .border_style(Style::default().fg(THEME.accent));
+
+        let p = Paragraph::new(Line::from(spans)).block(block);
         f.render_widget(p, area);
     } else {
-        let spans = vec![
-            Span::styled(format!(" {} ", t(lang, "status_tip_prefix")), Style::default().fg(THEME.muted)),
-            Span::styled(&app.status_message, Style::default().fg(THEME.fg)),
+        let status_title = format!(" 💡 {} ", app.status_message);
+
+        let keys = vec![
+            Span::styled("[Tab] ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
+            Span::styled(t(lang, "footer_nav"), Style::default().fg(THEME.fg)),
+            Span::styled("  │  ", Style::default().fg(THEME.border)),
+
+            Span::styled("[j/k] ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
+            Span::styled(t(lang, "footer_select"), Style::default().fg(THEME.fg)),
+            Span::styled("  │  ", Style::default().fg(THEME.border)),
+
+            Span::styled("[Enter] ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
+            Span::styled(t(lang, "footer_open"), Style::default().fg(THEME.fg)),
+            Span::styled("  │  ", Style::default().fg(THEME.border)),
+
+            Span::styled("[f] ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
+            Span::styled(t(lang, "footer_fullscreen"), Style::default().fg(THEME.fg)),
+            Span::styled("  │  ", Style::default().fg(THEME.border)),
+
+            Span::styled("[l] ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
+            Span::styled(format!("{}: {} ", t(lang, "footer_lang"), app.language.code()), Style::default().fg(THEME.fg)),
+            Span::styled("  │  ", Style::default().fg(THEME.border)),
+
+            Span::styled("[u] ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
+            Span::styled(t(lang, "footer_update"), Style::default().fg(THEME.fg)),
+            Span::styled("  │  ", Style::default().fg(THEME.border)),
+
+            Span::styled("[?] ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
+            Span::styled(t(lang, "footer_help"), Style::default().fg(THEME.fg)),
+            Span::styled("  │  ", Style::default().fg(THEME.border)),
+
+            Span::styled("[q] ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),
+            Span::styled(t(lang, "footer_quit"), Style::default().fg(THEME.fg)),
         ];
-        let p = Paragraph::new(Line::from(spans));
+
+        let block = Block::default()
+            .title(Span::styled(status_title, Style::default().fg(THEME.fg).add_modifier(Modifier::BOLD)))
+            .borders(Borders::ALL)
+            .border_type(BorderType::Rounded)
+            .border_style(Style::default().fg(THEME.border));
+
+        let p = Paragraph::new(Line::from(keys))
+            .alignment(Alignment::Center)
+            .block(block);
+
         f.render_widget(p, area);
     }
-}
-
-fn draw_footer(f: &mut Frame, app: &App, area: Rect) {
-    let lang = app.language;
-    let keys = vec![
-        Span::styled(" [Tab] ", Style::default().fg(THEME.accent)),
-        Span::styled(format!("{}  ", t(lang, "footer_nav")), Style::default().fg(THEME.fg)),
-        Span::styled("[j/k] ", Style::default().fg(THEME.accent)),
-        Span::styled(format!("{}  ", t(lang, "footer_select")), Style::default().fg(THEME.fg)),
-        Span::styled("[Enter] ", Style::default().fg(THEME.accent)),
-        Span::styled(format!("{}  ", t(lang, "footer_open")), Style::default().fg(THEME.fg)),
-        Span::styled("[f] ", Style::default().fg(THEME.accent)),
-        Span::styled(format!("{}  ", t(lang, "footer_fullscreen")), Style::default().fg(THEME.fg)),
-        Span::styled("[l] ", Style::default().fg(THEME.accent)),
-        Span::styled(format!("{}  ", t(lang, "footer_lang")), Style::default().fg(THEME.fg)),
-        Span::styled("[u] ", Style::default().fg(THEME.accent)),
-        Span::styled(format!("{}  ", t(lang, "footer_update")), Style::default().fg(THEME.fg)),
-        Span::styled("[?] ", Style::default().fg(THEME.accent)),
-        Span::styled(format!("{}  ", t(lang, "footer_help")), Style::default().fg(THEME.fg)),
-        Span::styled("[q] ", Style::default().fg(THEME.accent)),
-        Span::styled(t(lang, "footer_quit"), Style::default().fg(THEME.fg)),
-    ];
-    let p = Paragraph::new(Line::from(keys)).alignment(Alignment::Center);
-    f.render_widget(p, area);
 }
 
 fn draw_help_modal(f: &mut Frame, app: &App, area: Rect) {
