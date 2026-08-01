@@ -416,7 +416,6 @@ impl App {
                     self.article_list_state.select(Some(self.selected_article_idx));
                     self.reader_scroll = 0;
                     self.current_image_lines = None;
-                    self.mark_current_read();
                 }
             }
             ActivePane::Reader => {
@@ -462,7 +461,6 @@ impl App {
                     self.article_list_state.select(Some(self.selected_article_idx));
                     self.reader_scroll = 0;
                     self.current_image_lines = None;
-                    self.mark_current_read();
                 }
             }
             ActivePane::Reader => {

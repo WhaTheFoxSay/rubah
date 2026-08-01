@@ -221,8 +221,13 @@ fn draw_articles_pane(f: &mut Frame, app: &mut App, area: Rect) {
         .enumerate()
         .map(|(idx, art)| {
             let is_selected = idx == app.selected_article_idx;
-            let indicator_symbol = if is_selected { "> " } else { "- " };
-            let indicator_color = if is_selected { THEME.success } else { THEME.muted };
+            let (dot_symbol, dot_color) = if is_selected {
+                ("● ", THEME.success)
+            } else if art.is_read {
+                ("○ ", THEME.accent)
+            } else {
+                ("● ", THEME.accent)
+            };
             let star_symbol = if art.is_bookmarked { "[B] " } else { "    " };
 
             let text_color = if is_selected {
@@ -270,7 +275,7 @@ fn draw_articles_pane(f: &mut Frame, app: &mut App, area: Rect) {
             };
 
             let content = vec![
-                Span::styled(indicator_symbol, Style::default().fg(indicator_color)),
+                Span::styled(dot_symbol, Style::default().fg(dot_color)),
                 Span::styled(star_symbol, Style::default().fg(Color::Yellow)),
                 Span::styled(display_title, Style::default().fg(text_color)),
             ];
