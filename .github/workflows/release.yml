@@ -60,6 +60,9 @@ jobs:
           mkdir -p dist
           if [ "${{ matrix.os }}" = "windows-latest" ]; then
             cp target/${{ matrix.target }}/release/rubah.exe dist/${{ matrix.binary_name }}
+          elif [ "${{ matrix.os }}" = "macos-latest" ]; then
+            cp target/${{ matrix.target }}/release/rubah dist/${{ matrix.binary_name }}
+            codesign -f -s - dist/${{ matrix.binary_name }} || true
           else
             cp target/${{ matrix.target }}/release/rubah dist/${{ matrix.binary_name }}
             strip dist/${{ matrix.binary_name }} || true

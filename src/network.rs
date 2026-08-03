@@ -241,6 +241,10 @@ impl Fetcher {
             });
         }
 
+        if downloaded_bytes.len() < 3_000_000 {
+            return Err("Ukuran biner hasil unduhan tidak valid (< 3 MB)".to_string());
+        }
+
         let _ = tx.send(UpdateProgress::Installing);
 
         // Determine target executable path
@@ -273,6 +277,19 @@ impl Fetcher {
                 let mut perms = metadata.permissions();
                 perms.set_mode(0o755);
                 let _ = std::fs::set_permissions(&temp_path, perms);
+            }
+        }
+
+        // On macOS: Remove quarantine attribute and apply ad-hoc code signature
+        #[cfg(target_os = "macos")]
+        {
+            if let Some(path_str) = temp_path.to_str() {
+                let _ = std::process::Command::new("xattr")
+                    .args(["-c", path_str])
+                    .output();
+                let _ = std::process::Command::new("codesign")
+                    .args(["-f", "-s", "-", path_str])
+                    .output();
             }
         }
 
@@ -312,7 +329,15 @@ pub fn get_target_asset_name() -> &'static str {
     }
     #[cfg(target_os = "macos")]
     {
-        if cfg!(target_arch = "aarch64") {
+        let is_arm64 = cfg!(target_arch = "aarch64")
+            || std::process::Command::new("sysctl")
+                .arg("-n")
+                .arg("hw.optional.arm64")
+                .output()
+                .map(|o| String::from_utf8_lossy(&o.stdout).trim() == "1")
+                .unwrap_or(false);
+
+        if is_arm64 {
             "rubah-macos-arm64"
         } else {
             "rubah-macos-amd64"
