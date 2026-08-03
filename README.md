@@ -9,6 +9,12 @@ A standards-compliant, local-first RSS/Atom feed reader for the terminal.
 [![Language: Rust](https://img.shields.io/badge/Language-Rust-orange.svg)](https://www.rust-lang.org/)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows%20%7C%20BSD%20%7C%20Haiku-brightgreen.svg)]()
 
+<br />
+
+![Rubah TUI Preview](assets/preview.png)
+
+<br />
+
 [Installation](#installation) • [Getting Started](#getting-started) • [Key Features](#key-features) • [Keyboard Shortcuts](#keyboard-shortcuts) • [CLI Commands](#cli-commands) • [License & Privacy](#license--privacy)
 
 </div>
