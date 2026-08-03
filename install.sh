@@ -60,7 +60,7 @@ LATEST_TAG=$(curl -sL --connect-timeout 5 -A "$USER_AGENT" "https://api.github.c
 if [ -n "$LATEST_TAG" ]; then
     VERSION="${LATEST_TAG#v}"
 else
-    VERSION="1.7.6"
+    VERSION="1.7.7"
 fi
 
 echo ""
@@ -77,10 +77,13 @@ trap 'rm -f "$TMP_FILE"' EXIT
 
 try_download() {
     local url="$1"
+    [ -z "$url" ] && return 1
     for try in 1 2 3; do
-        HTTP_CODE=$(curl -sL --connect-timeout 10 --max-time 60 -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$url" 2>/dev/null || echo "000")
-        FILE_SIZE=$(wc -c < "$TMP_FILE" 2>/dev/null || echo "0")
-        if [ "$HTTP_CODE" -eq 200 ] && [ "$FILE_SIZE" -ge 3000000 ]; then
+        rm -f "$TMP_FILE"
+        curl -sL --connect-timeout 15 --max-time 120 -A "$USER_AGENT" -o "$TMP_FILE" "$url" 2>/dev/null || true
+        FILE_SIZE=$(wc -c < "$TMP_FILE" 2>/dev/null | tr -d ' \t\r\n' || echo "0")
+        FILE_SIZE=${FILE_SIZE:-0}
+        if [ "$FILE_SIZE" -ge 3000000 ]; then
             return 0
         fi
         sleep 2
