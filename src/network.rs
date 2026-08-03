@@ -202,24 +202,42 @@ impl Fetcher {
             asset_name
         );
 
-        let response = self
-            .client
-            .get(&download_url)
-            .header("User-Agent", "RubahAutoUpdater/1.0")
-            .send()
-            .await
-            .map_err(|e| format!("Gagal mengunduh biner rilis: {}", e))?;
+        let mut response_opt = None;
+        let mut last_status = reqwest::StatusCode::OK;
 
-        if response.status() == reqwest::StatusCode::NOT_FOUND {
-            return Err("RELEASE_BUILDING".to_string());
+        for _attempt in 0..4 {
+            match self
+                .client
+                .get(&download_url)
+                .header("User-Agent", "RubahAutoUpdater/1.0")
+                .send()
+                .await
+            {
+                Ok(resp) => {
+                    let status = resp.status();
+                    if status.is_success() {
+                        response_opt = Some(resp);
+                        break;
+                    } else {
+                        last_status = status;
+                        tokio::time::sleep(Duration::from_secs(2)).await;
+                    }
+                }
+                Err(_) => {
+                    tokio::time::sleep(Duration::from_secs(2)).await;
+                }
+            }
         }
 
-        if !response.status().is_success() {
-            return Err(format!(
-                "Server mengembalikan status HTTP {}",
-                response.status()
-            ));
-        }
+        let response = match response_opt {
+            Some(resp) => resp,
+            None => {
+                if last_status == reqwest::StatusCode::NOT_FOUND || last_status.is_server_error() {
+                    return Err("RELEASE_BUILDING".to_string());
+                }
+                return Err(format!("Server mengembalikan status HTTP {}", last_status));
+            }
+        };
 
         let total_size = response.content_length().unwrap_or(0);
         let mut response = response;

@@ -60,7 +60,7 @@ LATEST_TAG=$(curl -sL --connect-timeout 5 -A "$USER_AGENT" "https://api.github.c
 if [ -n "$LATEST_TAG" ]; then
     VERSION="${LATEST_TAG#v}"
 else
-    VERSION="1.7.5"
+    VERSION="1.7.6"
 fi
 
 echo ""
@@ -75,26 +75,33 @@ LATEST_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
 TMP_FILE=$(mktemp /tmp/rubah_bin_XXXXXX 2>/dev/null || mktemp -t rubah_bin)
 trap 'rm -f "$TMP_FILE"' EXIT
 
-HTTP_CODE=$(curl -sL --connect-timeout 10 -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$RELEASE_URL" || echo "000")
-
-# Check if downloaded binary is valid (at least 3MB)
-FILE_SIZE=$(wc -c < "$TMP_FILE" 2>/dev/null || echo "0")
-if [ "$HTTP_CODE" -ne 200 ] || [ "$FILE_SIZE" -lt 3000000 ]; then
-    API_URL="https://api.github.com/repos/${REPO}/releases/tags/v${VERSION}"
-    ASSET_URL=$(curl -sL --connect-timeout 5 -A "$USER_AGENT" "$API_URL" 2>/dev/null | grep -B 2 -A 8 "\"name\": \"${BINARY_NAME}\"" | grep '"url":' | head -n 1 | cut -d '"' -f 4 || echo "")
-    if [ -n "$ASSET_URL" ]; then
-        curl -sL --connect-timeout 10 -H "Accept: application/octet-stream" -A "$USER_AGENT" -o "$TMP_FILE" "$ASSET_URL" || true
+try_download() {
+    local url="$1"
+    for try in 1 2 3; do
+        HTTP_CODE=$(curl -sL --connect-timeout 10 --max-time 60 -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$url" 2>/dev/null || echo "000")
         FILE_SIZE=$(wc -c < "$TMP_FILE" 2>/dev/null || echo "0")
+        if [ "$HTTP_CODE" -eq 200 ] && [ "$FILE_SIZE" -ge 3000000 ]; then
+            return 0
+        fi
+        sleep 2
+    done
+    return 1
+}
+
+if ! try_download "$RELEASE_URL"; then
+    if ! try_download "$LATEST_URL"; then
+        API_URL="https://api.github.com/repos/${REPO}/releases/tags/v${VERSION}"
+        ASSET_URL=$(curl -sL --connect-timeout 5 -A "$USER_AGENT" "$API_URL" 2>/dev/null | grep -B 2 -A 8 "\"name\": \"${BINARY_NAME}\"" | grep '"url":' | head -n 1 | cut -d '"' -f 4 || echo "")
+        if [ -n "$ASSET_URL" ]; then
+            try_download "$ASSET_URL" || true
+        fi
     fi
 fi
 
+FILE_SIZE=$(wc -c < "$TMP_FILE" 2>/dev/null || echo "0")
 if [ "$FILE_SIZE" -lt 3000000 ]; then
-    HTTP_CODE=$(curl -sL --connect-timeout 10 -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$LATEST_URL" || echo "000")
-    FILE_SIZE=$(wc -c < "$TMP_FILE" 2>/dev/null || echo "0")
-fi
-
-if [ "$FILE_SIZE" -lt 3000000 ]; then
-    echo -e "\n  ${ESC}[0;31mError: Failed to download 'baca' binary from GitHub.${RESET}\n"
+    echo -e "\n  ${ESC}[0;31mError: Failed to download 'baca' binary from GitHub.${RESET}"
+    echo -e "  ${GRAY}GitHub Actions may still be compiling the latest release (~1-2 mins). Please try again shortly!${RESET}\n"
     exit 1
 fi
 
