@@ -60,7 +60,7 @@ LATEST_TAG=$(curl -sL --connect-timeout 5 -A "$USER_AGENT" "https://api.github.c
 if [ -n "$LATEST_TAG" ]; then
     VERSION="${LATEST_TAG#v}"
 else
-    VERSION="1.7.7"
+    VERSION="1.7.8"
 fi
 
 echo ""

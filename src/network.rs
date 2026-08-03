@@ -298,19 +298,6 @@ impl Fetcher {
             }
         }
 
-        // On macOS: Remove quarantine attribute and apply ad-hoc code signature
-        #[cfg(target_os = "macos")]
-        {
-            if let Some(path_str) = temp_path.to_str() {
-                let _ = std::process::Command::new("xattr")
-                    .args(["-c", path_str])
-                    .output();
-                let _ = std::process::Command::new("codesign")
-                    .args(["-f", "-s", "-", path_str])
-                    .output();
-            }
-        }
-
         // Perform self-replacement / atomic swap
         #[cfg(not(target_os = "windows"))]
         {
@@ -325,6 +312,19 @@ impl Fetcher {
             let _ = std::fs::rename(&target_path, &old_path);
             std::fs::rename(&temp_path, &target_path)
                 .map_err(|e| format!("Gagal mengganti biner executable Windows: {}", e))?;
+        }
+
+        // On macOS: Remove quarantine attribute and apply ad-hoc code signature AFTER atomic swap
+        #[cfg(target_os = "macos")]
+        {
+            if let Some(path_str) = target_path.to_str() {
+                let _ = std::process::Command::new("xattr")
+                    .args(["-c", path_str])
+                    .output();
+                let _ = std::process::Command::new("codesign")
+                    .args(["-f", "-s", "-", path_str])
+                    .output();
+            }
         }
 
         let _ = tx.send(UpdateProgress::Completed(latest_version.to_string()));
