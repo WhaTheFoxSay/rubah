@@ -487,7 +487,7 @@ fn draw_footer_box(f: &mut Frame, app: &App, area: Rect) {
         let p = Paragraph::new(Line::from(spans)).block(block);
         f.render_widget(p, area);
     } else {
-        let status_title = format!(" 💡 {} ", app.status_message);
+        let status_title = format!(" {} ", app.status_message);
 
         let keys = vec![
             Span::styled("[Tab] ", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD)),

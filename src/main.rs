@@ -311,7 +311,13 @@ async fn run_app(
                         }
 
                         if app.show_help {
-                            if key.code == KeyCode::Esc || key.code == KeyCode::Char('?') || key.code == KeyCode::Char('q') {
+                            if key.code == KeyCode::Esc
+                                || key.code == KeyCode::Char('?')
+                                || key.code == KeyCode::Char('h')
+                                || key.code == KeyCode::Char('H')
+                                || key.code == KeyCode::Char('q')
+                                || (key.code == KeyCode::Char('/') && key.modifiers.contains(crossterm::event::KeyModifiers::SHIFT))
+                            {
                                 app.show_help = false;
                             }
                             continue;
@@ -353,9 +359,14 @@ async fn run_app(
                             continue;
                         }
 
+                        if key.code == KeyCode::Char('/') && key.modifiers.contains(crossterm::event::KeyModifiers::SHIFT) {
+                            app.show_help = true;
+                            continue;
+                        }
+
                         match key.code {
                             KeyCode::Char('q') => return Ok(()),
-                            KeyCode::Char('?') => app.show_help = true,
+                            KeyCode::Char('?') | KeyCode::Char('h') | KeyCode::Char('H') => app.show_help = true,
                             KeyCode::Char('l') | KeyCode::Char('L') => app.toggle_language(),
                             KeyCode::Tab => app.next_pane(),
                             KeyCode::BackTab => app.prev_pane(),
