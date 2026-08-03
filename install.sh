@@ -43,9 +43,7 @@ esac
 
 if [ "$OS" = "macos" ]; then
     IS_ARM=$(sysctl -n hw.optional.arm64 2>/dev/null || echo "0")
-    if [ "$ARCH_TYPE" = "x86_64" ]; then
-        ARCH="amd64"
-    elif [ "$IS_ARM" = "1" ] || [ "$ARCH_TYPE" = "arm64" ]; then
+    if [ "$IS_ARM" = "1" ] || [ "$ARCH_TYPE" = "arm64" ] || [ "$ARCH_TYPE" = "aarch64" ]; then
         ARCH="arm64"
     else
         ARCH="amd64"
@@ -58,11 +56,11 @@ REPO="WhaTheFoxSay/rubah"
 USER_AGENT="Mozilla/5.0 (compatible; RubahInstaller/1.0)"
 
 # Fetch latest release version tag dynamically from GitHub API
-LATEST_TAG=$(curl -sL -A "$USER_AGENT" "https://api.github.com/repos/${REPO}/releases/latest" | grep -o '"tag_name": *"[^"]*"' | head -n 1 | cut -d '"' -f 4)
+LATEST_TAG=$(curl -sL --connect-timeout 5 -A "$USER_AGENT" "https://api.github.com/repos/${REPO}/releases/latest" 2>/dev/null | grep -o '"tag_name": *"[^"]*"' | head -n 1 | cut -d '"' -f 4 || echo "")
 if [ -n "$LATEST_TAG" ]; then
     VERSION="${LATEST_TAG#v}"
 else
-    VERSION="1.7.4"
+    VERSION="1.7.5"
 fi
 
 echo ""
@@ -77,21 +75,21 @@ LATEST_URL="https://github.com/${REPO}/releases/latest/download/${BINARY_NAME}"
 TMP_FILE=$(mktemp /tmp/rubah_bin_XXXXXX 2>/dev/null || mktemp -t rubah_bin)
 trap 'rm -f "$TMP_FILE"' EXIT
 
-HTTP_CODE=$(curl -sL -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$RELEASE_URL" || echo "000")
+HTTP_CODE=$(curl -sL --connect-timeout 10 -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$RELEASE_URL" || echo "000")
 
 # Check if downloaded binary is valid (at least 3MB)
 FILE_SIZE=$(wc -c < "$TMP_FILE" 2>/dev/null || echo "0")
 if [ "$HTTP_CODE" -ne 200 ] || [ "$FILE_SIZE" -lt 3000000 ]; then
     API_URL="https://api.github.com/repos/${REPO}/releases/tags/v${VERSION}"
-    ASSET_URL=$(curl -sL -A "$USER_AGENT" "$API_URL" | grep -B 2 -A 8 "\"name\": \"${BINARY_NAME}\"" | grep '"url":' | head -n 1 | cut -d '"' -f 4)
+    ASSET_URL=$(curl -sL --connect-timeout 5 -A "$USER_AGENT" "$API_URL" 2>/dev/null | grep -B 2 -A 8 "\"name\": \"${BINARY_NAME}\"" | grep '"url":' | head -n 1 | cut -d '"' -f 4 || echo "")
     if [ -n "$ASSET_URL" ]; then
-        curl -sL -H "Accept: application/octet-stream" -A "$USER_AGENT" -o "$TMP_FILE" "$ASSET_URL" || true
+        curl -sL --connect-timeout 10 -H "Accept: application/octet-stream" -A "$USER_AGENT" -o "$TMP_FILE" "$ASSET_URL" || true
         FILE_SIZE=$(wc -c < "$TMP_FILE" 2>/dev/null || echo "0")
     fi
 fi
 
 if [ "$FILE_SIZE" -lt 3000000 ]; then
-    HTTP_CODE=$(curl -sL -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$LATEST_URL" || echo "000")
+    HTTP_CODE=$(curl -sL --connect-timeout 10 -A "$USER_AGENT" -w "%{http_code}" -o "$TMP_FILE" "$LATEST_URL" || echo "000")
     FILE_SIZE=$(wc -c < "$TMP_FILE" 2>/dev/null || echo "0")
 fi
 
@@ -105,6 +103,12 @@ step "Download executable" "v${VERSION} (${SIZE_MB})"
 
 cp "$TMP_FILE" "$INSTALL_DIR/baca"
 chmod +x "$INSTALL_DIR/baca"
+
+if [ "$OS" = "macos" ]; then
+    xattr -c "$INSTALL_DIR/baca" 2>/dev/null || true
+    codesign -f -s - "$INSTALL_DIR/baca" 2>/dev/null || true
+fi
+
 ln -sf "$INSTALL_DIR/baca" "$INSTALL_DIR/rubah"
 
 step "Install binary & symlink" "~/.local/bin/baca"
