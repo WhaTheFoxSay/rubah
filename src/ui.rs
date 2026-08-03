@@ -982,7 +982,7 @@ fn draw_startup_loading_modal(f: &mut Frame, app: &App, area: Rect) {
     let load_bar_str = format!("[ {} ]", track_vec.join(""));
 
     let lines = vec![
-        Line::from(Span::styled("📰 Loading news feeds, getting ready to display...", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))),
+        Line::from(Span::styled("Loading news feeds, getting ready to display...", Style::default().fg(THEME.accent).add_modifier(Modifier::BOLD))),
         Line::from("------------------------------------------------------------------"),
         Line::from(Span::styled("Initializing RSS channels & caching articles. Please wait...", Style::default().fg(THEME.fg))),
         Line::from(""),
